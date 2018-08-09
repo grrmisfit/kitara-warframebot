@@ -133,7 +133,6 @@
     </Compile>
     <Compile Include="Core\DataStorage.cs" />
     <Compile Include="Core\RepeatingTimer.cs" />
-    <Compile Include="Core\UserAccounts\UserAccount.cs" />
     <Compile Include="Core\UserAccounts\UserAccounts.cs" />
     <Compile Include="DataStorage.cs" />
     <Compile Include="Global.cs" />
@@ -145,11 +144,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="SystemLang\alerts.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="SystemLang\missions.json" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="SystemLang\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

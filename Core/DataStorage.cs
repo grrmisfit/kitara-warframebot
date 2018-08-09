@@ -12,7 +12,7 @@ namespace warframebot.Core
     {
         
       
-        // Save all userAccounts
+        /* Save all userAccounts
         public static void SaveUserAccounts(IEnumerable<GetPlayerOnlineResult> accounts, string filePath)
         {
             string json = JsonConvert.SerializeObject(accounts, Formatting.Indented);
@@ -39,6 +39,6 @@ namespace warframebot.Core
         public static bool SaveExists(string filePath)
         {
             return File.Exists(filePath);
-        }
+        }*/
     }
 }

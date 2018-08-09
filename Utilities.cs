@@ -46,16 +46,7 @@ namespace warframebot
             if (missions.ContainsKey(key)) return missions[key];
             return "";
         }
-       /* public static string GetSortieInfo(string bosskey, string modtype, string moddesc, string node, string misson1,string misson2, string misson3)
-        {
-            
-          SortieData  tmp = new SortieData();
-            if (sorties.ContainsKey(bosskey)) tmp.Name = sorties[bosskey];
-            if (sorties.ContainsKey(modtype)) tmp.ModType = sorties[modtype];
-            if (sorties.ContainsKey(node)) tmp.Name = sorties[bosskey];
-
-            return "";
-        } */
+     
         public static string GetSortieBoss(string key)
         {
              if (sorties.ContainsKey(key)) return sorties[key];
@@ -73,7 +64,7 @@ namespace warframebot
             if (sorties.ContainsKey(key)) return sorties[key];
             
             return "";
-        }
+        }   
         public static string ReplaceInfo(string key)
         {
             if (sorties.ContainsKey(key)) return sorties[key];

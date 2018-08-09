@@ -14,7 +14,7 @@ using warframebot.Modules.Warframe;
 using Newtonsoft.Json.Linq;
 using warframebot.Core;
 using System.IO;
-
+using warframebot.Modules.Warframe;
 
 namespace warframebot.Modules
 {
@@ -44,49 +44,7 @@ namespace warframebot.Modules
             
         }
         
-        [Command("player")]
-        public async Task GetPlayersList([Remainder]string message)
-        {
-            string json = "";
-            if (!File.Exists("players.json"))
-            {
-              await  SendMessage("Player File not found!");
-                return;
-            }
-             json = File.ReadAllText("players.json");
-           
-            if (json == "") return;
-            if (json == "[]") await SendMessage("No one is online atm, try again later");
-           
-            JArray a = JArray.Parse(json);
-            List<GetPlayerOnlineResult> tmpdata = new List<GetPlayerOnlineResult>();
-            var tempdata = a.ToObject<List<GetPlayerOnlineResult>>();
-            var namefound = false;
-            foreach (GetPlayerOnlineResult player in tempdata)
-            {
-                if(player.Name == message)
-                {
-                    namefound = true;
-                    var embed = new EmbedBuilder();
-                    embed.WithTitle("Player Information");
-                    embed.WithDescription(message);
-                    embed.AddField("Level", Math.Floor(player.Level),true);
-                    embed.AddField("Kills", player.Zombiekills, true);
-                    embed.AddField("Deaths", player.Playerdeaths, true);
-                    embed.AddField("Last Online on", player.Lastonline, true);
-                    embed.WithColor(new Color(0, 255, 0));
-
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                }
-                
-                  }
-           
-            if (namefound == false) await  SendMessage("Player hasnt been seen yet, try again later!");
-             
-                    
-
-        }
+       
 
         [Command("echo")]
         public async Task Echo([Remainder]string message)
@@ -123,12 +81,68 @@ namespace warframebot.Modules
             var targetRole = user.Guild.GetRole(roleID);
             return user.Roles.Contains(targetRole);
         }
-
-        [Command("data")]
-        public async Task GetData()
+      /* will look back into this at a later date
+        [Command("acolytes")]
+        public async Task GetAcolytes()
         {
-            await Context.Channel.SendMessageAsync("Data has " + DataStorage.GetPairsCount() + " pairs.");
-            DataStorage.AddPairToStorage("Count" + DataStorage.GetPairsCount(), "TheCount" + DataStorage.GetPairsCount());
+            string url = "http://content.warframe.com/dynamic/worldState.php";
+            string apiresponse = "";
+            //apiClient.Encoding = Encoding.UTF8;
+
+            using (WebClient client = new WebClient())
+
+                apiresponse = client.DownloadString(url);
+
+
+            var warframe = Warframe.Warframe.FromJson(apiresponse); //Warframe.Warframe.FromJson(apiresponse);
+
+            var activeAcolytes = warframe.PersistentEnemies[0].;
+            for (int i = 0; i <activeAcolytes.Count; i++)
+            {
+                if (activeAcolytes[i] == null) break;
+              //  string tmpaco = activeAcolytes.p;
+              //  SendMessage(activeAcolytes)
+            }
+
+        }
+        */
+        [Command("alerts")]
+        public async Task GetAlerts()
+        {
+            string url = "http://content.warframe.com/dynamic/worldState.php";
+            string apiresponse = "";
+            //apiClient.Encoding = Encoding.UTF8;
+
+            using (WebClient client = new WebClient())
+
+                apiresponse = client.DownloadString(url);
+
+
+            var warframe = Warframe.Warframe.FromJson(apiresponse); //Warframe.Warframe.FromJson(apiresponse);
+
+            var activeAlerts = warframe.Alerts;  
+
+           
+            for (int i = 0; i < activeAlerts.Count; i++)  //each ( Alert am in activeAlerts)
+            {
+                string tmpalert1 = "";
+                string tmpalert2 = "";
+                long tmpalert3 = 0;
+                string tmpalert4 = "";
+                 tmpalert1 = Utilities.ReplaceInfo(activeAlerts[i].MissionInfo.Location);
+                 tmpalert2 = Utilities.ReplaceInfo(activeAlerts[i].MissionInfo.MissionType);
+                 tmpalert3 = activeAlerts[i].MissionInfo.MissionReward.Credits;
+                if (activeAlerts[i].MissionInfo.MissionReward.Items == null)
+                {
+                    tmpalert4 = "None";
+                }
+                else
+                {
+                    if (activeAlerts[i].MissionInfo.MissionReward.Items.Count == 1)Utilities.ReplaceInfo(activeAlerts[i].MissionInfo.MissionReward.Items[0]);
+                }
+                await SendMessage(tmpalert1 + " | " + tmpalert2 + " | Credits: " + tmpalert3 + " | Items: " + tmpalert4);
+                
+            }
         }
         [Command("fissures")]
         public async Task GetMissions()

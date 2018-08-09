@@ -11,10 +11,11 @@ using System.Threading.Tasks;
 
 namespace warframebot.Core.UserAccounts
 {
-  public static  class UserAccounts
+    public static class UserAccounts
     {
-        
 
+
+        /* not used in this bot, saving for future use
         public static List<GetPlayerOnlineResult> accounts;
         public static List<GetPlayerOnlineResult> curonline;
 
@@ -36,6 +37,6 @@ namespace warframebot.Core.UserAccounts
         
         
             
-          }
-        
+          } */
+    }
         }

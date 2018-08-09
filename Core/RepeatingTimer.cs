@@ -39,46 +39,7 @@ namespace warframebot.Core
         {
             
             
-            string json = "";
-            using (WebClient client = new WebClient())
-            {
-                json = client.DownloadString("http://45.58.114.154:26916/api/getplayersonline?adminuser=" + Config.bot.webtoken + "&admintoken=" + Config.bot.webtokenpass);
-            }
-            if (json == "") return;
-            if (json == "[]") return;
             
-            JArray a = JArray.Parse(json);
-            var onlinePlayers = a.ToObject<List<GetPlayerOnlineResult>>();
-            string savedaccounts = File.ReadAllText("players.json");
-            JArray b = JArray.Parse(savedaccounts);
-            var theaccounts = b.ToObject<List<GetPlayerOnlineResult>>();
-            List<GetPlayerOnlineResult> tmp = new List<GetPlayerOnlineResult>();
-            foreach (GetPlayerOnlineResult onlinePlayer in onlinePlayers)
-            {
-                bool playerfound = false;
-
-                foreach (GetPlayerOnlineResult theaccount in theaccounts)
-                {
-                    if (onlinePlayer.Steamid.Equals(theaccount.Steamid))
-                    {
-                        //player found so break second loop for next comparisson
-                        playerfound = true;
-                        break;
-                    }
-                }
-                if (!playerfound)
-                {
-                    //player was in onlineList but not in savedlist
-                    // do something
-                    tmp.Add(onlinePlayer);
-                }
-            }
-            foreach (GetPlayerOnlineResult res in tmp)
-            {
-                theaccounts.Add(res);
-               DataStorage.SaveTmpAccounts(theaccounts,accountsFile);
-            }
-
 
 
         }
@@ -87,7 +48,7 @@ namespace warframebot.Core
                 private static void OnTimerTicked(object sender, ElapsedEventArgs e)
                 {
 
-                    ThePlayerData();
+                    
 
 
                 }
