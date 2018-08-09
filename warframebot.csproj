@@ -144,9 +144,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="SystemLang\rewards.json" />
+    <None Include="SystemLang\WfData.json" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SystemLang\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

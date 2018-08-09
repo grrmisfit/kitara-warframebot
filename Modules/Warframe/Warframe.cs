@@ -83,7 +83,7 @@ namespace warframebot.Modules.Warframe
         public List<PvpChallengeInstance> PvpChallengeInstances { get; set; }
 
         [JsonProperty("PersistentEnemies")]
-        public List<object> PersistentEnemies { get; set; }
+        public List<PersistentEnemy> PersistentEnemies { get; set; }
 
         [JsonProperty("PVPAlternativeModes")]
         public List<object> PvpAlternativeModes { get; set; }
@@ -99,6 +99,44 @@ namespace warframebot.Modules.Warframe
 
         [JsonProperty("TwitchPromos")]
         public List<object> TwitchPromos { get; set; }
+    }
+    public partial class PersistentEnemy
+    {
+        [JsonProperty("_id")]
+        public Id Id { get; set; }
+
+        [JsonProperty("AgentType")]
+        public string AgentType { get; set; }
+
+        [JsonProperty("LocTag")]
+        public string LocTag { get; set; }
+
+        [JsonProperty("Icon")]
+        public string Icon { get; set; }
+
+        [JsonProperty("Rank")]
+        public long Rank { get; set; }
+
+        [JsonProperty("HealthPercent")]
+        public double HealthPercent { get; set; }
+
+        [JsonProperty("FleeDamage")]
+        public long FleeDamage { get; set; }
+
+        [JsonProperty("LastDiscoveredLocation")]
+        public string LastDiscoveredLocation { get; set; }
+
+        [JsonProperty("LastDiscoveredTime")]
+        public Activation LastDiscoveredTime { get; set; }
+
+        [JsonProperty("Discovered")]
+        public bool Discovered { get; set; }
+
+        [JsonProperty("UseTicketing")]
+        public bool UseTicketing { get; set; }
+
+        [JsonProperty("Region", NullValueHandling = NullValueHandling.Ignore)]
+        public long? Region { get; set; }
     }
 
     public partial class ActiveMission

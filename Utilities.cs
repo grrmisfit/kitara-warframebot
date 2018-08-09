@@ -3,44 +3,39 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
-
-
+using System.Collections;
+using Discord;
 namespace warframebot
 {
     class Utilities
     {
-        private static Dictionary<string, string> alerts;
+        private static Dictionary<string, string> curreward;
         private static Dictionary<string, string> missions;
         private static Dictionary<string, string> sorties;
-      //  private static Dictionary<string, string> danodes;  
        
-        private static Dictionary<string, string> nodenames;
-    // not used yet private static Dictionary<string, string> voids;
+        private static Dictionary<string, string> voids;
     static Utilities()
         {
-            string thealerts = File.ReadAllText("SystemLang/alerts.json");
-           // string danodes = File.ReadAllText("SystemLand/danodes.json");
+            string therewards = File.ReadAllText("SystemLang/rewards.json");
+          
             string themissions = File.ReadAllText("Systemlang/WfData.json");
             string sortieinfo = File.ReadAllText("Systemlang/WfData.json");
-           // string sortieboss = File.ReadAllText("Modules/Warframe/sortieboss.json");
-          //  string sortiedesc = File.ReadAllText("Modules/Warframe/sortiedesc.json");
-           // string sortietype = File.ReadAllText("Modules/Warframe/modtype.json");
-            var data = JsonConvert.DeserializeObject<dynamic>(thealerts);
+           
+            var reward = JsonConvert.DeserializeObject<dynamic>(therewards);
             var data2 = JsonConvert.DeserializeObject<dynamic>(themissions);
-            // alerts = data.ToObject<Dictionary<string, string>>();
+           
             var sortiedata = JsonConvert.DeserializeObject<dynamic>(sortieinfo);
-           // var nodedata = JsonConvert.DeserializeObject<dynamic>(danodes);
+          curreward = reward.ToObject<Dictionary<string, string>>();
             missions = data2.ToObject<Dictionary<string, string>>();
-           sorties = sortiedata.ToObject<Dictionary<string, string>>();
-           // danodes = nodedata.ToObject<Dictionary<string, string>>();
+            sorties = sortiedata.ToObject<Dictionary<string, string>>();
+            
+           // for (int i = 0; i < sortiedata.Count; i++)
+           // {
+           //     string value_with_backslashes = sortiedata.ChildrenTokens[i].Name;
+            // }
         }
 
-        public static string GetAlert(string key)
-        {
-            if (alerts.ContainsKey(key)) return alerts[key];
-            return "";
-        }
-
+      
         public static string GetMissions(string key)
         {
             if (missions.ContainsKey(key)) return missions[key];
@@ -67,30 +62,38 @@ namespace warframebot
         }   
         public static string ReplaceInfo(string key)
         {
+            
             if (sorties.ContainsKey(key)) return sorties[key];
             return "Data not found!";
         }
-       
+        public static string ReplaceInfo2(string key)
+        {
+            
+            string tmpreward;
+            if (curreward.TryGetValue(key, out tmpreward))
+            { return tmpreward; }
+            return "Data not found!";
+        }
         private Task SendMessage(string v)
         {
             throw new NotImplementedException();
         }
        
-        public static string GetFormattedAlert(string key, params object[] parameter)
-        {
+        /* public static string GetFormattedAlert(string key, params object[] parameter)
+         {
 
-            if (alerts.ContainsKey(key))
-              {  return string.Format(alerts[key], parameter);
+             if (alerts.ContainsKey(key))
+               {  return string.Format(alerts[key], parameter);
 
 
-            }
-            return "";
-        }
-        public static string GetFormattedAlert(string key, object parameter)
-        {
+             }
+             return "";
+         }
+         public static string GetFormattedAlert(string key, object parameter)
+         {
 
-            return GetFormattedAlert(key, new object[] { parameter });
-        }
+             return GetFormattedAlert(key, new object[] { parameter });
+         } */
     }
     
 

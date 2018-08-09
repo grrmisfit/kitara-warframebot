@@ -10,6 +10,8 @@ using System.Timers;
 using warframebot.Core.UserAccounts;
 using warframebot.Core;
 using System.IO;
+using warframebot.Modules.Warframe;
+using warframebot.Modules;
 
 namespace warframebot.Core
 {
@@ -25,7 +27,7 @@ namespace warframebot.Core
 
             loopingTimer = new Timer()
             {
-                Interval = 5000,
+                Interval = 60000,
                 AutoReset = true,
                 Enabled = true
             };
@@ -34,21 +36,41 @@ namespace warframebot.Core
 
             return Task.CompletedTask;
         }
-        
-        public static void ThePlayerData()
+
+        public async static Task  CheckForAcolytes()
         {
-            
-            
-            
 
 
+            string url = "http://content.warframe.com/dynamic/worldState.php";
+            string apiresponse = "";
+            //apiClient.Encoding = Encoding.UTF8;
+
+            using (WebClient client = new WebClient())
+
+                apiresponse = client.DownloadString(url);
+
+
+            var warframe = Warframe.FromJson(apiresponse); //Warframe.Warframe.FromJson(apiresponse);
+
+            var activeAcolytes = warframe.PersistentEnemies;
+
+            for (int i = 0; i < activeAcolytes.Count; i++)
+            {
+                ulong id = 471312780079923210;
+                if (activeAcolytes[i].AgentType == "") break;
+
+                if (warframe.PersistentEnemies[i].Discovered == true)
+                {
+                    await Misc.SendMessageChannel(471312780079923210, "Acolyte Found!");
+
+                }
+            }
         }
-
 
                 private static void OnTimerTicked(object sender, ElapsedEventArgs e)
                 {
 
-                    
+                         CheckForAcolytes();
 
 
                 }

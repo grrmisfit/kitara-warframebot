@@ -14,7 +14,7 @@ using warframebot.Modules.Warframe;
 using Newtonsoft.Json.Linq;
 using warframebot.Core;
 using System.IO;
-using warframebot.Modules.Warframe;
+
 
 namespace warframebot.Modules
 {
@@ -26,6 +26,13 @@ namespace warframebot.Modules
             {
            await Context.Channel.SendMessageAsync( msg);
             }
+        public async static Task SendMessageChannel(ulong chanId, string msg)
+
+        {
+
+            var chnl = Global.Client.GetChannel(chanId) as IMessageChannel; // 4
+            await chnl.SendMessageAsync(msg); // 5 
+        }
         public string themsg;
     [Command("Kick")]
         [RequireUserPermission(GuildPermission.KickMembers)]
@@ -60,7 +67,7 @@ namespace warframebot.Modules
 
        
 
-        [Command("secret")]
+       /* [Command("secret")]
 
         public async Task RevealSecret([Remainder]string arg = "")
         {
@@ -69,7 +76,7 @@ namespace warframebot.Modules
             await dmChannel.SendMessageAsync(Utilities.GetAlert("SECRET"));
 
         }
-
+        */
         private bool IsUserOwner(SocketGuildUser user)
         {
             string targetRoleName = "BotOwner";
@@ -81,7 +88,7 @@ namespace warframebot.Modules
             var targetRole = user.Guild.GetRole(roleID);
             return user.Roles.Contains(targetRole);
         }
-      /* will look back into this at a later date
+      // will look back into this at a later date
         [Command("acolytes")]
         public async Task GetAcolytes()
         {
@@ -95,17 +102,58 @@ namespace warframebot.Modules
 
 
             var warframe = Warframe.Warframe.FromJson(apiresponse); //Warframe.Warframe.FromJson(apiresponse);
+           
+            var activeAcolytes = warframe.PersistentEnemies;
 
-            var activeAcolytes = warframe.PersistentEnemies[0].;
-            for (int i = 0; i <activeAcolytes.Count; i++)
-            {
-                if (activeAcolytes[i] == null) break;
-              //  string tmpaco = activeAcolytes.p;
-              //  SendMessage(activeAcolytes)
+            for (int i = 0; i < activeAcolytes.Count; i++)
+           {
+                if (activeAcolytes[i].AgentType == "") break;
+                string acofound = "true";
+                if (!warframe.PersistentEnemies[i].Discovered == true)
+                {
+                    acofound = "false";
+                    string tmpaco2 = activeAcolytes[i].AgentType;
+                    var embed2 = new EmbedBuilder();
+                    embed2.WithTitle("Current Acolytes");
+                    embed2.AddField("Found: ", acofound, true);
+                    embed2.AddField("Name: ", Utilities.ReplaceInfo(tmpaco2), true);
+                   // embed2.AddField("Location: ", Utilities.ReplaceInfo(activeAcolytes[i].LastDiscoveredLocation), true);
+                   // embed2.AddField("Time Found: ", activeAcolytes[i].LastDiscoveredTime.Date, true);
+                  //  embed2.AddField("Health till flees: ", activeAcolytes[i].HealthPercent, true);
+                  //  embed2.AddField("Flee Damage:", activeAcolytes[i].FleeDamage, true);
+
+                    embed2.WithColor(new Color(0, 255, 0));
+
+                    await Context.Channel.SendMessageAsync("", false, embed2.Build());
+
+                }
+                else
+                {
+                    acofound = "true";
+                    var timefound = Convert.ToInt64(activeAcolytes[i].LastDiscoveredTime.Date.NumberLong);
+                    var curtime = DateTimeOffset.FromUnixTimeMilliseconds(timefound).DateTime.ToLocalTime();
+                    string tmpaco = activeAcolytes[i].AgentType;
+                    var embed = new EmbedBuilder();
+                    embed.WithTitle("Current Acolytes");
+                    embed.AddField("Found: ", acofound, true);
+                    embed.AddField("Name: ", Utilities.ReplaceInfo(tmpaco), true);
+                    embed.AddField("Location: ", Utilities.ReplaceInfo(activeAcolytes[i].LastDiscoveredLocation), true);
+                    embed.AddField("Time Found: ", curtime, true);
+                    embed.AddField("Health till flees: ", activeAcolytes[i].HealthPercent, true);
+                    embed.AddField("Flee Damage:", activeAcolytes[i].FleeDamage, true);
+
+                    embed.WithColor(new Color(0, 255, 0));
+
+                    await Context.Channel.SendMessageAsync("", false, embed.Build());
+                }
+                
+
+               
+               // await SendMessage(Utilities.ReplaceInfo(tmpaco));
             }
 
         }
-        */
+        
         [Command("alerts")]
         public async Task GetAlerts()
         {
@@ -138,7 +186,11 @@ namespace warframebot.Modules
                 }
                 else
                 {
-                    if (activeAlerts[i].MissionInfo.MissionReward.Items.Count == 1)Utilities.ReplaceInfo(activeAlerts[i].MissionInfo.MissionReward.Items[0]);
+                    if (activeAlerts[i].MissionInfo.MissionReward.Items.Count == 1)
+                    {
+                        
+                        tmpalert4 = Utilities.ReplaceInfo2(activeAlerts[i].MissionInfo.MissionReward.Items[0]);
+                    }
                 }
                 await SendMessage(tmpalert1 + " | " + tmpalert2 + " | Credits: " + tmpalert3 + " | Items: " + tmpalert4);
                 
