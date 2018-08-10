@@ -62,6 +62,7 @@ namespace warframebot.Core
                 if (warframe.PersistentEnemies[i].Discovered == true)
                 {
                     await Misc.SendMessageChannel(471312780079923210, "Acolyte Found!");
+                    break;
 
                 }
             }
