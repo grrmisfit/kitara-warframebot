@@ -18,7 +18,7 @@ namespace warframebot.Core
 
     internal static class RepeatingTimer
     {
-        private static string accountsFile = "players.json";
+        //private static string accountsFile = "players.json";
         private static Timer loopingTimer;
         private static SocketTextChannel channel;
         internal static Task StartTimer()
@@ -61,7 +61,7 @@ namespace warframebot.Core
 
                 if (warframe.PersistentEnemies[i].Discovered == true)
                 {
-                    await Misc.SendMessageChannel(471312780079923210, "Acolyte Found!");
+                    await Misc.SendMessageChannel(id, "Acolyte Found!");
                     break;
 
                 }

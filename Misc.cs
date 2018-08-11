@@ -14,7 +14,7 @@ using warframebot.Modules.Warframe;
 using Newtonsoft.Json.Linq;
 using warframebot.Core;
 using System.IO;
-
+using discordbot.Modules;
 
 namespace warframebot.Modules
 {
@@ -61,8 +61,8 @@ namespace warframebot.Modules
             embed.WithDescription(message);
             embed.WithColor(new Color(0, 255, 0));
            
-            await SendMessage("test");
-            await Context.Channel.SendMessageAsync("", false, embed.Build());
+            await SendMessage(message);
+           // await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
        
@@ -154,6 +154,7 @@ namespace warframebot.Modules
 
         }
         
+
         [Command("alerts")]
         public async Task GetAlerts()
         {
@@ -280,17 +281,12 @@ namespace warframebot.Modules
 
      
 
-       // [Command("mystats")]
-       // public async Task MyStats([Remainder]string daplayer)
-       // {
-           //target = null;
-           // var mentionedUser = Context.Message.MentionedUsers.FirstOrDefault();
-           // target = mentionedUser ?? Context.User;
-
-
-           // var account = UserAccounts.GetAccount(target);
-         //   await Context.Channel.SendMessageAsync($"{target.Username} has {account.XP} XP and {account.Points} points");
-       // }
+        [Command("scram")]
+        public async Task MyStats([Remainder]string theword)
+        {
+            string scramword = Scramble.ScrambleWord(theword);
+           await Context.Channel.SendMessageAsync(scramword);
+        }
 
      
        
@@ -301,6 +297,21 @@ namespace warframebot.Modules
             Global.MessageIdToTrack = msg.Id;
         }
       
+        [Command("help")]
+        public async Task HelpList()
+        {
+            var embed = new EmbedBuilder();
+            embed.WithTitle("Current commands");
+            embed.WithDescription("use @botname or ! (depending on settings) with following commands");
+           
+            embed.AddField("acolytes", "Calls up information on current Acolytes and if found their location and health", true);
+            embed.AddField("sortie", "provides current known sortie and related information", true);
+            embed.AddField("fissures", "current fissures and type", true);
+            embed.AddField("alerts", "current alerts plus rewards", true);
+            embed.WithColor(new Color(0, 255, 0));
+
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
 
     }
 }

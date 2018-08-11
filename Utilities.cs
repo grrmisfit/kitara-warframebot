@@ -9,29 +9,31 @@ namespace warframebot
 {
     class Utilities
     {
-        private static Dictionary<string, string> curreward;
+        
         private static Dictionary<string, string> missions;
         private static Dictionary<string, string> sorties;
        
         private static Dictionary<string, string> voids;
     static Utilities()
         {
-            string therewards = File.ReadAllText("SystemLang/rewards.json");
+           
           
             string themissions = File.ReadAllText("Systemlang/WfData.json");
             string sortieinfo = File.ReadAllText("Systemlang/WfData.json");
            
-            var reward = JsonConvert.DeserializeObject<dynamic>(therewards);
-            var data2 = JsonConvert.DeserializeObject<dynamic>(themissions);
            
-            var sortiedata = JsonConvert.DeserializeObject<dynamic>(sortieinfo);
-          curreward = reward.ToObject<Dictionary<string, string>>();
-            missions = data2.ToObject<Dictionary<string, string>>();
-            sorties = sortiedata.ToObject<Dictionary<string, string>>();
+            //JsonConvert.DeserializeObject<dynamic>(therewards);
+            var data2 = JsonConvert.DeserializeObject<dynamic>(themissions);
+           var sortiedata = JsonConvert.DeserializeObject<Dictionary<string, string>>(sortieinfo);
+            //var sortiedata = JsonConvert.DeserializeObject<dynamic>(sortieinfo);
             
-           // for (int i = 0; i < sortiedata.Count; i++)
-           // {
-           //     string value_with_backslashes = sortiedata.ChildrenTokens[i].Name;
+            missions = data2.ToObject<Dictionary<string, string>>();
+            sorties = sortiedata;
+            //sortiedata.ToObject<Dictionary<string, string>>();
+            
+            // for (int i = 0; i < sortiedata.Count; i++)
+            // {
+            //     string value_with_backslashes = sortiedata.ChildrenTokens[i].Name;
             // }
         }
 
@@ -68,11 +70,19 @@ namespace warframebot
         }
         public static string ReplaceInfo2(string key)
         {
+            string therewards = File.ReadAllText("Systemlang/rewards.json");
+
+
+
+            var reward = JsonConvert.DeserializeObject<Dictionary<string, string>>(therewards);
             
-            string tmpreward;
-            if (curreward.TryGetValue(key, out tmpreward))
-            { return tmpreward; }
-            return "Data not found!";
+            string rewards = "";
+            if (reward.ContainsKey(key)) rewards = reward[key];
+            return rewards;
+            //string tmpreward;
+            //  if (curreward.TryGetValue(key, out tmpreward))
+            //  { return tmpreward; }
+            //  return "Data not found!";
         }
         private Task SendMessage(string v)
         {

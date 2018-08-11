@@ -127,6 +127,7 @@
   <ItemGroup>
     <Compile Include="CommandHandler.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="Modules\Scramble.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="..\..\..\..\OneDrive\discordbot\Program.cs">
       <Link>Program.cs</Link>
