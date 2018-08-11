@@ -58,8 +58,8 @@ namespace warframebot.Core
             {
                 ulong id = 471312780079923210;
                 if (activeAcolytes[i].AgentType == "") break;
-
-                if (warframe.PersistentEnemies[i].Discovered == true)
+                string acolytename = warframe.PersistentEnemies[i].LastDiscoveredLocation;
+                if (String.IsNullOrEmpty(acolytename)) return;
                 {
                     await Misc.SendMessageChannel(id, "Acolyte Found!");
                     break;

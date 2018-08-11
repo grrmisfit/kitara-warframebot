@@ -84,10 +84,12 @@ namespace warframebot.Modules
                          where r.Name == targetRoleName
                          select r.Id;
             ulong roleID = result.FirstOrDefault();
+           
             if (roleID == 0) return false;
             var targetRole = user.Guild.GetRole(roleID);
             return user.Roles.Contains(targetRole);
         }
+        
       // will look back into this at a later date
         [Command("acolytes")]
         public async Task GetAcolytes()
@@ -117,10 +119,10 @@ namespace warframebot.Modules
                     embed2.WithTitle("Current Acolytes");
                     embed2.AddField("Found: ", acofound, true);
                     embed2.AddField("Name: ", Utilities.ReplaceInfo(tmpaco2), true);
-                   // embed2.AddField("Location: ", Utilities.ReplaceInfo(activeAcolytes[i].LastDiscoveredLocation), true);
-                   // embed2.AddField("Time Found: ", activeAcolytes[i].LastDiscoveredTime.Date, true);
-                  //  embed2.AddField("Health till flees: ", activeAcolytes[i].HealthPercent, true);
-                  //  embed2.AddField("Flee Damage:", activeAcolytes[i].FleeDamage, true);
+                   embed2.AddField("Location: ", Utilities.ReplaceInfo(activeAcolytes[i].LastDiscoveredLocation), true);
+                    embed2.AddField("Time Found: ", activeAcolytes[i].LastDiscoveredTime.Date, true);
+                    embed2.AddField("Health till flees: ", activeAcolytes[i].HealthPercent, true);
+                   embed2.AddField("Flee Damage:", activeAcolytes[i].FleeDamage, true);
 
                     embed2.WithColor(new Color(0, 255, 0));
 
