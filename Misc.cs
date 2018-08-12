@@ -14,7 +14,7 @@ using warframebot.Modules.Warframe;
 using Newtonsoft.Json.Linq;
 using warframebot.Core;
 using System.IO;
-using discordbot.Modules;
+using warframebot.Modules;
 
 namespace warframebot.Modules
 {

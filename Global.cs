@@ -26,6 +26,9 @@ namespace warframebot
         public string ModDesc { get; set; }
 
     }
-   
-   
+    public class ScramData
+    {
+        public static string ScramWord { get; set; }
+        public static string ScrambledWord { get; set; }
+    }
 }
