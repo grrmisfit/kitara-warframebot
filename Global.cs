@@ -30,5 +30,6 @@ namespace warframebot
     {
         public static string ScramWord { get; set; }
         public static string ScrambledWord { get; set; }
+        public static bool GameStarted { get; set; }
     }
 }

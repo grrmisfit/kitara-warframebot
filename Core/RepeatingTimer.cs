@@ -20,7 +20,27 @@ namespace warframebot.Core
     {
         //private static string accountsFile = "players.json";
         private static Timer loopingTimer;
+        private static Timer scramTimer;
         private static SocketTextChannel channel;
+
+        internal static Task StartScramTimer()
+        {
+            if (ScramData.GameStarted == false) return Task.CompletedTask;
+            scramTimer = new Timer()
+            {
+                Interval = 20000,
+                AutoReset = true,
+                Enabled = true,
+            };
+            scramTimer.Elapsed += OnScramTimerTicked;
+            return Task.CompletedTask;
+        }
+
+        private static void OnScramTimerTicked(object sender, ElapsedEventArgs e)
+        {
+            
+        }
+
         internal static Task StartTimer()
         {
             channel = Global.Client.GetGuild(293720753185226752).GetTextChannel(471312780079923210);
