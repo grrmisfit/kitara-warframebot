@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-namespace warframebot.Modules.Warframe
+namespace Warframebot.Modules.Warframe
 {
     public partial class Warframe
     {
@@ -884,6 +884,14 @@ namespace warframebot.Modules.Warframe
         }
 
         public static readonly NConverter Singleton = new NConverter();
+    }
+    public class WFSettings
+    {
+        public static ulong AlertsChannel { get; set; }
+        public static bool CheckAlerts { get; set; }
+        public static string[] WantedRewards { get; set; }
+        public static bool CheckFissures { get; set; }
+        public static string[] WantedFissures { get; set; }
     }
 }
 

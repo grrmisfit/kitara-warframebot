@@ -1,32 +1,48 @@
 ﻿using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 using System.Threading.Tasks;
 using Discord;
-using warframebot.Core;
 
-namespace warframebot
+using Warframebot.Discord.Entities;
+using Warframebot.Storage;
+
+
+namespace Warframebot
 {
     public class Program
     {
-        DiscordSocketClient _client;
-        CommandHandler _handler;
-
-        static void Main(string[] args)
+       
         
-           =>new Program().StartAsync().GetAwaiter().GetResult();
 
-        public async Task StartAsync()
+        private static async Task Main()
         {
+
+            Unity.RegisterTypes();
+            var storage = Unity.Resolve<IDataStorage>();
+          
+            var connection = Unity.Resolve<Connection>();
+
+
+            await connection.ConnectAsync(new WarframeBotConfig
+            {
+                Token = Config.bot.token //storage.RestoreObject<string>("BotToken")
+                
+            });
+            await Task.Delay(-1);
+            // =>new Program().StartAsync().GetAwaiter().GetResult();
+        }
+
+       /* public async Task StartAsync()
+        {
+          
+           
             
-            if (Config.bot.token == "" || Config.bot.token == null) return;
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Verbose
 
             });
+            
             _client.Log += Log;
             _client.Ready += RepeatingTimer.StartTimer;
             _client.ReactionAdded += OnReactionAdded;
@@ -39,7 +55,7 @@ namespace warframebot
             await Task.Delay(-1);
             
         }
-
+        */
         private async Task OnReactionAdded(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if(reaction.MessageId == Global.MessageIdToTrack)
@@ -51,14 +67,7 @@ namespace warframebot
             }
             
         }
-
-       
-        private async Task Log(LogMessage msg)
-        {
-            Console.WriteLine(msg.Message);
-            
-        }
-       
+ 
     }
     }
 

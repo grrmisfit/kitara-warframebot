@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace warframebot
+namespace Warframebot
 {
-    class Config
+   public class Config
     {
         private const string configFolder = "Resources";
         private const string configFile = "config.json";
@@ -41,7 +41,9 @@ namespace warframebot
 
         public string token;
         public string cmdPrefix;
-        public string webtoken;
+        public string weboken;
         public string webtokenpass;
+        public ulong ownerId;
     }
+   
 }

@@ -3,7 +3,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace warframebot.Modules.Warframe
+namespace Warframebot.Modules.Warframe
 {
     public partial class Sorties
     {

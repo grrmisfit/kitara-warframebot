@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
-using System.Collections;
-using Discord;
-namespace warframebot
+using System.Net;
+using Warframebot.Modules.Warframe;
+using Warframebot.Core.UserAccounts;
+
+namespace Warframebot
 {
     class Utilities
     {
@@ -79,16 +79,25 @@ namespace warframebot
             string rewards = "";
             if (reward.ContainsKey(key)) rewards = reward[key];
             return rewards;
-            //string tmpreward;
-            //  if (curreward.TryGetValue(key, out tmpreward))
-            //  { return tmpreward; }
-            //  return "Data not found!";
+           
         }
-        private Task SendMessage(string v)
+        
+       public static void AddXpto(string user, int xp)
         {
-            throw new NotImplementedException();
+            var account = UserAccounts.GetAccount(user);
+            account.Points += xp;
+            UserAccounts.SaveAccounts();
         }
-       
+
+        public static string GetWarframeInfo()
+        {
+            string url = "http://content.warframe.com/dynamic/worldState.php";
+            string apiresponse = "";
+                 using (WebClient client = new WebClient())
+                 apiresponse = client.DownloadString(url);
+                 return apiresponse;
+        }
+
         /* public static string GetFormattedAlert(string key, params object[] parameter)
          {
 
