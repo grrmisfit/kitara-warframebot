@@ -8,10 +8,10 @@ namespace Warframebot.Core.UserAccounts
     public static class UserAccounts
     {
 
-        public static List<UserAccount> accounts;
+        public static List<GuildAccounts> accounts;
 
 
-        public static string accountsFile = "players.json";
+        public static string accountsFile = "SystemLang/WFsetings.json";
             static UserAccounts()
              {
                 if(DataStorage.SaveExists(accountsFile))
@@ -22,7 +22,7 @@ namespace Warframebot.Core.UserAccounts
             }
                 else
             {
-                accounts = new List<UserAccount>();
+                accounts = new List<GuildAccounts>();
                 DataStorage.SaveUserAccounts(accounts, accountsFile);
             }
              }
@@ -30,7 +30,7 @@ namespace Warframebot.Core.UserAccounts
         {
             DataStorage.SaveUserAccounts(accounts, accountsFile);
         }
-        public static bool AccountExists(string id)
+        public static bool AccountExists(ulong id)
         {
             var theaccount = GetOrCreateAccount(id);
             bool itsfound = false;
@@ -41,15 +41,15 @@ namespace Warframebot.Core.UserAccounts
 
             return itsfound;
         }
-        public static UserAccount GetAccount(string user)
+        public static GuildAccounts GetAccount(ulong user)
         {
             return GetOrCreateAccount(user);
         }
 
-        private static UserAccount GetOrCreateAccount(string id)
+        private static GuildAccounts GetOrCreateAccount(ulong id)
         {
             var result = from a in accounts
-                         where a.Name == id
+                         where a.Guild == id
                          select a;
 
             var account = result.FirstOrDefault();
@@ -57,13 +57,17 @@ namespace Warframebot.Core.UserAccounts
             return account;
         }
 
-        private static UserAccount CreateUserAccount(string id)
+        private static GuildAccounts CreateUserAccount(ulong id)
         {
-            var newAccount = new UserAccount()
+            var newAccount = new GuildAccounts()
             {
-                Name = id,
-                Points = 0,
-                GamesWon = 0
+                Guild = id,
+                AlertsChannel = 0,
+                CheckAlerts = false,
+                CheckFissures = false,
+                WantedFissures = null,
+                WantedRewards = null,
+
             };
 
             accounts.Add(newAccount);

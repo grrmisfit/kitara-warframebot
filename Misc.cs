@@ -12,6 +12,7 @@ using System.IO;
 using Warframebot.Core;
 using Warframebot.Core.UserAccounts;
 using Warframebot.Modules.Warframe;
+using Newtonsoft.Json;
 
 namespace Warframebot.Modules
 {
@@ -389,7 +390,7 @@ namespace Warframebot.Modules
                     break;
             }
         }
-        [Command("myStats")]
+       /* [Command("myStats")]
         public async Task MyStats()
         {
             string target = "";
@@ -398,7 +399,7 @@ namespace Warframebot.Modules
 
             var account = UserAccounts.GetAccount(target);
             await Context.Channel.SendMessageAsync($"{target} has {account.Points} points and has won {account.GamesWon} games.");
-        }
+        }*/
         [Command("getfile")]
         public async Task GetTheFiles()
             {
@@ -446,7 +447,20 @@ namespace Warframebot.Modules
         [Command("rewardadd")]
         public async Task SetReward([Remainder]string arg = "")
         {
-
+            var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
+            for (int i = 0; i < theAccount.WantedRewards.Count; i++)
+            {
+                if(theAccount.WantedRewards[i].Contains(arg))
+                {
+                    await SendMessage("Item already in list!");
+                    break;
+                }
+                else
+                {
+                    var rewardCount = theAccount.WantedRewards.Count + 1;
+                    theAccount.WantedRewards.Add(arg);
+                }
+            }
         }
 
         [Command("set")]
@@ -459,13 +473,25 @@ namespace Warframebot.Modules
                 case "alert channel":
                     var killUser = Context.User.Username;
                     if (Context.User.Id == Config.bot.ownerId)
-                    { WFSettings.AlertsChannel = Context.Channel.Id;}
+                    {
+                        WFSettings.AlertsChannel = Context.Channel.Id;
+                        var thealertAccount = UserAccounts.GetAccount(Context.Guild.Id);
+                        thealertAccount.AlertsChannel = Context.Channel.Id;
+                        UserAccounts.SaveAccounts();
+                    }
+                    
                     break;
-                case "rewards":
+                case "check alerts":
                     WFSettings.CheckAlerts = true;
+                    var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
+                    theAccount.CheckAlerts = true;
+                    UserAccounts.SaveAccounts();
                     break;
-                case "fissures":
+                case "check fissures":
                     WFSettings.CheckFissures = true;
+                    var fissureCheck = UserAccounts.GetAccount(Context.Guild.Id);
+                    fissureCheck.CheckFissures = true;
+                    UserAccounts.SaveAccounts();
                     break;
                     
             }

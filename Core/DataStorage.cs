@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
 using Warframebot.Core.UserAccounts;
@@ -14,17 +10,17 @@ namespace Warframebot.Core
         
      
         // Save all userAccounts
-        public static void SaveUserAccounts(IEnumerable<UserAccount> accounts, string filePath)
+        public static void SaveUserAccounts(IEnumerable<GuildAccounts> accounts, string filePath)
         {
             string json = JsonConvert.SerializeObject(accounts, Formatting.Indented);
             File.WriteAllText(filePath, json);
         }
         // Get all userAccounts
-        public static IEnumerable<UserAccount> LoadUserAccounts(string filePath)
+        public static IEnumerable<GuildAccounts> LoadUserAccounts(string filePath)
         {
             if(!File.Exists(filePath)) return null;
             string json = File.ReadAllText(filePath);
-            return JsonConvert.DeserializeObject<List<UserAccount>>(json);
+            return JsonConvert.DeserializeObject<List<GuildAccounts>>(json);
         }
        /* public static IEnumerable<UserAccount> LoadSavedAccounts(string filePath)
         {

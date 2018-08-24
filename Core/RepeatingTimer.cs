@@ -22,19 +22,19 @@ namespace Warframebot.Core
 
         internal static Task StartScramTimer()
         {
-            
+
             if (ScramData.GameStarted == false) return Task.CompletedTask;
-            if(ScramData.GamePause == true) return Task.CompletedTask;
+            if (ScramData.GamePause == true) return Task.CompletedTask;
             scramTimer = new Timer()
             {
                 Interval = 10000,
                 AutoReset = true,
                 Enabled = true,
             };
-           
-            
+
+
             scramTimer.Elapsed += OnScramTimerTicked;
-           
+
             return Task.CompletedTask;
         }
 
@@ -48,7 +48,7 @@ namespace Warframebot.Core
             {
                 string daword = Scramble.GetScramWord();
                 string cheatword = ScramData.ScramWord;
-               // await Misc.SendMessageChannel(ScramData.ScramChannel, "**" + cheatword + "**");
+                // await Misc.SendMessageChannel(ScramData.ScramChannel, "**" + cheatword + "**");
                 // await Misc.SendMessageChannel(471312780079923210, "**" + daword + "**");
                 var embed = new EmbedBuilder();
                 embed.WithTitle("Scrambled Word");
@@ -65,7 +65,7 @@ namespace Warframebot.Core
                 if (ScramData.GameStarted == false) return;
                 string cheatword = ScramData.ScramWord;
                 //await Misc.SendMessageChannel(ScramData.ScramChannel, "**" + cheatword + "**");
-                await Misc.SendMessageChannel(ScramData.ScramChannel, "**Current word: " +  ScramData.ScrambledWord + "**");
+                await Misc.SendMessageChannel(ScramData.ScramChannel, "**Current word: " + ScramData.ScrambledWord + "**");
             }
 
         }
@@ -95,7 +95,7 @@ namespace Warframebot.Core
         }
         internal static Task StartTimer()
         {
-             loopingTimer = new Timer()
+            loopingTimer = new Timer()
             {
                 Interval = 60000,
                 AutoReset = true,
@@ -104,7 +104,7 @@ namespace Warframebot.Core
             loopingTimer.Elapsed += OnTimerTicked;
             return Task.CompletedTask;
         }
-        public async  static Task CheckAlertRewards()
+        public async static Task CheckAlertRewards(ulong id, ulong alertchan)
         {
             if (WFSettings.CheckAlerts == false) return;
             var warframe = Warframe.FromJson(Utilities.GetWarframeInfo());
@@ -118,21 +118,21 @@ namespace Warframebot.Core
             {
                 for (int i = 0; i < rewardcount; i++)
                     reward = WFSettings.WantedRewards[i];
-                    curreward = Utilities.ReplaceInfo2(alert.MissionInfo.MissionReward.Items[0]);
+                curreward = Utilities.ReplaceInfo2(alert.MissionInfo.MissionReward.Items[0]);
                 if (curreward == null) return;
-              if (Utilities.ReplaceInfo2(alert.MissionInfo.MissionReward.Items[0]) == reward)
+                if (curreward.Contains(reward))
                 {
-                    await Misc.SendMessageChannel(WFSettings.AlertsChannel, Utilities.ReplaceInfo2(reward) + "Has been found, type !alerts to see which alert contains it");
+                    await Misc.SendMessageChannel(id, Utilities.ReplaceInfo2(reward) + "Has been found, type !alerts to see which alert contains it");
                 }
             }
         }
-        public async static Task  CheckForAcolytes()
+        public async static Task CheckForAcolytes()
 
         {
             string url = "http://content.warframe.com/dynamic/worldState.php";
             string apiresponse = "";
             using (WebClient client = new WebClient())
-            apiresponse = client.DownloadString(url);
+                apiresponse = client.DownloadString(url);
 
             var warframe = Warframe.FromJson(apiresponse);
             var activeAcolytes = warframe.PersistentEnemies;
@@ -151,60 +151,91 @@ namespace Warframebot.Core
             }
         }
 
-        private async static Task CheckFissures()
+        private async static Task CheckFissures(ulong guildID )
         {
             var json = File.ReadAllText("SystemLang/WFsettings.json");
             var guildAccounts = GuildAccounts.FromJson(json);
 
-            for (int guildcheck = 0; guildcheck  < guildAccounts.Count; guildcheck++)
+            //for (int guildcheck = 0; guildcheck  < guildAccounts.Count; guildcheck++)
+
+
+            var warframe = Warframe.FromJson(Utilities.GetWarframeInfo());
+            var checkFissAlerts = warframe.ActiveMissions;
+            int fissCount = WFSettings.WantedFissures.Length;
+            string wantedFissure = WFSettings.WantedFissures[0];
+            string curFissure = "";
+
+            int dacount = 0;
+            if (wantedFissure == null) return;
+            if (WFSettings.AlertsChannel == 0) return;
+
+
+
+
+            foreach (ActiveMission fissure in checkFissAlerts)
             {
-                if (guildAccounts[guildcheck].CheckAlerts == false) return;
-                if (guildAccounts[guildcheck].AlertsChannel == 0) return;
-
-                var warframe = Warframe.FromJson(Utilities.GetWarframeInfo());
-                var checkFissAlerts = warframe.ActiveMissions;
-                int fissCount = WFSettings.WantedFissures.Length;
-                string wantedFissure = WFSettings.WantedFissures[0];
-                string curFissure = "";
-
-                int dacount = 0;
-                if (wantedFissure == null) return;
-                if (WFSettings.AlertsChannel == 0) return;
+                for (int i = 0; i < fissCount; i++)
 
 
+                    curFissure = Utilities.ReplaceInfo(checkFissAlerts[i].MissionType);
+                if (curFissure == null) return;
+                wantedFissure = WFSettings.WantedFissures[dacount];
+                if (curFissure == wantedFissure)
 
-
-                foreach (ActiveMission fissure in checkFissAlerts)
                 {
-                    for (int i = 0; i < fissCount; i++)
+                    await Misc.SendMessageChannel(WFSettings.AlertsChannel,
+                        curFissure +
+                        $"Has been found, on {Utilities.ReplaceInfo(checkFissAlerts[dacount].Node)} and Relic type is {Utilities.ReplaceInfo(checkFissAlerts[dacount].Modifier)}");
+                }
+
+                dacount = dacount + 1;
+
+            }
+        }
 
 
-                        curFissure = Utilities.ReplaceInfo(checkFissAlerts[i].MissionType);
-                    if (curFissure == null) return;
-                    wantedFissure = WFSettings.WantedFissures[dacount];
-                    if (curFissure == wantedFissure)
+        private async static void OnTimerTicked(object sender, ElapsedEventArgs e)
+        {
 
-                    {
-                        await Misc.SendMessageChannel(WFSettings.AlertsChannel,
-                            curFissure +
-                            $"Has been found, on {Utilities.ReplaceInfo(checkFissAlerts[dacount].Node)} and Relic type is {Utilities.ReplaceInfo(checkFissAlerts[dacount].Modifier)}");
-                    }
+             CheckGuildAlerts();
+            await Task.Delay(1);
+             CheckGuildFissures();
 
-                    dacount = dacount + 1;
 
+
+        }
+        private async static void CheckGuildAlerts()
+        {
+            var json = File.ReadAllText("SystemLang/WFsettings.json");
+            var guildAccounts = GuildAccounts.FromJson(json);
+
+            for (int i = 0; i < guildAccounts.Count; i++)
+            {
+
+                if (guildAccounts[i].AlertsChannel == 0) return;
+                if (guildAccounts[i].CheckAlerts == true)
+                {
+                    await CheckAlertRewards(guildAccounts[i].Guild, guildAccounts[i].AlertsChannel);
+                }
+            }
+            
+        }
+        private async static void CheckGuildFissures()
+        {
+            if (!File.Exists("SystemLang/WFsetings.json")) return;
+            var json = File.ReadAllText("SystemLang/WFsettings.json");
+            var guildAccounts = GuildAccounts.FromJson(json);
+
+            for (int i = 0; i < guildAccounts.Count; i++)
+            {
+
+                if (guildAccounts[i].AlertsChannel == 0) return;
+                if (guildAccounts[i].CheckFissures == true)
+                {
+                    await CheckFissures(guildAccounts[i].Guild);
                 }
             }
         }
 
-        private async static void OnTimerTicked(object sender, ElapsedEventArgs e)
-                {
-
-                    await   CheckAlertRewards();
-                    await Task.Delay(1);
-                    await CheckFissures();
-
-
-
-                }
-            }
+    }
 }

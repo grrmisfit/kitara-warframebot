@@ -67,15 +67,15 @@ namespace Warframebot
             {
                 await Misc.SendMessageChannel(ScramData.ScramChannel, context.User.Username + " got the correct answer!");
                 
-                var account = UserAccounts.GetAccount(context.User.Username);
-                account.Points += currentWord.Length;
+              //  var account = UserAccounts.GetAccount(context.User.Username);
+              //  account.Points += currentWord.Length;
                 
-                UserAccounts.SaveAccounts();
+              //  UserAccounts.SaveAccounts();
                 ScramData.WordGuessed = true;
                 ScramData.GamePause = true;
                 ScramData.GameWait = true;
                 await Misc.SendMessageChannel(ScramData.ScramChannel, "**" + "New word coming in 10 secs!" + "**");
-                RepeatingTimer.DelayScramTimer();
+               await RepeatingTimer.DelayScramTimer();
                 
             }
            

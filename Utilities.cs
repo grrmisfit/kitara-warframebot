@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using Warframebot.Modules.Warframe;
 using Warframebot.Core.UserAccounts;
+using System;
 
 namespace Warframebot
 {
@@ -82,12 +83,7 @@ namespace Warframebot
            
         }
         
-       public static void AddXpto(string user, int xp)
-        {
-            var account = UserAccounts.GetAccount(user);
-            account.Points += xp;
-            UserAccounts.SaveAccounts();
-        }
+      
 
         public static string GetWarframeInfo()
         {
@@ -98,6 +94,12 @@ namespace Warframebot
                  return apiresponse;
         }
 
+        public double GetTimeDiff(DateTime date)
+        {
+            var diff = date - DateTime.Now;
+            return diff.TotalMinutes;
+
+        }
         /* public static string GetFormattedAlert(string key, params object[] parameter)
          {
 
