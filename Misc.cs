@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +9,7 @@ using Discord.WebSocket;
 using System.Net;
 using Discord.Rest;
 using System.IO;
+using System.Threading;
 using Warframebot.Core;
 using Warframebot.Core.UserAccounts;
 using Warframebot.Modules.Warframe;
@@ -450,18 +451,77 @@ namespace Warframebot.Modules
             var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
             for (int i = 0; i < theAccount.WantedRewards.Count; i++)
             {
-                if(theAccount.WantedRewards[i].Contains(arg))
+                if (!theAccount.WantedRewards[i].Contains(arg))
+                {
+                    var rewardCount = theAccount.WantedRewards.Count + 1;
+                    theAccount.WantedRewards.Add(arg);
+                    UserAccounts.SaveAccounts();
+
+                    break;
+                }
+                else
                 {
                     await SendMessage("Item already in list!");
+                    break;
+                }
+            }
+        }
+
+        [Command("rewarddel")]
+        public async Task DelReward([Remainder]string arg = "")
+        {
+            var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
+            for (int i = 0; i < theAccount.WantedRewards.Count; i++)
+            {
+                if (!theAccount.WantedRewards[i].Contains(arg))
+                {
+                    await SendMessage("Item not in list!");
                     break;
                 }
                 else
                 {
                     var rewardCount = theAccount.WantedRewards.Count + 1;
-                    theAccount.WantedRewards.Add(arg);
+                    theAccount.WantedRewards.Remove(arg);
+                    UserAccounts.SaveAccounts();
+
+                    break;
                 }
             }
         }
+
+        [Command("addfissure")]
+        public async Task AddFissure([Remainder] string msg)
+        {
+            if (msg == "")
+            {
+                await SendMessage("You must enter a fissure name");
+                return;
+            }
+
+            var guilddata = UserAccounts.GetAccount(Context.Guild.Id);
+            var json = File.ReadAllText("SystemLang/WFdata.json");
+           var thedata = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            for (int i = 0; i < guilddata.WantedFissures.Count; ++i)
+            {
+                if (msg == guilddata.WantedFissures[i])
+                {
+                    await SendMessage("That fissure has already been added, did you want to add another?");
+                    break;
+                }
+            }
+            foreach (var fissure in thedata)
+            {
+                if (msg.ToLower() == fissure.Value.ToLower())
+                {
+                    var theaccount = UserAccounts.GetAccount(Context.Guild.Id);
+                    theaccount.WantedFissures.Add(msg);
+                    UserAccounts.SaveAccounts();
+                    break;
+                }
+            }
+
+        }
+
 
         [Command("set")]
         public async Task SetCommands([Remainder]string arg = "")
@@ -578,6 +638,18 @@ namespace Warframebot.Modules
             }
 
             await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
+
+        [Command("time")]
+        public async Task TimeTest()
+        {
+            //double test = Utilities.GetTimeDiff(DateTime.Today);
+           // string blah = test.ToString();
+            var oldtime = DateTime.Now;
+            Thread.Sleep(10000);
+            var newtime = DateTime.Now;
+           var blah = newtime.Subtract(oldtime);
+            await SendMessage(blah.Seconds.ToString());
         }
         }
 }

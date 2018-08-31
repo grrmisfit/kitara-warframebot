@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +12,7 @@ namespace Warframebot.Core.UserAccounts
         public static List<GuildAccounts> accounts;
 
 
-        public static string accountsFile = "SystemLang/WFsetings.json";
+        public static string accountsFile = "SystemLang/WFsettings.json";
             static UserAccounts()
              {
                 if(DataStorage.SaveExists(accountsFile))
@@ -59,17 +60,18 @@ namespace Warframebot.Core.UserAccounts
 
         private static GuildAccounts CreateUserAccount(ulong id)
         {
+           
             var newAccount = new GuildAccounts()
             {
                 Guild = id,
                 AlertsChannel = 0,
                 CheckAlerts = false,
                 CheckFissures = false,
-                WantedFissures = null,
-                WantedRewards = null,
-
+                WantedRewards = new List<string> {"nothing"},
+                WantedFissures = new List<string> { "nothing" },
+                TimeChecked = DateTime.Now
             };
-
+            
             accounts.Add(newAccount);
             SaveAccounts();
             return newAccount;

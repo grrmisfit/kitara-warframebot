@@ -94,10 +94,10 @@ namespace Warframebot
                  return apiresponse;
         }
 
-        public double GetTimeDiff(DateTime date)
+        public static double GetTimeDiff(DateTime date)
         {
             var diff = date - DateTime.Now;
-            return diff.TotalMinutes;
+            return diff.TotalSeconds;
 
         }
         /* public static string GetFormattedAlert(string key, params object[] parameter)

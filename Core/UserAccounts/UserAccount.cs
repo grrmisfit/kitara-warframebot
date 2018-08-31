@@ -34,6 +34,9 @@ namespace Warframebot.Core.UserAccounts
 
         [JsonProperty("WantedFissures")]
         public List<string> WantedFissures { get; set; }
+
+        [JsonProperty("TimeChecked")]
+        public DateTime  TimeChecked { get; set; }
     }
 
     public partial class GuildAccounts
