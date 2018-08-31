@@ -488,7 +488,7 @@ namespace Warframebot.Modules
                 }
             }
         }
-
+        //move these to utilities and make it oone command for add and remove
         [Command("addfissure")]
         public async Task AddFissure([Remainder] string msg)
         {
