@@ -4,6 +4,8 @@ using System.IO;
 using System.Net;
 using Warframebot.Core.UserAccounts;
 using System;
+using System.Net.Mime;
+using System.Threading.Tasks;
 using Warframebot.Modules.Warframe;
 
 namespace Warframebot
@@ -15,13 +17,17 @@ namespace Warframebot
         private static Dictionary<string, string> missions;
         private static Dictionary<string, string> sorties;
        
-/*
-        private static Dictionary<string, string> voids;
-*/
+
     static Utilities()
         {
-           
-          
+
+            if (!File.Exists("Systemlang/WfData.json"))
+            {
+                Console.WriteLine("WfData.json could not be found! This is a vital file and program will now end!");
+                Task.Delay(5000);
+                Environment.Exit(0);
+                return;
+            }
             string themissions = File.ReadAllText("Systemlang/WfData.json");
             string sortieinfo = File.ReadAllText("Systemlang/WfData.json");
            
@@ -66,12 +72,10 @@ namespace Warframebot
             if (sorties.ContainsKey(key)) return sorties[key];
             return "Data not found!";
         }
-        public static string ReplaceInfo2(string key)
+        public static string ReplaceRewardInfo(string key)
         {
             string therewards = File.ReadAllText("Systemlang/rewards.json");
-
-
-
+            
             var reward = JsonConvert.DeserializeObject<Dictionary<string, string>>(therewards);
             
             string rewards = "";
@@ -85,10 +89,21 @@ namespace Warframebot
         public static string GetWarframeInfo()
         {
             string url = "http://content.warframe.com/dynamic/worldState.php";
-            string apiresponse;
-                 using (WebClient client = new WebClient())
-                 apiresponse = client.DownloadString(url);
-                 return apiresponse;
+           
+            try
+            {
+                string apiresponse;
+                using (WebClient client = new WebClient())
+                apiresponse = client.DownloadString(url);
+                return apiresponse;
+            }
+            catch (WebException e)
+            {
+                Console.WriteLine(e);
+                return "";
+            }
+                 
+                 
         }
 
         public static double GetTimeDiff(DateTime date)
@@ -229,6 +244,11 @@ namespace Warframebot
             
             var checktime = currenttime.Subtract(announcedtime).TotalMinutes;
             return checktime;
+        }
+
+        public static void UpdateBot()
+        {
+
         }
         /* public static string GetFormattedAlert(string key, params object[] parameter)
      {

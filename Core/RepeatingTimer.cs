@@ -1,9 +1,7 @@
 ﻿using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
 using Discord;
@@ -20,7 +18,7 @@ namespace Warframebot.Core
     {
         
         private static Timer loopingTimer;
-        public static Timer scramTimer;
+        private static Timer scramTimer;
         private static Timer delayTimer;
         private static SocketTextChannel channel;
 
@@ -59,8 +57,7 @@ namespace Warframebot.Core
                 embed.WithDescription("Category: **" + ScramData.Category + "**");
                 embed.AddField("**Word***: **", daword + "**", true);
                 embed.WithColor(new Color(188, 66, 244));
-                var chnl = Global.Client.GetChannel(ScramData.ScramChannel) as IMessageChannel; // 4
-                if (chnl != null) await chnl.SendMessageAsync("", false, embed.Build());
+                if (Global.Client.GetChannel(ScramData.ScramChannel) is IMessageChannel chnl) await chnl.SendMessageAsync("", false, embed.Build());
                 ScramData.WordGuessed = false;
             }
             else
@@ -121,7 +118,7 @@ namespace Warframebot.Core
 
         private static async void CheckAlertRewards(ulong id, ulong alertchan)
         {
-          //  if (WFSettings.CheckAlerts == false) return;
+          
             var warframe = Warframe.FromJson(Utilities.GetWarframeInfo());
             var checkAlerts = warframe.Alerts;
             var json = File.ReadAllText("SystemLang/WFsettings.json");
@@ -137,11 +134,11 @@ namespace Warframebot.Core
                 var rewardcount= wfSettings[dacount].WantedRewards.Count;
                 for (int i = 0; i < rewardcount; i++)
                 reward = wfSettings[dacount].WantedRewards[i];
-                var curreward = Utilities.ReplaceInfo2(alert.MissionInfo.MissionReward.Items[0]);
+                var curreward = Utilities.ReplaceRewardInfo(alert.MissionInfo.MissionReward.Items[0]);
                 curreward = curreward.ToLowerInvariant();
                 if (curreward.Contains(reward))
                 {
-                    await Misc.SendMessageChannel(id, Utilities.ReplaceInfo2(reward) + "Has been found, type !alerts to see which alert contains it");
+                    await Misc.SendMessageChannel(id, Utilities.ReplaceRewardInfo(reward) + "Has been found, type !alerts to see which alert contains it");
                 }
 
                 dacount = dacount + 1;
@@ -150,12 +147,7 @@ namespace Warframebot.Core
         public static async Task CheckForAcolytes()
 
         {
-            string url = "http://content.warframe.com/dynamic/worldState.php";
-            string apiresponse;
-            using (WebClient client = new WebClient())
-                apiresponse = client.DownloadString(url);
-
-            var warframe = Warframe.FromJson(apiresponse);
+            var warframe = Warframe.FromJson(Utilities.GetWarframeInfo());
             var activeAcolytes = warframe.PersistentEnemies;
 
             for (int i = 0; i < activeAcolytes.Count; i++)
@@ -336,7 +328,7 @@ namespace Warframebot.Core
             var json = string.Empty;
             json = File.ReadAllText("SystemLang/WFsettings.json");
             var guildAccounts =  GuildAccounts.FromJson(json);
-            if (timecheck  > 54)
+            if (timecheck  > 70)
             {
                 foreach (var accounts in guildAccounts)
                 {

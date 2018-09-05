@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 using Warframebot.Core;
 using Warframebot.Core.UserAccounts;
 using Warframebot.Modules.Warframe;
-using Warframebot.Storage.Implementation;
+using Dropbox.Api;
 
 namespace Warframebot
 {
@@ -50,11 +50,10 @@ namespace Warframebot
 
         public static async Task SendMessageChannel(ulong chanId, string msg)
         {
-            var chnl = Global.Client.GetChannel(chanId) as IMessageChannel;
-            await chnl.SendMessageAsync(msg);
+            if (Global.Client.GetChannel(chanId) is IMessageChannel chnl) await chnl.SendMessageAsync(msg);
         }
 
-        public string themsg;
+       
 
         [Command("Kick")]
         [RequireUserPermission(GuildPermission.KickMembers)]
@@ -103,7 +102,7 @@ namespace Warframebot
                 await Task.Delay(2);
                 await Global.Client.LogoutAsync();
                 await Global.Client.StopAsync();
-                Environment.Exit(0);
+               // Environment.Exit(0);
             }
             else
             {
@@ -119,10 +118,10 @@ namespace Warframebot
             var result = from r in user.Guild.Roles
                 where r.Name == targetRoleName
                 select r.Id;
-            ulong roleID = result.FirstOrDefault();
+            ulong roleId = result.FirstOrDefault();
 
-            if (roleID == 0) return false;
-            var targetRole = user.Guild.GetRole(roleID);
+            if (roleId == 0) return false;
+            var targetRole = user.Guild.GetRole(roleId);
             return user.Roles.Contains(targetRole);
         }
 
@@ -130,13 +129,20 @@ namespace Warframebot
         [Command("acolytes")]
         public async Task GetAcolytes()
         {
+            
             string url = "http://content.warframe.com/dynamic/worldState.php";
             string apiresponse = "";
 
-
-            using (WebClient client = new WebClient())
-                // client.Encoding = Encoding.UTF8;
-                apiresponse = client.DownloadString(url);
+            try
+            {
+                using (WebClient client = new WebClient())
+                    // client.Encoding = Encoding.UTF8;
+                    apiresponse = client.DownloadString(url);
+            }
+            catch (WebException exception)
+            {
+                return;
+            }
 
 
             var warframe = Modules.Warframe.Warframe.FromJson(apiresponse);
@@ -232,7 +238,7 @@ namespace Warframebot
                     if (activeAlerts[i].MissionInfo.MissionReward.Items.Count == 1)
                     {
 
-                        tmpalert4 = Utilities.ReplaceInfo2(activeAlerts[i].MissionInfo.MissionReward.Items[0]);
+                        tmpalert4 = Utilities.ReplaceRewardInfo(activeAlerts[i].MissionInfo.MissionReward.Items[0]);
                     }
                 }
 
@@ -828,7 +834,7 @@ namespace Warframebot
         public async Task TimeTest()
         {
             string thetime = Utilities.GetCetusTime();
-            if (!string.IsNullOrEmpty(thetime)) return;
+            if (string.IsNullOrEmpty(thetime)) return;
             if(!Int64.TryParse(thetime,out long ignoreme))return;
            if( Int64.Parse(thetime) > 50)
             {
@@ -873,7 +879,7 @@ namespace Warframebot
                     {
                         if (msg.ToLower() == "on")
                         {
-                            users.AlarmOn = true;
+                            alarmUser.AlarmOn = true;
                             UserAccounts.SaveAlarmUser();
                             return;
                         }
@@ -899,7 +905,22 @@ namespace Warframebot
         public async Task TestCommand()
         {
             var test = Context.User.Id;
-            await SendMessage($"<@{test}> ");
+            if (test == Config.bot.ownerId)
+            {
+                 await Context.Channel.SendMessageAsync($"Update command given by {test}, I will now shutdown and update in 5 secs");
+                 await Task.Delay(1000);
+                 await Global.Client.LogoutAsync();
+                 await Global.Client.StopAsync();
+                 Process.Start("UpdateBot.exe");
+                 //await Task.Delay(3000);
+                 
+                 Environment.Exit(0);
+                  
+                
+              
+            }
+               // await SendMessage($"<@{test}> ");
         }
+       
     }
 }

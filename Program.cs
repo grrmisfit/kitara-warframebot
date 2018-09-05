@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using Discord;
 using Warframebot.Core;
-
+using Dropbox.Api;
 
 namespace Warframebot
 {
@@ -13,12 +14,12 @@ namespace Warframebot
         CommandHandler _handler;
 
         static void Main(string[] args)
-
+           
             => new Program().StartAsync().GetAwaiter().GetResult();
 
         public async Task StartAsync()
         {
-
+            await Task.Delay(3);
             if (string.IsNullOrEmpty(Config.bot.token)) return;
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
@@ -37,7 +38,7 @@ namespace Warframebot
 
 
             await Task.Delay(-1);
-
+            Console.Read();
         }
         /*
         will come back to this

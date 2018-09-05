@@ -42,6 +42,7 @@ namespace Warframebot
         public string token;
         public string cmdPrefix;
         public ulong ownerId;
+        public string DropBoxToken;
     }
    
 }
