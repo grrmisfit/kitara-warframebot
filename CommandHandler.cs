@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using System.Reflection;
 using Warframebot.Core;
-using Warframebot.Core.UserAccounts;
 using Warframebot.Modules;
 
 namespace Warframebot
@@ -61,8 +60,10 @@ namespace Warframebot
             }
 
             string currentWord = ScramData.ScramWord;
-           
-            currentWord = currentWord.ToLower();
+            if (!string.IsNullOrEmpty(currentWord))
+            {
+                currentWord = currentWord.ToLower();
+            }
            if (msg.Content == currentWord)
             {
                 await Misc.SendMessageChannel(ScramData.ScramChannel, context.User.Username + " got the correct answer!");

@@ -1,22 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
-using System.Net;
 using Discord.Rest;
-using System.IO;
-using System.Threading;
+using Discord.WebSocket;
+using Newtonsoft.Json.Linq;
 using Warframebot.Core;
 using Warframebot.Core.UserAccounts;
 using Warframebot.Modules.Warframe;
-using Newtonsoft.Json;
+using Warframebot.Storage.Implementation;
 
-namespace Warframebot.Modules
+namespace Warframebot
 {
+    public static class Extensions
+    {
+        /// <summary>
+        /// Get substring of specified number of characters on the right.
+        /// </summary>
+        public static string Right(this string value, int length)
+        {
+            return value.Substring(value.Length - length);
+        }
+
+        public static string Left(this string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            maxLength = Math.Abs(maxLength);
+
+            return (value.Length <= maxLength
+                    ? value
+                    : value.Substring(0, maxLength)
+                );
+        }
+    }
 
     public class Misc : ModuleBase<SocketCommandContext>
     {
@@ -26,12 +48,14 @@ namespace Warframebot.Modules
             await Context.Channel.SendMessageAsync(msg);
         }
 
-        public async static Task SendMessageChannel(ulong chanId, string msg)
+        public static async Task SendMessageChannel(ulong chanId, string msg)
         {
-            var chnl = Global.Client.GetChannel(chanId) as IMessageChannel; 
+            var chnl = Global.Client.GetChannel(chanId) as IMessageChannel;
             await chnl.SendMessageAsync(msg);
         }
+
         public string themsg;
+
         [Command("Kick")]
         [RequireUserPermission(GuildPermission.KickMembers)]
         [RequireBotPermission(GuildPermission.KickMembers)]
@@ -52,7 +76,7 @@ namespace Warframebot.Modules
 
 
         [Command("echo")]
-        public async Task Echo([Remainder]string message)
+        public async Task Echo([Remainder] string message)
         {
             var embed = new EmbedBuilder();
             embed.WithTitle("Message by " + Context.User.Username);
@@ -60,7 +84,7 @@ namespace Warframebot.Modules
             embed.WithColor(new Color(0, 255, 0));
 
             await SendMessage(message);
-            
+
         }
 
 
@@ -74,8 +98,9 @@ namespace Warframebot.Modules
             {
                 // var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
 
-                
+
                 await Context.Channel.SendMessageAsync($"Kill command given by {killUser}");
+                await Task.Delay(2);
                 await Global.Client.LogoutAsync();
                 await Global.Client.StopAsync();
                 Environment.Exit(0);
@@ -83,19 +108,17 @@ namespace Warframebot.Modules
             else
             {
                 await SendMessage($"Sorry {killUser} you do not have permission to kill me!");
-               
-                return;
             }
         }
 
-    
-         
+
+
         private bool IsUserOwner(SocketGuildUser user)
         {
             string targetRoleName = "BotOwner";
             var result = from r in user.Guild.Roles
-                         where r.Name == targetRoleName
-                         select r.Id;
+                where r.Name == targetRoleName
+                select r.Id;
             ulong roleID = result.FirstOrDefault();
 
             if (roleID == 0) return false;
@@ -103,23 +126,27 @@ namespace Warframebot.Modules
             return user.Roles.Contains(targetRole);
         }
 
-       
+
         [Command("acolytes")]
         public async Task GetAcolytes()
         {
             string url = "http://content.warframe.com/dynamic/worldState.php";
             string apiresponse = "";
-            
+
 
             using (WebClient client = new WebClient())
-              // client.Encoding = Encoding.UTF8;
+                // client.Encoding = Encoding.UTF8;
                 apiresponse = client.DownloadString(url);
 
 
-            var warframe = Warframe.Warframe.FromJson(apiresponse); 
+            var warframe = Modules.Warframe.Warframe.FromJson(apiresponse);
 
             var activeAcolytes = warframe.PersistentEnemies;
-
+            if (activeAcolytes.Count == 0)
+            {
+                await SendMessage("No acolytes found, are you sure they are currently spawning right now?");
+                return;
+            }
             for (int i = 0; i < activeAcolytes.Count; i++)
             {
                 if (activeAcolytes[i].AgentType == "") break;
@@ -132,7 +159,8 @@ namespace Warframebot.Modules
                     embed2.WithTitle("Current Acolytes");
                     embed2.AddField("Found: ", acofound, true);
                     embed2.AddField("Name: ", Utilities.ReplaceInfo(tmpaco2), true);
-                    embed2.AddField("Location: ", Utilities.ReplaceInfo(activeAcolytes[i].LastDiscoveredLocation), true);
+                    embed2.AddField("Location: ", Utilities.ReplaceInfo(activeAcolytes[i].LastDiscoveredLocation),
+                        true);
                     embed2.AddField("Time Found: ", activeAcolytes[i].LastDiscoveredTime.Date, true);
                     embed2.AddField("Health till flees: ", activeAcolytes[i].HealthPercent, true);
                     embed2.AddField("Flee Damage:", activeAcolytes[i].FleeDamage, true);
@@ -165,7 +193,7 @@ namespace Warframebot.Modules
             }
 
         }
-       
+
 
         [Command("alerts")]
         public async Task GetAlerts()
@@ -179,19 +207,19 @@ namespace Warframebot.Modules
                 apiresponse = client.DownloadString(url);
 
 
-            var warframe = Warframe.Warframe.FromJson(apiresponse); //Warframe.Warframe.FromJson(apiresponse);
+            var warframe = Modules.Warframe.Warframe.FromJson(apiresponse); //Warframe.Warframe.FromJson(apiresponse);
 
             var activeAlerts = warframe.Alerts;
             string[] alertstor = new string[20];
             var embed = new EmbedBuilder();
 
-            for (int i = 0; i < activeAlerts.Count; i++)  //each ( Alert am in activeAlerts)
+            for (int i = 0; i < activeAlerts.Count; i++) //each ( Alert am in activeAlerts)
             {
                 string tmpalert1 = "";
                 string tmpalert2 = "";
                 long tmpalert3 = 0;
                 string tmpalert4 = "";
-                
+
                 tmpalert1 = Utilities.ReplaceInfo(activeAlerts[i].MissionInfo.Location);
                 tmpalert2 = Utilities.ReplaceInfo(activeAlerts[i].MissionInfo.MissionType);
                 tmpalert3 = activeAlerts[i].MissionInfo.MissionReward.Credits;
@@ -207,33 +235,42 @@ namespace Warframebot.Modules
                         tmpalert4 = Utilities.ReplaceInfo2(activeAlerts[i].MissionInfo.MissionReward.Items[0]);
                     }
                 }
-                alertstor[i] = tmpalert1 + " | " + tmpalert2 + " | **Credits**: " + tmpalert3 + " | **Items**: " + tmpalert4;
+
+                alertstor[i] = tmpalert1 + " | " + tmpalert2 + " | **Credits**: " + tmpalert3 + " | **Items**: " +
+                               tmpalert4;
 
             }
+
             for (int i = 0; i < alertstor.Length; i++)
             {
                 if (alertstor[i] == null) break;
-                
-                embed.AddField("**Alert " + i + "**:",alertstor[i],true);
+
+                embed.AddField("**Alert " + i + "**:", alertstor[i], true);
             }
+
             embed.WithTitle("**Current Alerts**");
             embed.WithColor(new Color(188, 66, 244));
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
+
         [Command("fissures")]
         public async Task GetMissions()
         {
             string url = "http://content.warframe.com/dynamic/worldState.php";
-            string apiresponse = "";
-            
+            string apiresponse;
+
 
             using (WebClient client = new WebClient())
-              //  client.Encoding = Encoding.UTF8;
+                //  client.Encoding = Encoding.UTF8;
                 apiresponse = client.DownloadString(url);
 
-            
-            var warframe = Warframe.Warframe.FromJson(apiresponse);
-            var seed = warframe.WorldSeed;
+            if (string.IsNullOrEmpty(apiresponse))
+            {
+                await SendMessage("There was an error, please try again later");
+                return;
+            }
+            var warframe = Modules.Warframe.Warframe.FromJson(apiresponse);
+            //var seed = warframe.WorldSeed;
             var activeMissions = warframe.ActiveMissions;
             string[] fissurestor = new string[20];
             var embed = new EmbedBuilder();
@@ -244,34 +281,41 @@ namespace Warframebot.Modules
             {
 
                 string type = activeMissions[dacount].MissionType;
-                Date activationDate = am.Activation.Date;
-                string damsg = Utilities.GetMissions(type) + " " + Utilities.ReplaceInfo(activeMissions[dacount].Node) + " " + Utilities.ReplaceInfo(activeMissions[dacount].Modifier);
-                
+                //Date activationDate = am.Activation.Date;
+                string damsg = Utilities.GetMissions(type) + " " + Utilities.ReplaceInfo(activeMissions[dacount].Node) +
+                               " " + Utilities.ReplaceInfo(activeMissions[dacount].Modifier);
+
                 fissurestor[dacount] = damsg;
                 if (fissurestor[dacount] == null) break;
                 embed.AddField("**Fissure " + fiscount + "**", fissurestor[dacount], true);
                 dacount = dacount + 1;
                 fiscount = fiscount + 1;
-                }
+            }
+
             embed.WithTitle("**Current Fissures**");
             embed.WithColor(new Color(188, 66, 244));
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
+
         [Command("sortie")]
         public async Task CurrentSortie()
         {
             string url = "http://content.warframe.com/dynamic/worldState.php";
-            string apiresponse = "";
-            
+            string apiresponse;
+
 
             using (WebClient client = new WebClient())
             {
                 client.Encoding = Encoding.UTF8;
                 apiresponse = client.DownloadString(url);
             }
-
-            var warframe = Warframe.Warframe.FromJson(apiresponse);
-            var seed = warframe.WorldSeed;
+            if (string.IsNullOrEmpty(apiresponse))
+            {
+                await SendMessage("There was an error, please try again later");
+                return;
+            }
+            var warframe = Modules.Warframe.Warframe.FromJson(apiresponse);
+            //var seed = warframe.WorldSeed;
             var activeSortie = warframe.Sorties; //this is a List<Sorties> 
 
             //set the time from unix to current
@@ -311,7 +355,7 @@ namespace Warframebot.Modules
 
 
         [Command("scram")]
-        public async Task ScrambleCommands([Remainder]string message)
+        public async Task ScrambleCommands([Remainder] string message)
         {
             if (ScramData.GameStarted == true) return;
 
@@ -351,7 +395,7 @@ namespace Warframebot.Modules
         }
 
         [Command("help")]
-        public async Task HelpList([Remainder]string arg = "")
+        public async Task HelpList([Remainder] string arg = "")
         {
             string value = arg;
             switch (value)
@@ -365,11 +409,12 @@ namespace Warframebot.Modules
                     await Context.Channel.SendMessageAsync("", false, helpembed.Build());
                     break;
                 case "scramble":
-                   
+
                     var embed = new EmbedBuilder();
                     embed.WithTitle("Current commands");
                     embed.WithDescription("use @botname or ! (depending on settings) with following commands");
-                    embed.AddField("scram start", "Starts a scramble game, words are delayed by 10-15 secs to prevent spam", true);
+                    embed.AddField("scram start",
+                        "Starts a scramble game, words are delayed by 10-15 secs to prevent spam", true);
                     embed.AddField("scram stop", "Stops current game", true);
                     embed.AddField("mystats", "Shows a player their current points and games won", true);
 
@@ -379,39 +424,39 @@ namespace Warframebot.Modules
                 case "warframe":
                     var embed2 = new EmbedBuilder();
                     embed2.WithTitle("Current commands");
-                    embed2.WithDescription("use @botname or ! (depending on settings) with following commands");
+                    embed2.WithDescription("use @Kitara or ! (depending on settings) with following commands.");
 
-                    embed2.AddField("acolytes", "Calls up information on current Acolytes and if found their location and health", true);
-                    embed2.AddField("sortie", "provides current known sortie and related information", true);
-                    embed2.AddField("fissures", "current fissures and type", true);
-                    embed2.AddField("alerts", "current alerts plus rewards", true);
+                    embed2.AddField("acolytes",
+                        "Calls up information on current Acolytes and if found their location and health.", true);
+                    embed2.AddField("sortie", "provides current known sortie and related information.", true);
+                    embed2.AddField("fissures", "current fissures and type.", true);
+                    embed2.AddField("alerts", "current alerts plus rewards.", true);
+                    embed2.AddField("Set", "use set(settings) help for help with set command.", true);
+                    embed2.AddField("cetustime",
+                        "tells you the current time on cetus and how long before day/night starts/ends.");
+                    embed2.AddField("list rewards",
+                        "list all current wanted rewards that are searched for in alerts and invasions.");
+                    embed2.AddField("list fissures", "Lists all the saved wanted fissures",true);
+
                     embed2.WithColor(new Color(0, 255, 0));
 
                     await Context.Channel.SendMessageAsync("", false, embed2.Build());
                     break;
             }
         }
-       /* [Command("myStats")]
-        public async Task MyStats()
-        {
-            string target = "";
-            var mentionedUser = Context.Message.MentionedUsers.FirstOrDefault();
-            target = Context.User.Username;
 
-            var account = UserAccounts.GetAccount(target);
-            await Context.Channel.SendMessageAsync($"{target} has {account.Points} points and has won {account.GamesWon} games.");
-        }*/
+       
         [Command("getfile")]
         public async Task GetTheFiles()
-            {
-            string thepath = "H:\\Music";
-            DirectoryInfo d = new DirectoryInfo(thepath);//Assuming Test is your Folder
+        {
+            string thepath = "H:/Music";
+            DirectoryInfo d = new DirectoryInfo(thepath); //Assuming Test is your Folder
             FileInfo[] Files = d.GetFiles("*.mp3", SearchOption.AllDirectories); //Getting Text files
             string str = "{";
-            var dalist = new Mp3List();
-            char thechr = (char)34;
-            char tmpchar2 = (char)123;
-            char tempchar3 = (char)125;
+            // var dalist = new Mp3List();
+            char thechr = (char) 34;
+            char tmpchar2 = (char) 123;
+            char tempchar3 = (char) 125;
             int songcount = 0;
             string dasong = "Song";
             string dafile = "File Name";
@@ -420,20 +465,24 @@ namespace Warframebot.Modules
             foreach (FileInfo file in Files)
             {
 
-                str = str + ", " + thechr + dasong + songcount + thechr + ":" + tmpchar2 + thechr + dafile + thechr + ":" + thechr + file.Name + thechr  + "," + thechr + dapath  + thechr + ":" + thechr + file.DirectoryName + thechr + tempchar3;
+                str = str + ", " + thechr + dasong + songcount + thechr + ":" + tmpchar2 + thechr + dafile + thechr +
+                      ":" + thechr + file.Name + thechr + "," + thechr + dapath + thechr + ":" + thechr +
+                      file.DirectoryName + thechr + tempchar3;
                 songcount = songcount + 1;
             }
+
             string newstring = str + "}";
             await SendMessage("test");
             System.IO.File.WriteAllText("mp3.json", newstring);
         }
+
         [Command("music")]
         public async Task LoadMusic()
         {
-            string dafile = System.IO.File.ReadAllText("h:\\mp3.json");
-            
-            
-              var mp3List = Mp3List.FromJson(dafile);
+            string dafile = System.IO.File.ReadAllText("h:/mp3.json");
+
+
+            var mp3List = Mp3List.FromJson(dafile);
             Random ransong = new Random();
             int songnum = ransong.Next(mp3List.Count);
             string picksong = "Song" + songnum;
@@ -442,55 +491,138 @@ namespace Warframebot.Modules
             string title = damp3.Tag.Title;
             string artist = damp3.Tag.FirstPerformer;
             await SendMessage("**Artist:** " + artist + " **Song Name:** " + title);
+
+        }
+
+        [Command("music count")]
+        public async Task GetMusicCount()
+        {
+            string dafile = System.IO.File.ReadAllText("h:/mp3.json");
+            if (string.IsNullOrEmpty(dafile))
+            {
+                await SendMessage("mp3 data not found!");
+                return;
+            }
+            
+            var mp3List = Mp3List.FromJson(dafile);
+            string musicount = mp3List.Count.ToString();
+            await SendMessage($"There are currently **{musicount}** known songs.");
+        }
+        [Command("list fissures")]
+        public async Task ListFissures()
+        {
+            ulong guildid = Context.Guild.Id;
+            var embed = new EmbedBuilder();
+            var theaccounts = UserAccounts.GetAccount(guildid);
+
+            if (theaccounts.WantedFissures.Count == 0) return;
+
+            for (int i = 0; i < theaccounts.WantedFissures.Count; i++)
+            {
+                embed.AddField($"Fissure {i + 1} : **", $"{theaccounts.WantedFissures[i]}**");
+
+            }
+
+            embed.WithTitle($"Current list of wanted items for **{Context.Guild.Name}");
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
+
+        [Command("list rewards")]
+        public async Task ListRewards()
+        {
+
+            ulong guildid = Context.Guild.Id;
+            var embed = new EmbedBuilder();
+            var theaccounts = UserAccounts.GetAccount(guildid);
+
+            if (theaccounts.WantedRewards.Count == 0) return;
+
+            for (int i = 0; i < theaccounts.WantedRewards.Count; i++)
+            {
+                embed.AddField($"Item {i + 1} : **", $"**{theaccounts.WantedRewards[i]}**");
+
+            }
+
+            embed.WithTitle($"Current list of wanted items for **{Context.Guild.Name}");
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
+
+        [Command("add reward")]
+        public async Task SetReward([Remainder] string msg)
+        {
+            if (msg == "")
+            {
+                await SendMessage("No input detected");
+                return;
+            }
+
+            var rewardCheck = Utilities.AddRewards(Context.Guild.Id, msg);
+            if (rewardCheck == "added")
+            {
+                await SendMessage($"{msg} has been added! Use remove reward to delete.");
+            }
+            else
+            {
+                await SendMessage(
+                    $"**{msg}** is already in the list, or something went wrong! use **!list rewards** to check if its in the list");
+            }
             
         }
 
-        [Command("rewardadd")]
-        public async Task SetReward([Remainder]string arg = "")
+        [Command("remove reward")]
+        public async Task DelReward([Remainder] string msg)
         {
+            bool addCheck = false;
             var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
             for (int i = 0; i < theAccount.WantedRewards.Count; i++)
             {
-                if (!theAccount.WantedRewards[i].Contains(arg))
+                if (theAccount.WantedRewards[i].ToLower().Contains(msg.ToLower()))
                 {
-                    var rewardCount = theAccount.WantedRewards.Count + 1;
-                    theAccount.WantedRewards.Add(arg);
-                    UserAccounts.SaveAccounts();
 
-                    break;
-                }
-                else
-                {
-                    await SendMessage("Item already in list!");
+                    theAccount.WantedRewards.Remove(msg);
+                    UserAccounts.SaveAccounts();
+                    addCheck = true;
                     break;
                 }
             }
-        }
 
-        [Command("rewarddel")]
-        public async Task DelReward([Remainder]string arg = "")
-        {
-            var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
-            for (int i = 0; i < theAccount.WantedRewards.Count; i++)
+            if (addCheck == false)
             {
-                if (!theAccount.WantedRewards[i].Contains(arg))
-                {
-                    await SendMessage("Item not in list!");
-                    break;
-                }
-                else
-                {
-                    var rewardCount = theAccount.WantedRewards.Count + 1;
-                    theAccount.WantedRewards.Remove(arg);
-                    UserAccounts.SaveAccounts();
+                await SendMessage($"{msg} not found in list!");
+                return;
+            }
 
+            await SendMessage($"{msg} removed from list!");
+        }
+
+        [Command("remove fissure")]
+        public async Task DelFissure([Remainder] string msg)
+        {
+            bool addCheck = false;
+            var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
+            for (int i = 0; i < theAccount.WantedFissures.Count; i++)
+            {
+                if (theAccount.WantedFissures[i].ToLower().Contains(msg.ToLower()))
+                {
+
+                    theAccount.WantedFissures.Remove(msg);
+                    UserAccounts.SaveAccounts();
+                    addCheck = true;
                     break;
                 }
             }
+
+            if (addCheck == false)
+            {
+                await SendMessage($"{msg} not found in list!");
+                return;
+            }
+
+            await SendMessage($"{msg} removed from list!");
         }
-        //move these to utilities and make it oone command for add and remove
-        [Command("addfissure")]
-        public async Task AddFissure([Remainder] string msg)
+
+        [Command("add fissure")]
+        public async Task AddFissureAlerts([Remainder] string msg)
         {
             if (msg == "")
             {
@@ -498,72 +630,122 @@ namespace Warframebot.Modules
                 return;
             }
 
-            var guilddata = UserAccounts.GetAccount(Context.Guild.Id);
-            var json = File.ReadAllText("SystemLang/WFdata.json");
-           var thedata = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-            for (int i = 0; i < guilddata.WantedFissures.Count; ++i)
+            var addCheck = Utilities.AddFissures(Context.Guild.Id, msg);
+            if (addCheck == "added")
             {
-                if (msg == guilddata.WantedFissures[i])
-                {
-                    await SendMessage("That fissure has already been added, did you want to add another?");
-                    break;
-                }
+                await SendMessage($"{msg} has been added! Use remove fissure to delete");
             }
-            foreach (var fissure in thedata)
+            else
             {
-                if (msg.ToLower() == fissure.Value.ToLower())
-                {
-                    var theaccount = UserAccounts.GetAccount(Context.Guild.Id);
-                    theaccount.WantedFissures.Add(msg);
-                    UserAccounts.SaveAccounts();
-                    break;
-                }
+                await SendMessage(
+                    $"**{msg}** is already in the list, or something went wrong! use **!list fissures** to check if its in the list");
             }
 
         }
 
-
         [Command("set")]
-        public async Task SetCommands([Remainder]string arg = "")
+        public async Task SetCommands([Remainder] string arg = "")
         {
-            if (arg == "") await SendMessage("You must enter a valid set command. Type @help set for further instructions.");
+            if (arg == "")
+            {
+                await SendMessage("You must enter a valid set command. Type @help set for further instructions.");
+                return;
+            }
 
-            switch(arg)
+            switch (arg)
             {
                 case "alert channel":
-                    var killUser = Context.User.Username;
+
                     if (Context.User.Id == Config.bot.ownerId)
                     {
                         WFSettings.AlertsChannel = Context.Channel.Id;
                         var thealertAccount = UserAccounts.GetAccount(Context.Guild.Id);
                         thealertAccount.AlertsChannel = Context.Channel.Id;
                         UserAccounts.SaveAccounts();
+                        await SendMessage(
+                            $"Alert channel has been set to {Context.Channel.Name} on server {Context.Guild.Name}");
+                        break;
                     }
-                    
+
+                    await SendMessage($"{Context.User.Username}, you do not have proper privileges to set that!");
                     break;
+                    
                 case "check alerts":
-                    WFSettings.CheckAlerts = true;
+
                     var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
+                    if (theAccount.CheckAlerts)
+                    {
+                        theAccount.CheckAlerts = false;
+                        UserAccounts.SaveAccounts();
+                        await SendMessage("Alert rewards messages are now turned off!");
+                        break;
+                    }
+
                     theAccount.CheckAlerts = true;
                     UserAccounts.SaveAccounts();
+                    await SendMessage($"You will now get alerts for saved rewards every {theAccount.AlertDelay} mins");
                     break;
                 case "check fissures":
-                    WFSettings.CheckFissures = true;
+
                     var fissureCheck = UserAccounts.GetAccount(Context.Guild.Id);
+                    if (fissureCheck.CheckFissures)
+                    {
+                        fissureCheck.CheckFissures = false;
+                        UserAccounts.SaveAccounts();
+                        await SendMessage("Fissures alerts are now turned off!");
+                        break;
+                    }
+
                     fissureCheck.CheckFissures = true;
                     UserAccounts.SaveAccounts();
+                    await SendMessage(
+                        $"You will now get alerts for saved fissures every {fissureCheck.AlertDelay} mins");
                     break;
-                    
+                case "alert cetus":
+                    var cetuscheck = UserAccounts.GetAccount(Context.Guild.Id);
+                    if (cetuscheck.CetusTime == false)
+                    {
+                        cetuscheck.CetusTime = true;
+                        UserAccounts.SaveAccounts();
+                        await SendMessage("Cetus nightime alerts are now on!");
+                        break;
+                    }
+                    else
+                    {
+                        cetuscheck.CetusTime = false;
+                        UserAccounts.SaveAccounts();
+                        await SendMessage("Cetus nightime alerts are now off!");
+                        break;
+                    }
+
+                default:
+                    await SendMessage("Command not recognized ");
+                    break;
             }
         }
 
+        [Command("delay")]
+        public async Task SetDelay([Remainder] string msg)
+        {
+            int delaytime = 5;
+            if (Int32.TryParse(msg, out delaytime))
+            {
+                var delayaccount = UserAccounts.GetAccount(Context.Guild.Id);
+                var checkedtime = Int32.Parse(msg);
+                delayaccount.AlertDelay = checkedtime;
+                UserAccounts.SaveAccounts();
+                await SendMessage($"Messages will be sent every **{msg}** minutes!");
+            }
+        }
+
+
         [Command("searchsongs")]
-        public async Task SearchMusic([Remainder]string arg = "")
+        public async Task SearchMusic([Remainder] string arg = "")
 
         {
             if (arg == "") await SendMessage("Must enter some words to search for!");
             string dafile = System.IO.File.ReadAllText("mp3.json");
-            
+
             var mp3List = Mp3List.FromJson(dafile);
             int dasongcount = 0;
             string dasong = "Song" + dasongcount;
@@ -572,9 +754,12 @@ namespace Warframebot.Modules
             string[] multisongs = new string[25];
             for (int i = 0; i < mp3List.Count; i++)
             {
-               // Regex.IsMatch(searchstring, arg)
-                if (songsfound == 5) { break; }
-                
+
+                if (songsfound == 5)
+                {
+                    break;
+                }
+
                 string searchstring = mp3List[dasong].FileName;
                 searchstring = searchstring.ToLower();
                 arg = arg.ToLower();
@@ -591,19 +776,20 @@ namespace Warframebot.Modules
                         if (wordcount2 > words.Length) goto foundpart;
                         if (searchstring.Contains(words[wordcount]) && searchstring.Contains(words[wordcount2]))
                         {
-                            TagLib.File damp3 = TagLib.File.Create(mp3List[dasong].Path + "/" + mp3List[dasong].FileName);
+                            TagLib.File damp3 =
+                                TagLib.File.Create(mp3List[dasong].Path + "/" + mp3List[dasong].FileName);
                             string artist = damp3.Tag.FirstPerformer;
 
                             if (artist == "") artist = "Artist name not listed";
                             multisongs[songsfound] = "**Artist**: " + artist + " **Song Name**: " + damp3.Tag.Title;
                             songsfound = songsfound + 1;
-                            if (songsfound == 5 ) goto foundpart;
+                            if (songsfound == 5) goto foundpart;
                             wordcount = wordcount + 1;
                             wordcount2 = wordcount2 + 1;
                         }
-                       
+
                     }
-                 }
+                }
                 else
                 {
                     if (searchstring.Contains(arg))
@@ -617,39 +803,103 @@ namespace Warframebot.Modules
 
                     }
                 }
+
                 dasongcount = dasongcount + 1;
                 searchcount = searchcount + 1;
                 dasong = "Song" + dasongcount;
             }
-            //string somesong = mp3List[dasong].FileName;
-            //TagLib.File damp3 = TagLib.File.Create(mp3List[dasong].Path + "/" + somesong);
-            //string title = damp3.Tag.Title;
-            //  string artist = damp3.Tag.FirstPerformer;
+
             if (songsfound == 0) return;
             foundpart:
             var embed = new EmbedBuilder();
-            embed.WithTitle ("**Songs found in search**");
+            embed.WithTitle("**Songs found in search**");
             embed.WithDescription("**More then 5 songs found, try a different search to reduce amount**");
             embed.WithColor(new Color(188, 66, 244));
             for (int i = 0; i < songsfound; i++)
             {
                 string fndsong = multisongs[i];
-                embed.AddField("**Song Name**: ",fndsong,true);
+                embed.AddField("**Song Name**: ", fndsong, true);
             }
 
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
-        [Command("time")]
+        [Command("cetustime")]
         public async Task TimeTest()
         {
-            //double test = Utilities.GetTimeDiff(DateTime.Today);
-           // string blah = test.ToString();
-            var oldtime = DateTime.Now;
-            Thread.Sleep(10000);
-            var newtime = DateTime.Now;
-           var blah = newtime.Subtract(oldtime);
-            await SendMessage(blah.Seconds.ToString());
+            string thetime = Utilities.GetCetusTime();
+            if (!string.IsNullOrEmpty(thetime)) return;
+            if(!Int64.TryParse(thetime,out long ignoreme))return;
+           if( Int64.Parse(thetime) > 50)
+            {
+                long timeremain = Int64.Parse(thetime) - 50;
+                await SendMessage($"It is currently daytime on Cetus, night will be here in **{timeremain.ToString()} minutes**");
+            }
+            else
+            {
+                if(!string.IsNullOrEmpty(thetime)) await SendMessage(
+                    $"It is currently nighttime on Cetus, you have roughly **{thetime} minutes** remaining till daylight!");
+            }
         }
+
+        [Command("alarm")]
+        public async  Task SetCetusAlarm([Remainder] string msg)
+        {
+            var user = Context.User.Id;
+            var json = string.Empty;
+            
+            json = Utilities.LoadJsonData("SystemLang/Alarm.json");
+            if (string.IsNullOrEmpty(json))
+            {
+                await SendMessage("There was an error, please try again later!");
+                return;
+            }
+           
+            JArray a = JArray.Parse(json);
+            List<UserAccount> tmpdata = new List<UserAccount>();
+            var alarmUsers = a.ToObject<List<UserAccount>>();
+            var alarmUser = UserAccounts.GetAlarmUser(user, 15);
+            foreach (var users in alarmUsers)
+            {
+                if (users.DiscordId == user)
+                {
+                    if (msg.ToLower() == "off")
+                    {
+                        alarmUser.AlarmOn = false;
+                        UserAccounts.SaveAlarmUser();
+                        return;
+                    }
+
+                    {
+                        if (msg.ToLower() == "on")
+                        {
+                            users.AlarmOn = true;
+                            UserAccounts.SaveAlarmUser();
+                            return;
+                        }
+                    }
+                }
+            }
+
+            int delaytime = 10;
+            if (Int32.TryParse(msg, out delaytime))
+            {
+                var wanteddelay = Int32.Parse(msg);
+                var theuser = UserAccounts.GetAlarmUser(user, wanteddelay);
+                
+                theuser.AlarmDelay = wanteddelay;
+                theuser.AlarmChannel = Context.Channel.Id;
+                UserAccounts.SaveAlarmUser();
+                await SendMessage(
+                    $"<@{Context.User.Id}> I have added an alarm for cetus nighttime with a delay of **{wanteddelay}**!");
+            }
         }
+
+        [Command("test")]
+        public async Task TestCommand()
+        {
+            var test = Context.User.Id;
+            await SendMessage($"<@{test}> ");
+        }
+    }
 }

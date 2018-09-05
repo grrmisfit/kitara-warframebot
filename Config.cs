@@ -20,7 +20,7 @@ namespace Warframebot
                 Directory.CreateDirectory(configFolder);
 
             if (!File.Exists(configFolder + "/" + configFile))
-            //if
+            
             {
 
                 bot = new BotConfig();
@@ -41,8 +41,6 @@ namespace Warframebot
 
         public string token;
         public string cmdPrefix;
-        public string weboken;
-        public string webtokenpass;
         public ulong ownerId;
     }
    

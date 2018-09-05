@@ -50,15 +50,15 @@ namespace Warframebot
 
 public partial class Mp3List
 {
-    public static Dictionary<string, Mp3List> FromJson(string json) => JsonConvert.DeserializeObject<Dictionary<string, Mp3List>>(json, Mp3listConverter.Settings);
+    public static Dictionary<string, Mp3List> FromJson(string json) => JsonConvert.DeserializeObject<Dictionary<string, Mp3List>>(json, Mp3ListConverter.Settings);
 }
 
 public static class Serialize
 {
-    public static string ToJson(this Dictionary<string, Mp3List> self) => JsonConvert.SerializeObject(self, Mp3listConverter.Settings);
+    public static string ToJson(this Dictionary<string, Mp3List> self) => JsonConvert.SerializeObject(self, Mp3ListConverter.Settings);
 }
 
-internal static class Mp3listConverter
+internal static class Mp3ListConverter
 {
     public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
     {

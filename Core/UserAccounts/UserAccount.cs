@@ -8,9 +8,13 @@ namespace Warframebot.Core.UserAccounts
 {
     public class UserAccount
     {
-       public string Name { get; set; }
-       public int Points { get; set; }
-       public int GamesWon { get; set; }
+       public ulong DiscordId { get; set; }
+       public string DiscordName { get; set; }
+       public int AlarmDelay { get; set; }
+       public bool AlarmOn { get; set; }
+       public DateTime TimeAlerted { get; set; }
+       public ulong AlarmChannel { get; set; }
+    
     }
 
     public partial class GuildAccounts
@@ -37,6 +41,14 @@ namespace Warframebot.Core.UserAccounts
 
         [JsonProperty("TimeChecked")]
         public DateTime  TimeChecked { get; set; }
+        [JsonProperty("CetusTimeChecked")]
+        public DateTime CetusTimeChecked { get; set; }
+        [JsonProperty("AlertDelay")]
+        public int AlertDelay { get; set; }
+        [JsonProperty("CetusTime")]
+        public bool CetusTime { get; set; }
+        [JsonProperty("CetusTimeAlerted")]
+        public bool CetusTimeAlerted { get; set; }
     }
 
     public partial class GuildAccounts
@@ -87,7 +99,7 @@ namespace Warframebot.Core.UserAccounts
             var value = (bool)untypedValue;
             var boolString = value ? "true" : "false";
             serializer.Serialize(writer, boolString);
-            return;
+            
         }
 
         public static readonly ParseStringConverter Singleton = new ParseStringConverter();

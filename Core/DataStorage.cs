@@ -22,17 +22,17 @@ namespace Warframebot.Core
             string json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<List<GuildAccounts>>(json);
         }
-       /* public static IEnumerable<UserAccount> LoadSavedAccounts(string filePath)
+        public static IEnumerable<UserAccount> LoadSavedAlarmSettings(string filePath)
         {
             if (!File.Exists(filePath)) return null;
             string json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<List<UserAccount>>(json);
         }
-        public static void SaveTmpAccounts(IEnumerable<GetPlayerOnlineResult> accounts, string filePath)
+        public static void SaveAlarmSettings(IEnumerable<UserAccount> accounts, string filePath)
         {
             string json = JsonConvert.SerializeObject(accounts, Formatting.Indented);
             File.WriteAllText(filePath, json);
-        }*/
+        }
         public static bool SaveExists(string filePath)
         {
             return File.Exists(filePath);

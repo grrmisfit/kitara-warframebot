@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 
@@ -8,11 +9,10 @@ namespace Warframebot.Core.UserAccounts
 {
     public static class UserAccounts
     {
-
-        public static List<GuildAccounts> accounts;
-
-
-        public static string accountsFile = "SystemLang/WFsettings.json";
+        private static List<GuildAccounts> accounts;
+        private static List<UserAccount> alarmAccounts;
+        private static string alarmSettings = "SystemLang/Alarm.json";
+        private static string accountsFile = "SystemLang/WFsettings.json";
             static UserAccounts()
              {
                 if(DataStorage.SaveExists(accountsFile))
@@ -26,21 +26,26 @@ namespace Warframebot.Core.UserAccounts
                 accounts = new List<GuildAccounts>();
                 DataStorage.SaveUserAccounts(accounts, accountsFile);
             }
-             }
+                 if (DataStorage.SaveExists(alarmSettings))
+                 {
+
+                     alarmAccounts = DataStorage.LoadSavedAlarmSettings(alarmSettings).ToList();
+
+                 }
+                 else
+                 {
+                     alarmAccounts = new List<UserAccount>();
+                     DataStorage.SaveAlarmSettings(alarmAccounts, alarmSettings);
+                 }
+
+        }
         public static void SaveAccounts()
         {
             DataStorage.SaveUserAccounts(accounts, accountsFile);
         }
-        public static bool AccountExists(ulong id)
+        public static void SaveAlarmUser()
         {
-            var theaccount = GetOrCreateAccount(id);
-            bool itsfound = false;
-            if (theaccount == null)
-            { itsfound = false; }
-            else
-            { itsfound = true; }
-
-            return itsfound;
+            DataStorage.SaveAlarmSettings(alarmAccounts, alarmSettings);
         }
         public static GuildAccounts GetAccount(ulong user)
         {
@@ -53,8 +58,7 @@ namespace Warframebot.Core.UserAccounts
                          where a.Guild == id
                          select a;
 
-            var account = result.FirstOrDefault();
-            if (account == null) account = CreateUserAccount(id);
+            var account = result.FirstOrDefault() ?? CreateUserAccount(id);
             return account;
         }
 
@@ -67,13 +71,44 @@ namespace Warframebot.Core.UserAccounts
                 AlertsChannel = 0,
                 CheckAlerts = false,
                 CheckFissures = false,
-                WantedRewards = new List<string> {"nothing"},
-                WantedFissures = new List<string> { "nothing" },
-                TimeChecked = DateTime.Now
+                WantedRewards = new List<string> {""},
+                WantedFissures = new List<string> { "" },
+                TimeChecked = DateTime.Now,
+                AlertDelay = 15
             };
             
             accounts.Add(newAccount);
             SaveAccounts();
+            return newAccount;
+        }
+        public static UserAccount GetAlarmUser(ulong user, int delay)
+        {
+            return GetOrCreateAlarmUser(user, delay);
+        }
+
+        private static UserAccount GetOrCreateAlarmUser(ulong id, int delay)
+        {
+            var result = from a in alarmAccounts
+                where a.DiscordId == id
+                select a;
+
+            var account = result.FirstOrDefault() ?? CreateAlarmUser(id, delay);
+            return account;
+        }
+
+        private static UserAccount CreateAlarmUser(ulong id, int delay)
+        {
+
+            var newAccount = new UserAccount()
+            {
+                DiscordId = id,
+                AlarmDelay = delay,
+                AlarmOn = true,
+
+            };
+
+            alarmAccounts.Add(newAccount);
+            SaveAlarmUser();
             return newAccount;
         }
     }
