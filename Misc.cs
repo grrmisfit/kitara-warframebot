@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -357,42 +358,7 @@ namespace Warframebot
 
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
-
-
-
-        [Command("scram")]
-        public async Task ScrambleCommands([Remainder] string message)
-        {
-            if (ScramData.GameStarted == true) return;
-
-            ScramData.GameStarted = true;
-            string command = message;
-            switch (command)
-            {
-                case "random":
-                    ScramData.Random = true;
-                    break;
-                case "stop":
-                    ScramData.GameStarted = false;
-                    await SendMessageChannel(ScramData.ScramChannel, "**Scramble game stopping**");
-                    break;
-                case "start":
-                    ScramData.Random = true;
-                    ScramData.GameStarted = true;
-                    ScramData.WordGuessed = true;
-                    ScramData.ScramChannel = Context.Channel.Id;
-                    await SendMessageChannel(ScramData.ScramChannel, "**Scramble game starting**");
-                    break;
-
-            }
-
-            await RepeatingTimer.StartScramTimer();
-
-
-        }
-
-
-
+        
         [Command("react")]
         public async Task HandleReactionMessage()
         {
@@ -410,23 +376,11 @@ namespace Warframebot
                     var helpembed = new EmbedBuilder();
                     helpembed.WithTitle("**Help topics**");
                     helpembed.WithDescription("**List of current help topics.**");
-                    helpembed.AddField("Topic 1", "scramble", true);
-                    helpembed.AddField("Topic 2", "warframe", true);
+                    
+                    helpembed.AddField("Topic 1", "Warframe", true);
                     await Context.Channel.SendMessageAsync("", false, helpembed.Build());
                     break;
-                case "scramble":
-
-                    var embed = new EmbedBuilder();
-                    embed.WithTitle("Current commands");
-                    embed.WithDescription("use @botname or ! (depending on settings) with following commands");
-                    embed.AddField("scram start",
-                        "Starts a scramble game, words are delayed by 10-15 secs to prevent spam", true);
-                    embed.AddField("scram stop", "Stops current game", true);
-                    embed.AddField("mystats", "Shows a player their current points and games won", true);
-
-                    embed.WithColor(new Color(188, 66, 244));
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
+                
                 case "warframe":
                     var embed2 = new EmbedBuilder();
                     embed2.WithTitle("Current commands");

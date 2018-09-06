@@ -7,7 +7,7 @@ namespace Warframebot
         internal static readonly string ResourceFolder = "resources";
         internal static readonly string UserAccountsFolder = "users";
         internal static readonly string ServerAccountsFolder = "servers";
-        internal static readonly string LogFolder = "logs";
+        internal static readonly string LogFolder = "Logs";
         internal static readonly string InvisibleString = "\u200b";
         public const ulong DailyMuiniesGain = 250;
         public const int MessageRewardCooldown = 30;

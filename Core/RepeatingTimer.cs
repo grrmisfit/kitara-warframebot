@@ -17,84 +17,10 @@ namespace Warframebot.Core
     internal static class RepeatingTimer
     {
         
-        private static Timer loopingTimer;
-        private static Timer scramTimer;
-        private static Timer delayTimer;
-        private static SocketTextChannel channel;
-
-        internal static Task StartScramTimer()
-        {
-
-            if (ScramData.GameStarted == false) return Task.CompletedTask;
-            if (!ScramData.GamePause == false) return Task.CompletedTask;
-            scramTimer = new Timer()
-            {
-                Interval = 10000,
-                AutoReset = true,
-                Enabled = true,
-            };
-
-
-            scramTimer.Elapsed += OnScramTimerTicked;
-
-            return Task.CompletedTask;
-        }
-
-        private static async void OnScramTimerTicked(object sender, ElapsedEventArgs e)
-        {
-            if (!ScramData.GameWait == false) return;
-            if (ScramData.GameStarted == false) return;
-            if (!ScramData.GamePause == false) return;
-            Console.WriteLine(DateTime.Today);
-            if (ScramData.WordGuessed == true)
-            {
-                string daword = Scramble.GetScramWord();
-               // string cheatword = ScramData.ScramWord;
-                // await Misc.SendMessageChannel(ScramData.ScramChannel, "**" + cheatword + "**");
-                // await Misc.SendMessageChannel(471312780079923210, "**" + daword + "**");
-                var embed = new EmbedBuilder();
-                embed.WithTitle("Scrambled Word");
-                embed.WithDescription("Category: **" + ScramData.Category + "**");
-                embed.AddField("**Word***: **", daword + "**", true);
-                embed.WithColor(new Color(188, 66, 244));
-                if (Global.Client.GetChannel(ScramData.ScramChannel) is IMessageChannel chnl) await chnl.SendMessageAsync("", false, embed.Build());
-                ScramData.WordGuessed = false;
-            }
-            else
-            {
-                if (ScramData.GameWait == true) return;
-                if (ScramData.GameStarted == false) return;
-               // string cheatword = ScramData.ScramWord;
-                //await Misc.SendMessageChannel(ScramData.ScramChannel, "**" + cheatword + "**");
-                await Misc.SendMessageChannel(ScramData.ScramChannel, "**Current word: " + ScramData.ScrambledWord + "**");
-            }
-
-        }
-        internal static Task DelayScramTimer()
-        {
-            if (ScramData.GameStarted == false) return Task.CompletedTask;
-            if (ScramData.GamePause == false) return Task.CompletedTask;
-            delayTimer = new Timer()
-            {
-                Interval = 10000,
-                AutoReset = false,
-                Enabled = true,
-            };
-
-            delayTimer.Elapsed += OnDelayTimerTicked;
-            return Task.CompletedTask;
-        }
-
-        private static async void OnDelayTimerTicked(object sender, ElapsedEventArgs e)
-        {
-            if (ScramData.GameStarted == false) return;
-            await Misc.SendMessageChannel(ScramData.ScramChannel, "**" + "New word coming in 10 secs!" + "**");
-            delayTimer.Enabled = false;
-            ScramData.GamePause = false;
-            ScramData.GameWait = false;
-            scramTimer.Enabled = true;
-        }
-        internal static Task StartTimer()
+       private static Timer loopingTimer;
+       private static SocketTextChannel channel;
+        
+       internal static Task StartTimer()
         {
             loopingTimer = new Timer()
             {
@@ -109,14 +35,16 @@ namespace Warframebot.Core
         private static async void OnTimerTicked(object sender, ElapsedEventArgs e)
         {
 
-            CheckGuildAlerts();
-            await Task.Delay(1);
-            CheckGuildFissures();
-            CheckCetusTime();
+            await CheckGuildAlerts();
+            await Task.Delay(1000);
+            await CheckGuildFissures();
+            await Task.Delay(1000);
+            await CheckCetusTime();
+            await Task.Delay(1000);
             await CheckAlarms();
         }
 
-        private static async void CheckAlertRewards(ulong id, ulong alertchan)
+        private static async Task CheckAlertRewards(ulong id, ulong alertchan)
         {
           
             var warframe = Warframe.FromJson(Utilities.GetWarframeInfo());
@@ -138,7 +66,7 @@ namespace Warframebot.Core
                 curreward = curreward.ToLowerInvariant();
                 if (curreward.Contains(reward))
                 {
-                    await Misc.SendMessageChannel(id, Utilities.ReplaceRewardInfo(reward) + "Has been found, type !alerts to see which alert contains it");
+                    await Misc.SendMessageChannel(alertchan, Utilities.ReplaceRewardInfo(reward) + "Has been found, type !alerts to see which alert contains it");
                 }
 
                 dacount = dacount + 1;
@@ -164,7 +92,7 @@ namespace Warframebot.Core
             }
         }
 
-        private static async void  CheckFissures(ulong guildid )
+        private static async Task  CheckFissures(ulong guildid )
         {
             var fisjson = string.Empty;
             fisjson = File.ReadAllText("SystemLang/WFsettings.json");
@@ -228,7 +156,7 @@ namespace Warframebot.Core
 
                     if (alerted == false)
                     {
-                        if (chnl != null) await chnl.SendMessageAsync(".", false, embed.Build());
+                        if (chnl != null) await chnl.SendMessageAsync("", false, embed.Build());
                         var thetime = DateTime.Now;
                         var accounts = UserAccounts.UserAccounts.GetAccount(guildid);
                         accounts.TimeChecked = thetime;
@@ -240,7 +168,7 @@ namespace Warframebot.Core
             
         }
         
-        private static void CheckGuildAlerts()
+        private static async Task CheckGuildAlerts()
         {
 
             var json = string.Empty;
@@ -256,12 +184,12 @@ namespace Warframebot.Core
                 {
                     ulong tempguild = guildAccounts[i].Guild;
                     ulong tempchan = guildAccounts[i].AlertsChannel;
-                     CheckAlertRewards(tempguild, tempchan);
+                    await CheckAlertRewards(tempguild, tempchan);
                 }
             }
             
         }
-        private static  void CheckGuildFissures()
+        private static async Task CheckGuildFissures()
         {
             if (!File.Exists("SystemLang/WFsettings.json")) return;
             var json = File.ReadAllText("SystemLang/WFsettings.json");
@@ -274,7 +202,7 @@ namespace Warframebot.Core
                 if (guildAccounts[i].AlertsChannel == 0) return;
                 if ((!guildAccounts[i].CheckFissures == false))
                 {
-                     CheckFissures(guildAccounts[i].Guild);
+                    await CheckFissures(guildAccounts[i].Guild);
                 }
             }
         }
@@ -315,7 +243,7 @@ namespace Warframebot.Core
             
         }
 
-        private static async void CheckCetusTime()
+        private static async Task CheckCetusTime()
         {
             bool fifteentil = false;
             bool fivetil =false;
@@ -339,8 +267,6 @@ namespace Warframebot.Core
                         var account = UserAccounts.UserAccounts.GetAccount(accounts.Guild);
                         account.CetusTimeAlerted = false;
                         UserAccounts.UserAccounts.SaveAccounts();
-                       
-
                     }
                 }
             }
@@ -371,9 +297,6 @@ namespace Warframebot.Core
                         var account = UserAccounts.UserAccounts.GetAccount(accounts.Guild);
                         account.CetusTimeAlerted = true;
                         UserAccounts.UserAccounts.SaveAccounts();
-                        
-                        
-
                     }
                 }
             }

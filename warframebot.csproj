@@ -182,7 +182,7 @@
     <Compile Include="Modules\Scramble.cs" />
     <Compile Include="Modules\ScrambleWords.cs" />
     <Compile Include="Storage\IDataStorage.cs" />
-    <Compile Include="Storage\ILogger.cs" />
+    <Compile Include="ILogger.cs" />
     <Compile Include="Storage\Implementation\InMemoryStorage.cs" />
     <Compile Include="Storage\Implementation\JsonStorage.cs" />
     <Compile Include="Unity.cs" />
@@ -221,6 +221,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Logs\" />
     <Folder Include="Update\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

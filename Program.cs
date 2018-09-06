@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Warframebot.Core;
 using Dropbox.Api;
+using Warframebot.Discord.Entities;
 
 namespace Warframebot
 {
@@ -12,25 +13,40 @@ namespace Warframebot
     {
         DiscordSocketClient _client;
         CommandHandler _handler;
-
+        /*
         static void Main(string[] args)
            
             => new Program().StartAsync().GetAwaiter().GetResult();
 
         public async Task StartAsync()
         {
-            await Task.Delay(3);
+            thestart:
+            await Task.Delay(3000);
             if (string.IsNullOrEmpty(Config.bot.token)) return;
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Verbose
 
             });
+            
+            
+            try
+            {
+                await _client.LoginAsync(TokenType.Bot, Config.bot.token);
+                await _client.StartAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Connection Failed...Will retry in 5 secs.");
+                for (int i = 0; i < 5; i++)
+                {
+                    Console.WriteLine($"Retrying in {5 - i}");
+                  await  Task.Delay(1000);
+                }
+                goto thestart;
+            }
             _client.Log += Log;
             _client.Ready += RepeatingTimer.StartTimer;
-            //_client.ReactionAdded += OnReactionAdded;
-            await _client.LoginAsync(TokenType.Bot, Config.bot.token);
-            await _client.StartAsync();
             Global.Client = _client;
             _handler = new CommandHandler();
             await _client.SetGameAsync("Warframe Info Bot");
@@ -40,16 +56,16 @@ namespace Warframebot
             await Task.Delay(-1);
             Console.Read();
         }
-        /*
-        will come back to this
-       private static async Task Main()
+        */
+
+        private static async Task Main()
        {
 
            Unity.RegisterTypes();
           // var storage = Unity.Resolve<IDataStorage>();
 
            var connection = Unity.Resolve<Connection>();
-
+          
 
            await connection.ConnectAsync(new WarframeBotConfig
            {
@@ -59,7 +75,7 @@ namespace Warframebot
            await Task.Delay(-1);
 
        }
-
+        /*
        public async Task StartAsync()
         {
 
@@ -83,7 +99,7 @@ namespace Warframebot
             await Task.Delay(-1);
 
         }
-        */
+        
         private async Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.Message);
@@ -100,7 +116,7 @@ namespace Warframebot
             }
             
         }
- 
+ */
     }
-    }
+}
 

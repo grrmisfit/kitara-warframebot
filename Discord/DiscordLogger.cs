@@ -1,12 +1,10 @@
 ﻿using Discord;
 using System.Threading.Tasks;
-using Warframebot.Storage;
-
 namespace Warframebot.Discord
 {
    public class DiscordLogger
    {
-       private ILogger _logger;
+        ILogger _logger;
 
        public DiscordLogger(ILogger logger)
        {

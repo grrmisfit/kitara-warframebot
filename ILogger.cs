@@ -1,4 +1,4 @@
-﻿namespace Warframebot.Storage
+﻿namespace Warframebot
 {
     public interface ILogger
     {
