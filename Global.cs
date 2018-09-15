@@ -38,6 +38,8 @@ namespace Warframebot
         public static ulong ScramChannel { get; set; }
         public static bool GameWait { get; set; }
     }
+
+    
    public partial class Mp3List
   
     {

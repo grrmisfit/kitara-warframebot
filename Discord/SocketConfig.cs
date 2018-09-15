@@ -11,7 +11,7 @@ namespace Warframebot.Discord
         {
             return new DiscordSocketConfig
             {
-                LogLevel = LogSeverity.Error
+                LogLevel = LogSeverity.Verbose
             };
         }
 

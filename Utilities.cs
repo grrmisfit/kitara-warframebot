@@ -6,11 +6,32 @@ using Warframebot.Core.UserAccounts;
 using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Warframebot.Modules;
 using Warframebot.Modules.Warframe;
 
 namespace Warframebot
 {
-    
+    public static class Extensions
+    {
+        /// <summary>
+        /// Get substring of specified number of characters on the right.
+        /// </summary>
+        public static string Right(this string value, int length)
+        {
+            return value.Substring(value.Length - length);
+        }
+
+        public static string Left(this string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            maxLength = Math.Abs(maxLength);
+
+            return (value.Length <= maxLength
+                    ? value
+                    : value.Substring(0, maxLength)
+                );
+        }
+    }
     class Utilities
     {
        
@@ -74,11 +95,12 @@ namespace Warframebot
         }
         public static string ReplaceRewardInfo(string key)
         {
+            string rewards = "";
             string therewards = File.ReadAllText("Systemlang/rewards.json");
             
             var reward = JsonConvert.DeserializeObject<Dictionary<string, string>>(therewards);
             
-            string rewards = "";
+            
             if (reward.ContainsKey(key)) rewards = reward[key];
             return rewards;
            
@@ -152,15 +174,25 @@ namespace Warframebot
                     return "not added";
                  }
             }
-           // var rewardCount = theAccount.WantedRewards.Count + 1;
+            
+            
             theAccount.WantedRewards.Add(msg);
+            for (int a = 0; a < theAccount.WantedRewards.Count; a++)
+            {
+                if(theAccount.WantedRewards[a].ToLower().Contains("nothing"))// we add nothing on account creation and now we remove it once they add something
+                {
+                    theAccount.WantedRewards.Remove("nothing");
+                }
+            }
             UserAccounts.SaveAccounts();
             return "added";
         }
 
         public static string GetCetusTime()
         {
-            var warframe = Warframe.FromJson(Utilities.GetWarframeInfo());
+            var json = GetWarframeInfo();
+            if (string.IsNullOrEmpty(json)) return "error";
+            var warframe = Warframe.FromJson(json);
             var checkFissAlerts = warframe.SyndicateMissions;
             var expiretime = "";
             foreach (var syn in checkFissAlerts)
@@ -170,6 +202,11 @@ namespace Warframebot
                 {
                     expiretime = syn.Expiry.Date.NumberLong;
                 }
+            }
+            long ignoreMe;
+            if (!Int64.TryParse(expiretime, out ignoreMe))
+            {
+                return  "125";
             }
             DateTimeOffset oldtime = DateTimeOffset.FromUnixTimeMilliseconds(Int64.Parse(expiretime));
 
@@ -183,7 +220,7 @@ namespace Warframebot
             var strlen = stringtime.Length;
             var mystr = stringtime.Right(strlen - 1);
             mystr = mystr.Split('.')[0];
-            
+           
                 return mystr;
         }
 
@@ -246,9 +283,53 @@ namespace Warframebot
             return checktime;
         }
 
+        public static string ExpireFisTime(string thetime)
+        {
+            
+            DateTimeOffset oldtime = DateTimeOffset.FromUnixTimeMilliseconds(Int64.Parse(thetime));
+            DateTimeOffset nowtime = DateTimeOffset.UtcNow;
+            var exptime = $"{oldtime.Subtract(nowtime).Hours}h {oldtime.Subtract(nowtime).Minutes}m {oldtime.Subtract(nowtime).Seconds}s";
+           // DateTime exptime = new DateTime(oldtime.Subtract(nowtime.to));
+
+            return exptime;
+        }
         public static void UpdateBot()
         {
 
+        }
+
+        public static string FissureLink(string wantedFissure)
+        {
+            string theFissure = "";
+            switch (wantedFissure)
+            {
+                case "defense":
+                    theFissure = $"[Defense has been found! List is below.]({Constants.Defense}) ";
+                    break;
+                case "capture":
+                    theFissure = $"[Capture has been found! List is below.]({Constants.Capture})";
+                    break;
+                case "interception":
+                    theFissure = $"[Interception has been found! List is below.]({Constants.Interception}) ";
+                    break;
+                case "spy":
+                    theFissure = $"[Spy has been found! List is below.]({Constants.Spy}) ";
+                    break;
+                case "excavation":
+                    theFissure = $"[Excavation has been found! List is below.]({Constants.Excavation}) ";
+                    break;
+                case "exterminate":
+                    theFissure = $"[Exterminate has been found! List is below.]({Constants.Exterminate}) ";
+                    break;
+                case "survival":
+                    theFissure = $"[Survival has been found! List is below.]({Constants.Survival}) ";
+                    break;
+                default:
+                    theFissure = "Unkown";
+                    break;
+            }
+
+            return theFissure;
         }
         /* public static string GetFormattedAlert(string key, params object[] parameter)
      {

@@ -9,7 +9,7 @@ namespace Warframebot
       public void Log(string message)
         {
           Console.WriteLine(message);
-          
+          LogFile(message);
         }
 
        private void LogFile(string message)

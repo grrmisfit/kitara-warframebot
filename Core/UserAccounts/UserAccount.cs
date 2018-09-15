@@ -13,6 +13,7 @@ namespace Warframebot.Core.UserAccounts
        public int AlarmDelay { get; set; }
        public bool AlarmOn { get; set; }
        public DateTime TimeAlerted { get; set; }
+        public DateTime AlertTimeChecked { get; set; }
        public ulong AlarmChannel { get; set; }
     
     }
@@ -38,7 +39,8 @@ namespace Warframebot.Core.UserAccounts
 
         [JsonProperty("WantedFissures")]
         public List<string> WantedFissures { get; set; }
-
+        [JsonProperty("AlertTimeChecked")]
+        public DateTime AlertTimeChecked { get; set; }
         [JsonProperty("TimeChecked")]
         public DateTime  TimeChecked { get; set; }
         [JsonProperty("CetusTimeChecked")]
