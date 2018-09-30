@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Newtonsoft.Json.Linq;
+using LiteDB;
 using Warframebot.Core.UserAccounts;
-using Warframebot.Modules.Warframe;
 
 namespace Warframebot.Modules
 {
@@ -34,17 +32,98 @@ namespace Warframebot.Modules
         }
 
         [Command("test")]
-        public async Task TestModule()
+        public async Task RemoveDeadFissures()
         {
-            var themods = _service.Modules;
-            await SendMessage(themods.ToString());
+            await Utilities.CleanUpFissures();
         }
+
+        [Command("purge")]
+        [Summary("Deletes a specified amount of messages from channel. WARNING!!! This is perma" 
+                 + "nent and cannot be undone, use with caution")]
+        [RequireUserPermission(GuildPermission.ManageMessages)]
+        public async Task PurgeMessages([Remainder] int amount)
+        {
+            IEnumerable<IMessage> messages = await Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
+            await ((ITextChannel)Context.Channel).DeleteMessagesAsync(messages);
+            const int delay = 3000;
+            IUserMessage m = await ReplyAsync($"I have deleted {amount} messages for ya. :)");
+            await Task.Delay(delay);
+            await m.DeleteAsync();
+        }
+        [Command("freddo")]
+        [Remarks("only used in a specific discord")]
+        [Summary("Gives you ability to see bot spam channel. Use !freddo off to disable.")]
+        public async Task AddFreddoRole([Remainder] string msg = "")
+        {
+            var user = Context.User as SocketGuildUser;
+            var role = (user as IGuildUser).Guild.Roles.FirstOrDefault(x => x.Name == "Alliance Friends");
+            if (user != null && user.Roles.Contains(role) && msg == "")
+            {
+               await Context.Channel.SendMessageAsync("You have already completed this task Tenno!");
+                return;
+            }
+            if (user != null && !user.Roles.Contains(role) && msg == "off")
+            {
+                await Context.Channel.SendMessageAsync("You have already completed this task Tenno!");
+                return;
+            }
+
+            if (msg == "off")
+            {
+                if (user != null && user.Roles.Contains(role)) await user.RemoveRoleAsync(role);
+                await Context.Channel.SendMessageAsync($"Your role of {role} has been removed");
+            }
+            else if( msg == "")
+            { 
+                if (user != null) await user.AddRoleAsync(role);
+                await Context.Channel.SendMessageAsync($"You have been given role of {role}");
+            }
+        }
+
+        [Command("stream")]
+        [Remarks("used to give Stream Notifications role")]
+        [Summary("Gives you ability to see stream channel. Use !stream off to disable.")]
+        public async Task AddStreamRole([Remainder] string msg = "")
+        {
+            var user = Context.User as SocketGuildUser;
+            var role = (user as IGuildUser).Guild.Roles.FirstOrDefault(x => x.Name == "Stream Notifications");
+            if (user != null && user.Roles.Contains(role) && msg == "")
+            {
+                await Context.Channel.SendMessageAsync("You have already completed this task Tenno!");
+                return;
+            }
+            if (user != null && !user.Roles.Contains(role) && msg == "off")
+            {
+                await Context.Channel.SendMessageAsync("You have already completed this task Tenno!");
+                return;
+            }
+
+            if (msg == "off")
+            {
+                if (user != null && user.Roles.Contains(role)) await user.RemoveRoleAsync(role);
+                await Context.Channel.SendMessageAsync($"Your role of {role} has been removed");
+            }
+            else if (msg == "")
+            {
+                if (user != null) await user.AddRoleAsync(role);
+                await Context.Channel.SendMessageAsync($"You have been given role of {role}");
+            }
+        }
+        [Command("symbol")]
+        [Summary("The symbol of our great alliance, sent in all its glory to the channel for all to see!")]
+        public async Task TestDb()
+        {
+           var embed = new EmbedBuilder();
+            embed.WithImageUrl("http://3rdshifters.org/dur.png");
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
+
         [Command("help"), Alias("h"),
          Remarks(
-             "DMs you a message if you dont specify a command -")]
+             "DMs you a message if you dont specify a command - Warning this can be quite long")]
         public async Task Help()
         {
-            await Context.Channel.SendMessageAsync("Check your DMs.");
+            await Context.Channel.SendMessageAsync("I have sent you a message of a list of help choices. Check your DMs.");
 
             var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
 
@@ -52,8 +131,8 @@ namespace Warframebot.Modules
             var builder = new EmbedBuilder()
             {
                 Title = "Help",
-                Description = $"These are the commands you can use in {contextString}",
-                Color = new Color(114, 137, 218)
+                Description = $"These are the commands you can use in {contextString}. FOr more information use !help command name for more detailed help",
+                Color = new Color(188, 66, 244)
             };
             var themods = _service.Modules;
             foreach (var module in themods)
@@ -140,7 +219,7 @@ namespace Warframebot.Modules
                 await Task.Delay(2);
                 await Global.Client.LogoutAsync();
                 await Global.Client.StopAsync();
-               // Environment.Exit(0);
+                Environment.Exit(0);
             }
             else
             {
@@ -149,7 +228,7 @@ namespace Warframebot.Modules
         }
 
 
-
+ /*
         private bool IsUserOwner(SocketGuildUser user)
         {
             string targetRoleName = "BotOwner";
@@ -165,7 +244,7 @@ namespace Warframebot.Modules
 
 
        
-        /* 
+        
         [Command("react")]
         public async Task HandleReactionMessage()
         {
@@ -173,76 +252,7 @@ namespace Warframebot.Modules
             Global.MessageIdToTrack = msg.Id;
         }
 
-       [Command("helpold")]
-        public async Task HelpList([Remainder] string arg = "")
-        {
-            var embed = new EmbedBuilder();
-            embed.WithColor(new Color(0, 255, 0));
-            string value = arg;
-            switch (value)
-            {
-                case "":
-                    var helpembed = new EmbedBuilder();
-                    helpembed.WithTitle("**Help topics**");
-                    helpembed.WithDescription("**List of current help topics.**");
-                    //embed2.WithDescription("use @Kitara or ! (depending on settings) with following commands.");
-                    helpembed.AddField("Help for the following commands, type !help and one of the commands to get help on the command", "acolytes \n sortie \n fissures \n alerts \n cetustime \n list rewards" +
-                                                   " \n list fissures \n set", true);
-                    await Context.Channel.SendMessageAsync("", false, helpembed.Build());
-                    break;
-
-                case "acolytes":
-                    embed.WithTitle("Acolytes command information");
-                    embed.AddField("acolytes",
-                        "Calls up information on current Acolytes and if found their location and health.", true);
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                case "sortie":
-                    embed.AddField("sortie", "provides current known sortie and related information.", true);
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                case "fissures":
-                    embed.AddField("fissures", "Tells you the current fissures and relic type.", true);
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                case "alerts":
-                    embed.AddField("alerts", "Tells you the current alerts plus rewards.", true);
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                case "cetustime":
-                    embed.AddField("cetustime",
-                        "tells you the current time on cetus and how long before day/night starts/ends.");
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                case "list rewards":
-                    embed.AddField("list rewards",
-                        "list all current wanted rewards that are searched for in alerts and invasions.");
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                case "list fissures":
-                    embed.AddField("list fissures", "Lists all the saved wanted fissures", true);
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                case "market sell":
-                    embed.AddField("Market search", "Search Warframe.market for top 5 cheapest orders. " +
-                                                    "This requires an exact name, " +
-                                                    "example !market sell nova prime set will return the top 5 cheapest " +
-                                                    "sellers of nova prime sets with username and plat amount",true);
-                    embed.AddField("Tip",
-                        "if you dont know exact name use !find with a partial name like !find nova and then pick the option you want.");
-                    
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                case "set":
-                    embed.AddField("set",
-                        "Use this command to set various options in the bot. Use !set help for help with specific help commands.");
-                    await Context.Channel.SendMessageAsync("", false, embed.Build());
-                    break;
-                default:
-                    await SendMessage("Help topic not found, try !help for list of help topics.");
-                    break;
-            }
-        }
+       
         
         [RequireOwner]
         [Command("getfile")]
@@ -403,8 +413,6 @@ namespace Warframebot.Modules
         }
 
        */
-
-        
         [RequireOwner]
         [Command("update")]
         [Remarks("Update command, only useable by Server owner!")]
@@ -418,19 +426,19 @@ namespace Warframebot.Modules
                  await Global.Client.LogoutAsync();
                  await Global.Client.StopAsync();
                  Process.Start("UpdateBot.exe");
-                 //await Task.Delay(3000);
+                 
                  
                  Environment.Exit(0);
                   
                 
               
             }
-               // await SendMessage($"<@{test}> ");
+               
         }
 
         [Command("ping")]
-        [Remarks("Tells you the delay or \"ping\" (in ms)between you and the bot ")]
-        public async Task ping()
+        [Remarks("Tells you the delay or \"ping\" (in ms) between you and the bot ")]
+        public async Task Ping()
         {
             await Context.Channel.SendMessageAsync("Pong! (" + Global.Client.Latency + "ms)");
         }
@@ -446,7 +454,7 @@ namespace Warframebot.Modules
                 duplicateChecker.Add(cmd.Aliases.First());
                 var cmdDescription = $"`{cmd.Aliases.First()}`";
                 if (!string.IsNullOrEmpty(cmd.Summary))
-                //    cmdDescription += $" | {cmd.Summary}";
+                   // cmdDescription += $" | {cmd.Summary}";
                 if (!string.IsNullOrEmpty(cmd.Remarks))
                     cmdDescription += $" | {cmd.Remarks}";
                 if (cmdDescription != "``")
@@ -454,7 +462,8 @@ namespace Warframebot.Modules
             }
 
             if (descriptionBuilder.Count <= 0) return;
-
+            var builtString = string.Join("\n", descriptionBuilder);
+            
             var moduleNotes = "";
             if (!string.IsNullOrEmpty(module.Summary))
                 moduleNotes += $" {module.Summary}";
@@ -464,8 +473,8 @@ namespace Warframebot.Modules
                 moduleNotes += "\n";
             if (!string.IsNullOrEmpty(module.Name))
             {
-                builder.AddField($"__**{module.Name}:**__",
-                    $"{moduleNotes}" + string.Join("\n", descriptionBuilder) + $"\n{Constants.InvisibleString}");
+               builder.AddField($"__**{module.Name}:**__",
+                    $"{moduleNotes} {builtString}\n{Constants.InvisibleString}");
             }
         }
         //borrowed from community bot "https://github.com/petrspelos/Community-Discord-BOT"
@@ -477,8 +486,8 @@ namespace Warframebot.Modules
         {
             var builder = new EmbedBuilder()
             {
-                Color = new Color(114, 137, 218),
-                Title = $"Help for '{query}'"
+                Color = new Color(188, 66, 244),
+                Title = $"Help search results for \"{query}\""
             };
 
             var result = _service.Search(Context, query);
@@ -500,9 +509,8 @@ namespace Warframebot.Modules
             foreach (var match in search.Commands)
             {
                 var cmd = match.Command;
-                var parameters = cmd.Parameters.Select(p => string.IsNullOrEmpty(p.Summary) ? p.Name : p.Summary);
-                var paramsString = $"**Needed input**: {string.Join(", ", parameters)}" +
-                                   (string.IsNullOrEmpty(cmd.Remarks) ? "" : $"\n**Remarks**: {cmd.Remarks}") +
+                //var parameters = cmd.Parameters.Select(p => string.IsNullOrEmpty(p.Summary) ? p.Name : p.Summary);
+                var paramsString = (string.IsNullOrEmpty(cmd.Remarks) ? "" : $"\n**Remarks**: {cmd.Remarks}") +
                                    (string.IsNullOrEmpty(cmd.Summary) ? "" : $"\n**Summary**: {cmd.Summary}");
 
                 builder.AddField(x =>

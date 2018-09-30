@@ -1,10 +1,5 @@
-﻿using System.CodeDom;
-using Discord.WebSocket;
-using Unity;
-using Unity.Injection;
-using Unity.Lifetime;
+﻿using Unity;
 using Unity.Resolution;
-using Warframebot.Discord;
 using Warframebot.Storage;
 using Warframebot.Storage.Implementation;
 
@@ -30,9 +25,9 @@ namespace Warframebot
             _container = new UnityContainer();
             _container.RegisterSingleton<IDataStorage, JsonStorage>();
             _container.RegisterSingleton<ILogger, Logger>();
-            _container.RegisterSingleton<Discord.Connection>();
-            _container.RegisterType<DiscordSocketConfig>(new InjectionFactory(i => SocketConfig.GetDefault()));
-            _container.RegisterSingleton<DiscordSocketClient>(new InjectionConstructor(typeof(DiscordSocketConfig)));
+            //_container.RegisterSingleton<Discord.Connection>();
+           // _container.RegisterType<DiscordSocketConfig>(new InjectionFactory(i => SocketConfig.GetDefault()));
+           // _container.RegisterSingleton<DiscordSocketClient>(new InjectionConstructor(typeof(DiscordSocketConfig)));
           //  _container.RegisterSingleton<Discord.Entities.Connection>();
         }
         

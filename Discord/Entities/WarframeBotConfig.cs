@@ -1,6 +1,4 @@
-﻿using Discord.WebSocket;
-
-namespace Warframebot.Discord.Entities
+﻿namespace Warframebot.Discord.Entities
 {
     public class WarframeBotConfig
     {

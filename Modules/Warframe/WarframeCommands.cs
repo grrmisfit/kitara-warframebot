@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,52 +7,20 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Warframebot.Core.UserAccounts;
-using Warframebot.Modules.Market;
 
 namespace Warframebot.Modules.Warframe
 {
     public class WarframeCommands :  InteractiveBase
     {
-        [Command("markets")]
-        public async Task MarketCommand([Remainder] string msg)
-        {
-            var json = File.ReadAllText("SystemLang/Items.json");
-            var market = Items.FromJson(json);
-            var items = market.Payload.Items.En;
-            var embed = new EmbedBuilder();
-            embed.WithTitle("Search results");
-            embed.WithDescription("Please pick one");
-            int thecount = 1;
-            int dacount = 0;
-            string[] theitem = new string[10];
-            for (int i = 0; i < items.Count(); i++)
-            {
-                var theitems = items[i].ItemName.ToLower();
-                if (theitems.Contains(msg))
-                {
-
-                    embed.AddField($"Item {thecount}", theitems, true);
-                    theitem[dacount] = theitems;
-                    if (theitem.Count() > 5)
-                    {
-                        await Context.Channel.SendMessageAsync("", false, embed.Build());
-                        break;
-                    }
-
-                    var theitemUrl = items[i].UrlName;
-                    await Context.Channel.SendMessageAsync(theitemUrl);
-                    break;
-
-                }
-            }
-        }
 
         [Command("acolytes")]
+        [Remarks("Search for acolytes location")]
+        [Summary("Only useful when acolytes are actually in game.")]
         public async Task GetAcolytes()
         {
 
             string url = "http://content.warframe.com/dynamic/worldState.php";
-            string apiresponse = "";
+            string apiresponse;
 
             try
             {
@@ -65,9 +32,7 @@ namespace Warframebot.Modules.Warframe
             {
                 return;
             }
-
-
-            var warframe = Modules.Warframe.Warframe.FromJson(apiresponse);
+            var warframe = Warframe.FromJson(apiresponse);
 
             var activeAcolytes = warframe.PersistentEnemies;
             if (activeAcolytes.Count == 0)
@@ -93,7 +58,7 @@ namespace Warframebot.Modules.Warframe
                     embed2.AddField("Health till flees: ", activeAcolytes[i].HealthPercent, true);
                     embed2.AddField("Flee Damage:", activeAcolytes[i].FleeDamage, true);
 
-                    embed2.WithColor(new Color(0, 255, 0));
+                    embed2.WithColor(new Color(188, 66, 244));
 
                     await Context.Channel.SendMessageAsync("", false, embed2.Build());
 
@@ -113,7 +78,7 @@ namespace Warframebot.Modules.Warframe
                     embed.AddField("Health till flees: ", activeAcolytes[i].HealthPercent, true);
                     embed.AddField("Flee Damage:", activeAcolytes[i].FleeDamage, true);
 
-                    embed.WithColor(new Color(0, 255, 0));
+                    embed.WithColor(new Color(188, 66, 244));
 
                     await Context.Channel.SendMessageAsync("", false, embed.Build());
                 }
@@ -124,11 +89,10 @@ namespace Warframebot.Modules.Warframe
 
 
         [Command("alerts"),Alias("al")]
-        [Remarks("Lists all current alerts")]
+        [Remarks("Lists all current alerts currently in game")]
+        [Summary("Example: !alerts will display each alert with location, type of mission and reward in credits or items.")]
         public async Task GetAlerts()
         {
-
-
             var apiresponse = Utilities.GetWarframeInfo();
             if (string.IsNullOrEmpty(apiresponse)) return;
 
@@ -159,40 +123,39 @@ namespace Warframebot.Modules.Warframe
                     }
                 }
 
-                alertstor[i] = $"{tmpalert1} | {tmpalert2} | **Credits**: {tmpalert3} | **Items**: {tmpalert4}";
+                alertstor[i] =
+                    $"**Location**: {tmpalert1}\n **Mission Type**: {tmpalert2}\n**Credits**: {tmpalert3}\n**Items**: {tmpalert4}\n**Expires**: {Utilities.ExpireFisTime(activeAlerts[i].Expiry.Date.NumberLong)}";
 
             }
 
             for (int i = 0; i < alertstor.Length; i++)
             {
                 if (alertstor[i] == null) break;
-
-                embed.AddField("**Alert " + i + "**:", alertstor[i], true);
+                var alertcount = i + 1;
+                embed.AddField("**Alert " + alertcount + "**:", alertstor[i], true);
             }
 
             embed.WithTitle("**Current Alerts**");
+            embed.WithFooter("Warframe info bot", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
             embed.WithColor(new Color(188, 66, 244));
+            //embed.WithThumbnailUrl("http://3rdshifters.org/voidtear.png");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
         [Command("fissures"),Alias("fis")]
-        [Remarks("List all current fissures")]
-
+        [Remarks("List all current fissures currently in game")]
+        [Summary("Example: !fissures or !fis will display current known fissures with location, type and enemy.")]
         public async Task GetMissions()
         {
-            string url = "http://content.warframe.com/dynamic/worldState.php";
-            string apiresponse;
-
-
-            using (WebClient client = new WebClient())
-                //  client.Encoding = Encoding.UTF8;
-                apiresponse = client.DownloadString(url);
+            
+            string apiresponse = Utilities.GetWarframeInfo();
 
             if (string.IsNullOrEmpty(apiresponse))
             {
                 await Context.Channel.SendMessageAsync("There was an error, please try again later");
                 return;
             }
+
             var warframe = Warframe.FromJson(apiresponse);
             var activeMissions = warframe.ActiveMissions;
             string[] fissurestor = new string[20];
@@ -221,6 +184,7 @@ namespace Warframebot.Modules.Warframe
         }
 
         [Command("sortie")]
+        [Summary("Gives information on current sortie")]
         public async Task CurrentSortie()
         {
             string url = "http://content.warframe.com/dynamic/worldState.php";
@@ -237,7 +201,7 @@ namespace Warframebot.Modules.Warframe
                 await Context.Channel.SendMessageAsync("There was an error, please try again later");
                 return;
             }
-            var warframe = Modules.Warframe.Warframe.FromJson(apiresponse);
+            var warframe = Warframe.FromJson(apiresponse);
             var activeSortie = warframe.Sorties; //this is a List<Sorties> 
 
             //set the time from unix to current
@@ -269,12 +233,14 @@ namespace Warframebot.Modules.Warframe
             embed.AddField("Modifier", thirdmistype, true);
             embed.AddField("Planet", thirdmisnode, true);
             embed.AddField("Final Boss", bossname, true);
-            embed.WithColor(new Color(0, 255, 0));
-
+            embed.WithColor(new Color(188, 66, 244));
+            embed.WithFooter("warframe alert ver1.0", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
-        [Command("list fissures")]
-        public async Task ListFissures()
+        [Command("wanted fissures"),Alias("wf")]
+        [Remarks("Lists wanted fissures for current Discord server")]
+        [Summary("Search results are specific to a specific discord server. To remove an item do !remove fissure fissurename")]
+        public async Task ListWantedFissures()
         {
             ulong guildid = Context.Guild.Id;
             var embed = new EmbedBuilder();
@@ -287,13 +253,15 @@ namespace Warframebot.Modules.Warframe
                 embed.AddField($"Fissure {i + 1} : **", $"{theaccounts.WantedFissures[i]}**");
 
             }
-
+            embed.WithColor(new Color(188, 66, 244));
+            embed.WithFooter("warframe alert ver1.0", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
             embed.WithTitle($"Current list of wanted items for **{Context.Guild.Name}");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
         [Command("fissure")]
         [Remarks("Lists all known fissures found from search string")]
+        [Summary("Example: !fissure defense will tell you any current known fissures that are of defense type.")]
         public async Task ListFissure([Remainder] string msg)
         {
             var json = Utilities.GetWarframeInfo();
@@ -341,7 +309,10 @@ namespace Warframebot.Modules.Warframe
 
     
 
-        [Command("list rewards")]
+        [Command("wanted rewards"),Alias("wr")]
+        [Remarks("Lists all wanted rewards.")]
+        [Summary("To remove a specific reward use !remove reward rewardname")]
+        
         public async Task ListRewards()
         {
 
@@ -360,7 +331,52 @@ namespace Warframebot.Modules.Warframe
             embed.WithTitle($"Current list of wanted items for **{Context.Guild.Name}");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
+
+        [Command("invasions"), Alias("inv")]
+        public async Task ListInvasions()
+        {
+            var apiresponse = Utilities.GetWarframeInfo();
+            if (string.IsNullOrEmpty(apiresponse)) return;
+            var invasions = Warframe.FromJson(apiresponse);
+            var invasionRewards = invasions.Invasions;
+            var dacount = 1;
+            var embed = new EmbedBuilder();
+            string defReward = "";
+            foreach (var reward in invasionRewards)
+            {
+                if (reward.Completed) continue;
+                var atkReward = "";
+                if (reward.AttackerReward.AnythingArray == null)
+                {
+                    atkReward = "Nothing";
+                }
+
+                atkReward = reward.AttackerReward.ErReward == null ? "Nothing" : Utilities.ReplaceRewardInfo(reward.AttackerReward.ErReward.CountedItems[0].ItemType);
+
+                if (reward.AttackerReward.AnythingArray == null)
+                {
+                    defReward = Utilities.ReplaceRewardInfo(reward.DefenderReward.CountedItems[0].ItemType);
+                }
+                if(!atkReward.Contains("Nothing"))
+                {
+                    embed.AddField($"Invasion {dacount}: Attack Reward: {atkReward} ",
+                $"On {Utilities.ReplaceInfo(reward.Node)} Faction: {reward.AttackerMissionInfo.Faction} vs {reward.DefenderMissionInfo.Faction}");
+
+                }
+                embed.AddField($"Invasion {dacount}: Defender Reward: {defReward} ",
+                    $"On {Utilities.ReplaceInfo(reward.Node)} Faction: {reward.DefenderMissionInfo.Faction} vs {reward.AttackerMissionInfo.Faction}");
+                dacount = dacount + 1;
+            }
+
+            embed.WithTitle("Current Invasions");
+            embed.WithColor(new Color(188, 66, 244));
+            embed.WithFooter("warframe alert ver1.0", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
+
         [Command("cetustime")]
+        [Remarks("Cetus night//day check")]
+        [Summary("Tells you if its day or night on Cetus and how long you have till next cycle")]
         public async Task TimeTest()
         {
             string thetime = Utilities.GetCetusTime();

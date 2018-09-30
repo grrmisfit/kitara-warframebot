@@ -49,8 +49,14 @@ namespace Warframebot.Core.UserAccounts
         public int AlertDelay { get; set; }
         [JsonProperty("CetusTime")]
         public bool CetusTime { get; set; }
-        [JsonProperty("CetusTimeAlerted")]
-        public bool CetusTimeAlerted { get; set; }
+        [JsonProperty("Cetus15TimeAlerted")]
+        public bool Cetus15TimeAlerted { get; set; }
+        [JsonProperty("Cetus5TimeAlerted")]
+        public bool Cetus5TimeAlerted { get; set; }
+        [JsonProperty("KnownFissures")]
+        public List<string> KnownFissures { get; set; }
+        [JsonProperty("KnownAlerts")]
+        public List<string> KnownAlerts { get; set; }
     }
 
     public partial class GuildAccounts

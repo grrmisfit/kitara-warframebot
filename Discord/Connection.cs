@@ -2,12 +2,9 @@
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using Warframebot.Core;
 using Warframebot.Discord.Entities;
-using System.Reflection;
 
 
 namespace Warframebot.Discord
@@ -81,7 +78,7 @@ namespace Warframebot.Discord
            await Task.Delay(1);
         }
 
-        private void LogFile(string message)
+        private async void LogFile(string message)
         {
             var fileName = $"{DateTime.Today.Day}-{DateTime.Today.Month}-{DateTime.Today.Year}.log";
             var folder = Constants.LogFolder;
@@ -92,6 +89,7 @@ namespace Warframebot.Discord
             StreamWriter sw = File.AppendText($"{folder}/{fileName}");
             sw.WriteLine($"{DateTime.Today.Day}-{DateTime.Today.Month}-{DateTime.Today.Hour}-{DateTime.Today.Minute}" + message);
             sw.Close();
+            await Task.CompletedTask;
         }
     }
 }

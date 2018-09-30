@@ -1,9 +1,17 @@
-﻿    using System;
-    using System.Globalization;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
+﻿// To parse this JSON data, add NuGet 'Newtonsoft.Json' then do:
+//
+//    using Warframebot;
+//
+//    var wfOrders = WfOrders.FromJson(jsonString);
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Warframebot.Modules.Market
-{ 
+{
     public partial class WFOrders
     {
         [JsonProperty("payload")]
@@ -13,70 +21,67 @@ namespace Warframebot.Modules.Market
     public partial class Payload
     {
         [JsonProperty("orders")]
-        public Order[] Orders { get; set; }
+        public List<Order> Orders { get; set; }
     }
 
     public partial class Order
     {
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
+        [JsonProperty("quantity")]
+        public long Quantity { get; set; }
+
+        [JsonProperty("creation_date")]
+        public DateTimeOffset CreationDate { get; set; }
+
+        [JsonProperty("user")]
+        public User User { get; set; }
+
+        [JsonProperty("last_update")]
+        public DateTimeOffset LastUpdate { get; set; }
+
+        [JsonProperty("platinum")]
+        public long Platinum { get; set; }
+
+        [JsonProperty("order_type")]
+        public OrderType OrderType { get; set; }
+
         [JsonProperty("region")]
         public Region Region { get; set; }
 
         [JsonProperty("platform")]
         public Platform Platform { get; set; }
 
-        [JsonProperty("visible")]
-        public bool Visible { get; set; }
-
-        [JsonProperty("last_update")]
-        public DateTimeOffset LastUpdate { get; set; }
-
-        [JsonProperty("user")]
-        public User User { get; set; }
-
         [JsonProperty("id")]
         public string Id { get; set; }
-
-        [JsonProperty("order_type")]
-        public OrderType OrderType { get; set; }
-
-        [JsonProperty("mod_rank")]
-        public long ModRank { get; set; }
-
-        [JsonProperty("creation_date")]
-        public DateTimeOffset CreationDate { get; set; }
-
-        [JsonProperty("quantity")]
-        public long Quantity { get; set; }
-
-        [JsonProperty("platinum")]
-        public long Platinum { get; set; }
     }
 
     public partial class User
     {
-        [JsonProperty("region")]
-        public Region Region { get; set; }
-
         [JsonProperty("ingame_name")]
         public string IngameName { get; set; }
 
-        [JsonProperty("id")]
-        public string Id { get; set; }
+        [JsonProperty("last_seen")]
+        public DateTimeOffset? LastSeen { get; set; }
+
+        [JsonProperty("reputation_bonus")]
+        public long ReputationBonus { get; set; }
 
         [JsonProperty("reputation")]
         public long Reputation { get; set; }
 
+        [JsonProperty("region")]
+        public Region Region { get; set; }
+
         [JsonProperty("status")]
         public Status Status { get; set; }
 
-        [JsonProperty("last_seen")]
-        public DateTimeOffset LastSeen { get; set; }
+        [JsonProperty("id")]
+        public string Id { get; set; }
 
         [JsonProperty("avatar")]
         public string Avatar { get; set; }
-
-        [JsonProperty("reputation_bonus")]
-        public long ReputationBonus { get; set; }
     }
 
     public enum OrderType { Buy, Sell };
@@ -89,15 +94,15 @@ namespace Warframebot.Modules.Market
 
     public partial class WFOrders
     {
-        public static WFOrders FromJson(string json) => JsonConvert.DeserializeObject<WFOrders>(json, OrdersConverter.Settings);
+        public static WFOrders FromJson(string json) => JsonConvert.DeserializeObject<WFOrders>(json, WFConverter.Settings);
     }
 
-    public static class OrdersSerialize
+    public static class WfSerialize
     {
-        public static string ToJson(this WFOrders self) => JsonConvert.SerializeObject(self, OrdersConverter.Settings);
+        public static string ToJson(this WFOrders self) => JsonConvert.SerializeObject((object) self, (JsonSerializerSettings) WFConverter.Settings);
     }
 
-    internal static class OrdersConverter
+    internal static class WFConverter
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {
@@ -285,5 +290,3 @@ namespace Warframebot.Modules.Market
         public static readonly StatusConverter Singleton = new StatusConverter();
     }
 }
-
-

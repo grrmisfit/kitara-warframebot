@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Warframebot.Handler
 {
@@ -41,24 +39,10 @@ namespace Warframebot.Handler
 
 
 
-            /* if (context.Guild.Id is 377879473158356992)
-             {
-                 if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
-                 {
-                     var result = await _command.ExecuteAsync(context, argPos, _services);
-                     //if(!result.IsSuccess && result.Error != CommandError.UnknownCommand)
-                     if (result.Error != null && result.Error != CommandError.UnknownCommand)
-                     {
-                         Console.WriteLine(result.ErrorReason);
-                     }
-                 }
- 
- 
-             }
-             else
-             {*/
-            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
-                msg.HasStringPrefix(Config.bot.cmdPrefix, ref argPos))
+            
+            if ((msg.HasStringPrefix(Config.bot.cmdPrefix, ref argPos) &&
+                 (context.Guild == null || context.Guild.Id != 377879473158356992)) ||
+                msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 var result = await _command.ExecuteAsync(context, argPos, _services);
                 //if(!result.IsSuccess && result.Error != CommandError.UnknownCommand)
@@ -69,9 +53,5 @@ namespace Warframebot.Handler
             }
 
         }
-
-        //var context = new SocketCommandContext(client, msg);
-        //await commands.ExecuteAsync(context, argPos, services);
-
     }
 }

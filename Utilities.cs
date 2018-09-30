@@ -4,9 +4,9 @@ using System.IO;
 using System.Net;
 using Warframebot.Core.UserAccounts;
 using System;
-using System.Net.Mime;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
-using Warframebot.Modules;
 using Warframebot.Modules.Warframe;
 
 namespace Warframebot
@@ -191,7 +191,7 @@ namespace Warframebot
         public static string GetCetusTime()
         {
             var json = GetWarframeInfo();
-            if (string.IsNullOrEmpty(json)) return "error";
+            if (String.IsNullOrEmpty(json)) return "error";
             var warframe = Warframe.FromJson(json);
             var checkFissAlerts = warframe.SyndicateMissions;
             var expiretime = "";
@@ -251,13 +251,13 @@ namespace Warframebot
             var mystr = stringtime.Right(strlen - 1);
             mystr = mystr.Split('.')[0];
 
-            if (!string.IsNullOrEmpty(mystr) && Int64.Parse(mystr) > 50)
+            if (!String.IsNullOrEmpty(mystr) && Int64.Parse(mystr) > 50)
             {
                 long timeremain = Int64.Parse(mystr) - 50;
                 return "daytime";
             }
 
-            if (!string.IsNullOrEmpty(mystr))
+            if (!String.IsNullOrEmpty(mystr))
             { return "nighttime";}
 
             return "error";
@@ -265,9 +265,9 @@ namespace Warframebot
 
         public static string LoadJsonData(string file)
         {
-            var json = string.Empty;
+            var json = String.Empty;
             json = File.ReadAllText(file);
-            if (string.IsNullOrEmpty(json))
+            if (String.IsNullOrEmpty(json))
             {
                 return null;
             }
@@ -301,7 +301,7 @@ namespace Warframebot
         public static string FissureLink(string wantedFissure)
         {
             string theFissure = "";
-            switch (wantedFissure)
+            switch (wantedFissure.ToLower())
             {
                 case "defense":
                     theFissure = $"[Defense has been found! List is below.]({Constants.Defense}) ";
@@ -318,7 +318,7 @@ namespace Warframebot
                 case "excavation":
                     theFissure = $"[Excavation has been found! List is below.]({Constants.Excavation}) ";
                     break;
-                case "exterminate":
+                case "extermination":
                     theFissure = $"[Exterminate has been found! List is below.]({Constants.Exterminate}) ";
                     break;
                 case "survival":
@@ -331,21 +331,57 @@ namespace Warframebot
 
             return theFissure;
         }
-        /* public static string GetFormattedAlert(string key, params object[] parameter)
-     {
 
-         if (alerts.ContainsKey(key))
-           {  return string.Format(alerts[key], parameter);
+        public static async Task CleanUpFissures()
+        {
+            var json = GetWfSettings();
+            var warjson = GetWarframeInfo();
+            var wardata = Warframe.FromJson(warjson);
+            var thefissures = wardata.ActiveMissions;
+            bool notinList;
+            List<string> knownFis = new List<string>();
+            if(string.IsNullOrEmpty(json) || json == "error")
+            {
+                return;
+            }
+            List<string> fisList = new List<string>();
+            foreach (var t in thefissures)
+            {
+                knownFis.Add(t.Id.Oid);
+            }
+            var accounts = GuildAccounts.FromJson(json);
+            
+            foreach (var guild in accounts)
+            {
+             
+                    foreach (var t in guild.KnownFissures)
+                    {
+                        if(!knownFis.Contains(t))
+                        {
+                            fisList.Add(t);
+                        }
+                    }
+                var account = UserAccounts.GetAccount(guild.Guild);
+               
+                foreach (var t in fisList)
+                {
+                    account.KnownFissures.Remove(t);
+                    
+                }
+                UserAccounts.SaveAccounts();
+            }
+        }
 
+        public static string GetWfSettings()
+        {
+            var json = File.ReadAllText("SystemLang/WFsettings.json");
+            if (string.IsNullOrEmpty(json))
+            {
+                return "error";
+            }
 
-         }
-         return "";
-     }
-     public static string GetFormattedAlert(string key, object parameter)
-     {
-
-         return GetFormattedAlert(key, new object[] { parameter });
-     } */
+            return json;
+        }
     }
     
 
