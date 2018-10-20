@@ -16,7 +16,7 @@ namespace Warframebot.Modules.Warframe
         {
             if (wantedreward == "")
             {
-               
+
                 await Context.Channel.SendMessageAsync("No input detected");
                 return;
             }
@@ -247,7 +247,22 @@ namespace Warframebot.Modules.Warframe
                         await Context.Channel.SendMessageAsync("Cetus nightime alerts are now off!");
                         break;
                     }
-
+                case "notify alerts":
+                    var notifycheck = UserAccounts.GetAccount(Context.Guild.Id);
+                    if (notifycheck.NotifyAlerts == false)
+                    {
+                        notifycheck.NotifyAlerts = true;
+                        UserAccounts.SaveAccounts();
+                        await Context.Channel.SendMessageAsync("Notification of new alerts are now on!");
+                        break;
+                    }
+                    else
+                    {
+                        notifycheck.NotifyAlerts = false;
+                        UserAccounts.SaveAccounts();
+                        await Context.Channel.SendMessageAsync("Notification of new alerts are now off!");
+                        break;
+                    }
                 default:
                     await Context.Channel.SendMessageAsync("Command not recognized ");
                     break;

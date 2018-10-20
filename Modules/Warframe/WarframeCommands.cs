@@ -7,12 +7,15 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Warframebot.Core.UserAccounts;
+using Warframebot.Storage;
+using Warframebot.Storage.Implementation;
 
 namespace Warframebot.Modules.Warframe
 {
     public class WarframeCommands :  InteractiveBase
     {
-
+        private readonly IDataStorage _storage;
+        /*
         [Command("acolytes")]
         [Remarks("Search for acolytes location")]
         [Summary("Only useful when acolytes are actually in game.")]
@@ -86,8 +89,75 @@ namespace Warframebot.Modules.Warframe
             }
 
         }
+        */
+        [Command("relic")]
+        public async Task DropsFromRelics([Remainder] string item)
+        {
+            var json = File.ReadAllText("SystemLang/relics.json");
+            var therelics = RelicsData.FromJson(json);
+            var embed  = new EmbedBuilder();
+            embed.WithTitle($"Drops from relic {item}");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
+            embed.WithColor(new Color(188, 66, 244));
+            foreach (var relic in therelics.Relics)
+            {
+                var relicname = relic.Tier + " " + relic.RelicName;
+                if (item.ToLower() == relicname.ToLower())
+                {
+                    for (int i = 0; i < relic.Rewards.Count; i++)
+                    {
 
+                        embed.AddField($"Item {i + 1} : ",$"{relic.Rewards[i].ItemName}\nRarity: {relic.Rewards[i].Rarity}\nChance: {relic.Rewards[i].Chance}%");
 
+                    }
+
+                    await Context.Channel.SendMessageAsync("", false, embed.Build());
+                    break;
+                }
+                
+            }
+        }
+
+        [Command("wrelic")]
+        public async Task WhichRelic([Remainder] string item)
+        {
+            var embedcount = 0;
+            var json = File.ReadAllText("SystemLang/relics.json");
+            var therelics = RelicsData.FromJson(json);
+            var embed = new EmbedBuilder();
+            embed.WithTitle($"Relics found containing {item}.");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
+            embed.WithColor(new Color(188, 66, 244));
+            foreach (var relic in therelics.Relics)
+            {
+                var relicname = relic.Tier + " " + relic.RelicName;
+                
+                {
+                    for (int i = 0; i < relic.Rewards.Count; i++)
+                    {
+                        var currelic = relic.Rewards[i].ItemName.ToLower();
+                        if (currelic.Contains(item.ToLower()) && relic.State == State.Intact)
+                        {
+                            if (embedcount > 5)
+                            {
+                                await Context.Channel.SendMessageAsync(
+                                    "More then 5 results found, first 5 listed next.");
+                                goto sendme;
+                            }
+                           embed.AddField($"Relic {embedcount + 1}: ",$" {relic.Tier} {relic.RelicName}\nRarity: {relic.Rewards[i].Rarity}" );
+                            embedcount = embedcount + 1;
+                        }
+                            
+                    }
+
+                   
+                    
+                }
+
+            }
+            sendme:
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
         [Command("alerts"),Alias("al")]
         [Remarks("Lists all current alerts currently in game")]
         [Summary("Example: !alerts will display each alert with location, type of mission and reward in credits or items.")]
@@ -136,7 +206,7 @@ namespace Warframebot.Modules.Warframe
             }
 
             embed.WithTitle("**Current Alerts**");
-            embed.WithFooter("Warframe info bot", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
             embed.WithColor(new Color(188, 66, 244));
             //embed.WithThumbnailUrl("http://3rdshifters.org/voidtear.png");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
@@ -177,8 +247,9 @@ namespace Warframebot.Modules.Warframe
                 dacount = dacount + 1;
                 fiscount = fiscount + 1;
             }
-            embed.WithThumbnailUrl("http://3rdshifters.org/voidtear.png");
+            //embed.WithThumbnailUrl("http://3rdshifters.org/voidtear.png");
             embed.WithTitle("**Current Fissures**");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
             embed.WithColor(new Color(188, 66, 244));
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
@@ -234,7 +305,7 @@ namespace Warframebot.Modules.Warframe
             embed.AddField("Planet", thirdmisnode, true);
             embed.AddField("Final Boss", bossname, true);
             embed.WithColor(new Color(188, 66, 244));
-            embed.WithFooter("warframe alert ver1.0", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
         [Command("wanted fissures"),Alias("wf")]
@@ -250,12 +321,12 @@ namespace Warframebot.Modules.Warframe
 
             for (int i = 0; i < theaccounts.WantedFissures.Count; i++)
             {
-                embed.AddField($"Fissure {i + 1} : **", $"{theaccounts.WantedFissures[i]}**");
+                embed.AddField($"Fissure {i + 1} : ", $"**{theaccounts.WantedFissures[i]}**");
 
             }
             embed.WithColor(new Color(188, 66, 244));
-            embed.WithFooter("warframe alert ver1.0", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
-            embed.WithTitle($"Current list of wanted items for **{Context.Guild.Name}");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
+            embed.WithTitle($"Current list of wanted fissures for **{Context.Guild.Name}**");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
@@ -278,7 +349,7 @@ namespace Warframebot.Modules.Warframe
 
             var warinfo = Warframe.FromJson(json);
             var fissures = warinfo.ActiveMissions;
-            embed.WithFooter("warframe alert ver1.0", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
             
             embed.WithColor(new Color(188, 66, 244));
             foreach (var fissure in fissures)
@@ -324,7 +395,7 @@ namespace Warframebot.Modules.Warframe
 
             for (int i = 0; i < theaccounts.WantedRewards.Count; i++)
             {
-                embed.AddField($"Item {i + 1} : **", $"**{theaccounts.WantedRewards[i]}**");
+                embed.AddField($"Item {i + 1} : ", $"**{theaccounts.WantedRewards[i]}**");
 
             }
 
@@ -370,7 +441,7 @@ namespace Warframebot.Modules.Warframe
 
             embed.WithTitle("Current Invasions");
             embed.WithColor(new Color(188, 66, 244));
-            embed.WithFooter("warframe alert ver1.0", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 

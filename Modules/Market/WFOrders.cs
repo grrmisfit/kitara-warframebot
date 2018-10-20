@@ -88,7 +88,7 @@ namespace Warframebot.Modules.Market
 
     public enum Platform { Pc };
 
-    public enum Region { En, Fr, Ko, Ru };
+    public enum Region { En, Fr, Ko, Ru, Sv };
 
     public enum Status { Ingame, Offline, Online };
 
@@ -211,6 +211,10 @@ namespace Warframebot.Modules.Market
                     return Region.Ko;
                 case "ru":
                     return Region.Ru;
+                case "sv":
+                    return Region.Sv;
+                    default:
+                        return Region.En;
             }
             throw new Exception("Cannot unmarshal type Region");
         }
@@ -236,6 +240,12 @@ namespace Warframebot.Modules.Market
                     return;
                 case Region.Ru:
                     serializer.Serialize(writer, "ru");
+                    return;
+                case Region.Sv:
+                    serializer.Serialize(writer, "sv");
+                    return;
+                default:
+                    serializer.Serialize(writer, "en");
                     return;
             }
             throw new Exception("Cannot marshal type Region");

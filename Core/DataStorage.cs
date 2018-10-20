@@ -7,8 +7,8 @@ namespace Warframebot.Core
 {
     public static class DataStorage
     {
-        
-     
+
+
         // Save all userAccounts
         public static void SaveUserAccounts(IEnumerable<GuildAccounts> accounts, string filePath)
         {
@@ -18,7 +18,7 @@ namespace Warframebot.Core
         // Get all userAccounts
         public static IEnumerable<GuildAccounts> LoadUserAccounts(string filePath)
         {
-            if(!File.Exists(filePath)) return null;
+            if (!File.Exists(filePath)) return null;
             string json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<List<GuildAccounts>>(json);
         }

@@ -30,10 +30,10 @@ namespace Warframebot.Modules.Warframe
         public List<Event> Events { get; set; }
 
         [JsonProperty("Goals")]
-        public List<object> Goals { get; set; }
+        public List<Goal> Goals { get; set; }
 
         [JsonProperty("Alerts")]
-        public List<Alert> Alerts { get; set; }
+        public List<WeeklyChallenges> Alerts { get; set; }
 
         [JsonProperty("Sorties")]
         public List<Sorty> Sorties { get; set; }
@@ -66,10 +66,10 @@ namespace Warframebot.Modules.Warframe
         public List<VoidTrader> VoidTraders { get; set; }
 
         [JsonProperty("PrimeAccessAvailability")]
-        public PrimeAvailability PrimeAccessAvailability { get; set; }
+        public PrimeAccessAvailability PrimeAccessAvailability { get; set; }
 
         [JsonProperty("PrimeVaultAvailabilities")]
-        public List<PrimeAvailability> PrimeVaultAvailabilities { get; set; }
+        public List<bool> PrimeVaultAvailabilities { get; set; }
 
         [JsonProperty("DailyDeals")]
         public List<DailyDeal> DailyDeals { get; set; }
@@ -81,7 +81,7 @@ namespace Warframebot.Modules.Warframe
         public List<PvpChallengeInstance> PvpChallengeInstances { get; set; }
 
         [JsonProperty("PersistentEnemies")]
-        public List<PersistentEnemy> PersistentEnemies { get; set; }
+        public List<object> PersistentEnemies { get; set; }
 
         [JsonProperty("PVPAlternativeModes")]
         public List<object> PvpAlternativeModes { get; set; }
@@ -97,44 +97,9 @@ namespace Warframebot.Modules.Warframe
 
         [JsonProperty("TwitchPromos")]
         public List<object> TwitchPromos { get; set; }
-    }
-    public partial class PersistentEnemy
-    {
-        [JsonProperty("_id")]
-        public Id Id { get; set; }
 
-        [JsonProperty("AgentType")]
-        public string AgentType { get; set; }
-
-        [JsonProperty("LocTag")]
-        public string LocTag { get; set; }
-
-        [JsonProperty("Icon")]
-        public string Icon { get; set; }
-
-        [JsonProperty("Rank")]
-        public long Rank { get; set; }
-
-        [JsonProperty("HealthPercent")]
-        public double HealthPercent { get; set; }
-
-        [JsonProperty("FleeDamage")]
-        public long FleeDamage { get; set; }
-
-        [JsonProperty("LastDiscoveredLocation")]
-        public string LastDiscoveredLocation { get; set; }
-
-        [JsonProperty("LastDiscoveredTime")]
-        public Activation LastDiscoveredTime { get; set; }
-
-        [JsonProperty("Discovered")]
-        public bool Discovered { get; set; }
-
-        [JsonProperty("UseTicketing")]
-        public bool UseTicketing { get; set; }
-
-        [JsonProperty("Region", NullValueHandling = NullValueHandling.Ignore)]
-        public long? Region { get; set; }
+        [JsonProperty("WeeklyChallenges")]
+        public WeeklyChallenges WeeklyChallenges { get; set; }
     }
 
     public partial class ActiveMission
@@ -182,7 +147,7 @@ namespace Warframebot.Modules.Warframe
         public string Oid { get; set; }
     }
 
-    public partial class Alert
+    public partial class WeeklyChallenges
     {
         [JsonProperty("_id")]
         public Id Id { get; set; }
@@ -193,17 +158,56 @@ namespace Warframebot.Modules.Warframe
         [JsonProperty("Expiry")]
         public Activation Expiry { get; set; }
 
-        [JsonProperty("MissionInfo")]
-        public MissionInfo MissionInfo { get; set; }
+        [JsonProperty("MissionInfo", NullValueHandling = NullValueHandling.Ignore)]
+        public WeeklyChallengesMissionInfo MissionInfo { get; set; }
+
+        [JsonProperty("Challenges", NullValueHandling = NullValueHandling.Ignore)]
+        public List<Challenge> Challenges { get; set; }
     }
 
-    public partial class MissionInfo
+    public partial class Challenge
+    {
+        [JsonProperty("Type")]
+        public string Type { get; set; }
+
+        [JsonProperty("MinimumEnemyLevel")]
+        public long MinimumEnemyLevel { get; set; }
+
+        [JsonProperty("RequiredCount")]
+        public long RequiredCount { get; set; }
+
+        [JsonProperty("ProgressIndicatorFreq")]
+        public long ProgressIndicatorFreq { get; set; }
+
+        [JsonProperty("DamageType", NullValueHandling = NullValueHandling.Ignore)]
+        public string DamageType { get; set; }
+
+        [JsonProperty("Script", NullValueHandling = NullValueHandling.Ignore)]
+        public Script Script { get; set; }
+
+        [JsonProperty("VictimType", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> VictimType { get; set; }
+    }
+
+    public partial class Script
+    {
+        [JsonProperty("Script")]
+        public string ScriptScript { get; set; }
+
+        [JsonProperty("Function")]
+        public string Function { get; set; }
+
+        [JsonProperty("_faction")]
+        public string Faction { get; set; }
+    }
+
+    public partial class WeeklyChallengesMissionInfo
     {
         [JsonProperty("missionType")]
         public string MissionType { get; set; }
 
         [JsonProperty("faction")]
-        public string Faction { get; set; }
+        public Faction Faction { get; set; }
 
         [JsonProperty("location")]
         public string Location { get; set; }
@@ -230,22 +234,31 @@ namespace Warframebot.Modules.Warframe
         public long? MaxWaveNum { get; set; }
 
         [JsonProperty("missionReward")]
-        public MissionReward MissionReward { get; set; }
+        public PurpleMissionReward MissionReward { get; set; }
 
-        [JsonProperty("nightmare", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Nightmare { get; set; }
-
-        [JsonProperty("extraEnemySpec", NullValueHandling = NullValueHandling.Ignore)]
-        public string ExtraEnemySpec { get; set; }
+        [JsonProperty("archwingRequired", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? ArchwingRequired { get; set; }
     }
 
-    public partial class MissionReward
+    public partial class PurpleMissionReward
     {
         [JsonProperty("credits")]
         public long Credits { get; set; }
 
         [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> Items { get; set; }
+
+        [JsonProperty("countedItems", NullValueHandling = NullValueHandling.Ignore)]
+        public List<CountedItem> CountedItems { get; set; }
+    }
+
+    public partial class CountedItem
+    {
+        [JsonProperty("ItemType")]
+        public string ItemType { get; set; }
+
+        [JsonProperty("ItemCount")]
+        public long ItemCount { get; set; }
     }
 
     public partial class BadlandNode
@@ -317,13 +330,13 @@ namespace Warframebot.Modules.Warframe
         public List<Message> Messages { get; set; }
 
         [JsonProperty("Prop")]
-        public string Prop { get; set; }
+        public Uri Prop { get; set; }
 
         [JsonProperty("Date")]
         public Activation Date { get; set; }
 
-        [JsonProperty("ImageUrl", NullValueHandling = NullValueHandling.Ignore)]
-        public string ImageUrl { get; set; }
+        [JsonProperty("ImageUrl")]
+        public Uri ImageUrl { get; set; }
 
         [JsonProperty("Priority")]
         public bool Priority { get; set; }
@@ -380,13 +393,172 @@ namespace Warframebot.Modules.Warframe
         public long BogoGet { get; set; }
     }
 
+    public partial class Goal
+    {
+        [JsonProperty("_id")]
+        public Id Id { get; set; }
+
+        [JsonProperty("Fomorian")]
+        public bool Fomorian { get; set; }
+
+        [JsonProperty("Activation")]
+        public Activation Activation { get; set; }
+
+        [JsonProperty("Expiry")]
+        public Activation Expiry { get; set; }
+
+        [JsonProperty("Count")]
+        public long Count { get; set; }
+
+        [JsonProperty("Goal")]
+        public long GoalGoal { get; set; }
+
+        [JsonProperty("HealthPct")]
+        public double HealthPct { get; set; }
+
+        [JsonProperty("VictimNode")]
+        public string VictimNode { get; set; }
+
+        [JsonProperty("Personal")]
+        public bool Personal { get; set; }
+
+        [JsonProperty("Best")]
+        public bool Best { get; set; }
+
+        [JsonProperty("ScoreVar")]
+        public string ScoreVar { get; set; }
+
+        [JsonProperty("ScoreMaxTag")]
+        public string ScoreMaxTag { get; set; }
+
+        [JsonProperty("Success")]
+        public long Success { get; set; }
+
+        [JsonProperty("Node")]
+        public string Node { get; set; }
+
+        [JsonProperty("Faction")]
+        public Faction Faction { get; set; }
+
+        [JsonProperty("Desc")]
+        public string Desc { get; set; }
+
+        [JsonProperty("Icon")]
+        public string Icon { get; set; }
+
+        [JsonProperty("RegionDrops")]
+        public List<object> RegionDrops { get; set; }
+
+        [JsonProperty("ArchwingDrops")]
+        public List<string> ArchwingDrops { get; set; }
+
+        [JsonProperty("ScoreLocTag")]
+        public string ScoreLocTag { get; set; }
+
+        [JsonProperty("Tag")]
+        public string Tag { get; set; }
+
+        [JsonProperty("MissionInfo")]
+        public GoalMissionInfo MissionInfo { get; set; }
+
+        [JsonProperty("ContinuousHubEvent")]
+        public ContinuousHubEvent ContinuousHubEvent { get; set; }
+
+        [JsonProperty("Reward")]
+        public Reward Reward { get; set; }
+    }
+
+    public partial class ContinuousHubEvent
+    {
+        [JsonProperty("Transmission")]
+        public string Transmission { get; set; }
+
+        [JsonProperty("Activation")]
+        public Activation Activation { get; set; }
+
+        [JsonProperty("Expiry")]
+        public Activation Expiry { get; set; }
+
+        [JsonProperty("RepeatInterval")]
+        public long RepeatInterval { get; set; }
+    }
+
+    public partial class GoalMissionInfo
+    {
+        [JsonProperty("missionType")]
+        public string MissionType { get; set; }
+
+        [JsonProperty("faction")]
+        public Faction Faction { get; set; }
+
+        [JsonProperty("location")]
+        public string Location { get; set; }
+
+        [JsonProperty("levelOverride")]
+        public string LevelOverride { get; set; }
+
+        [JsonProperty("enemySpec")]
+        public string EnemySpec { get; set; }
+
+        [JsonProperty("minEnemyLevel")]
+        public long MinEnemyLevel { get; set; }
+
+        [JsonProperty("maxEnemyLevel")]
+        public long MaxEnemyLevel { get; set; }
+
+        [JsonProperty("difficulty")]
+        public long Difficulty { get; set; }
+
+        [JsonProperty("archwingRequired")]
+        public bool ArchwingRequired { get; set; }
+
+        [JsonProperty("requiredItems")]
+        public List<string> RequiredItems { get; set; }
+
+        [JsonProperty("consumeRequiredItems")]
+        public bool ConsumeRequiredItems { get; set; }
+
+        [JsonProperty("missionReward")]
+        public FluffyMissionReward MissionReward { get; set; }
+
+        [JsonProperty("vipAgent")]
+        public string VipAgent { get; set; }
+
+        [JsonProperty("leadersAlwaysAllowed")]
+        public bool LeadersAlwaysAllowed { get; set; }
+
+        [JsonProperty("goalTag")]
+        public string GoalTag { get; set; }
+
+        [JsonProperty("levelAuras")]
+        public List<string> LevelAuras { get; set; }
+
+        [JsonProperty("icon")]
+        public string Icon { get; set; }
+    }
+
+    public partial class FluffyMissionReward
+    {
+        [JsonProperty("randomizedItems")]
+        public string RandomizedItems { get; set; }
+    }
+
+    public partial class Reward
+    {
+        [JsonProperty("credits")]
+        public long Credits { get; set; }
+
+        [JsonProperty("items")]
+        public List<string> Items { get; set; }
+    }
+
     public partial class Invasion
     {
         [JsonProperty("_id")]
         public Id Id { get; set; }
 
         [JsonProperty("Faction")]
-        public FactionEnum Faction { get; set; }
+        public Faction Faction { get; set; }
 
         [JsonProperty("Node")]
         public string Node { get; set; }
@@ -425,7 +597,7 @@ namespace Warframebot.Modules.Warframe
         public long Seed { get; set; }
 
         [JsonProperty("faction")]
-        public AttackerMissionInfoFaction Faction { get; set; }
+        public Faction Faction { get; set; }
     }
 
     public partial class ErReward
@@ -434,22 +606,13 @@ namespace Warframebot.Modules.Warframe
         public List<CountedItem> CountedItems { get; set; }
     }
 
-    public partial class CountedItem
-    {
-        [JsonProperty("ItemType")]
-        public string ItemType { get; set; }
-
-        [JsonProperty("ItemCount")]
-        public long ItemCount { get; set; }
-    }
-
     public partial class DefenderMissionInfo
     {
         [JsonProperty("seed")]
         public long Seed { get; set; }
 
         [JsonProperty("faction")]
-        public FactionEnum Faction { get; set; }
+        public Faction Faction { get; set; }
 
         [JsonProperty("missionReward", NullValueHandling = NullValueHandling.Ignore)]
         public List<object> MissionReward { get; set; }
@@ -474,9 +637,27 @@ namespace Warframebot.Modules.Warframe
 
         [JsonProperty("Seed", NullValueHandling = NullValueHandling.Ignore)]
         public long? Seed { get; set; }
+
+        [JsonProperty("LevelOverride", NullValueHandling = NullValueHandling.Ignore)]
+        public string LevelOverride { get; set; }
+
+        [JsonProperty("Activation", NullValueHandling = NullValueHandling.Ignore)]
+        public Activation Activation { get; set; }
+
+        [JsonProperty("Faction", NullValueHandling = NullValueHandling.Ignore)]
+        public Faction? Faction { get; set; }
+
+        [JsonProperty("EnemySpec", NullValueHandling = NullValueHandling.Ignore)]
+        public string EnemySpec { get; set; }
+
+        [JsonProperty("ExtraEnemySpec", NullValueHandling = NullValueHandling.Ignore)]
+        public string ExtraEnemySpec { get; set; }
+
+        [JsonProperty("Expiry", NullValueHandling = NullValueHandling.Ignore)]
+        public Activation Expiry { get; set; }
     }
 
-    public partial class PrimeAvailability
+    public partial class PrimeAccessAvailability
     {
         [JsonProperty("State")]
         public string State { get; set; }
@@ -509,7 +690,7 @@ namespace Warframebot.Modules.Warframe
         public List<Id> SubChallenges { get; set; }
 
         [JsonProperty("Category")]
-        public Category Category { get; set; }
+        public string Category { get; set; }
     }
 
     public partial class Param
@@ -631,7 +812,7 @@ namespace Warframebot.Modules.Warframe
 
     public enum AttackerMissionInfoFaction { FcCorpus, FcGrineer };
 
-    public enum FactionEnum { FcCorpus, FcGrineer, FcInfestation };
+    public enum Faction { FcCorpus, FcGrineer, FcInfestation, FcOrokin };
 
     public enum Category { PvpChallengeTypeCategoryDaily, PvpChallengeTypeCategoryWeekly, PvpChallengeTypeCategoryWeeklyRoot, PVPChallengeTypeCategory_MODEAFFECTOR};
 
@@ -754,7 +935,7 @@ namespace Warframebot.Modules.Warframe
 
     internal class FactionEnumConverter : JsonConverter
     {
-        public override bool CanConvert(Type t) => t == typeof(FactionEnum) || t == typeof(FactionEnum?);
+        public override bool CanConvert(Type t) => t == typeof(Faction) || t == typeof(Faction?);
 
         public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
         {
@@ -763,11 +944,13 @@ namespace Warframebot.Modules.Warframe
             switch (value)
             {
                 case "FC_CORPUS":
-                    return FactionEnum.FcCorpus;
+                    return Faction.FcCorpus;
                 case "FC_GRINEER":
-                    return FactionEnum.FcGrineer;
+                    return Faction.FcGrineer;
                 case "FC_INFESTATION":
-                    return FactionEnum.FcInfestation;
+                    return Faction.FcInfestation;
+                case "FC_OROKIN":
+                    return Faction.FcOrokin;
             }
             throw new Exception("Cannot unmarshal type FactionEnum");
         }
@@ -779,17 +962,20 @@ namespace Warframebot.Modules.Warframe
                 serializer.Serialize(writer, null);
                 return;
             }
-            var value = (FactionEnum)untypedValue;
+            var value = (Faction)untypedValue;
             switch (value)
             {
-                case FactionEnum.FcCorpus:
+                case Faction.FcCorpus:
                     serializer.Serialize(writer, "FC_CORPUS");
                     return;
-                case FactionEnum.FcGrineer:
+                case Faction.FcGrineer:
                     serializer.Serialize(writer, "FC_GRINEER");
                     return;
-                case FactionEnum.FcInfestation:
+                case Faction.FcInfestation:
                     serializer.Serialize(writer, "FC_INFESTATION");
+                    return;
+                case Faction.FcOrokin:
+                    serializer.Serialize(writer, "FC_OROKIN");
                     return;
             }
             throw new Exception("Cannot marshal type FactionEnum");

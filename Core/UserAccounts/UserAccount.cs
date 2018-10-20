@@ -13,11 +13,17 @@ namespace Warframebot.Core.UserAccounts
        public int AlarmDelay { get; set; }
        public bool AlarmOn { get; set; }
        public DateTime TimeAlerted { get; set; }
-        public DateTime AlertTimeChecked { get; set; }
        public ulong AlarmChannel { get; set; }
     
     }
 
+    public class GuildBans
+    {
+        [JsonProperty("Guild")]
+        public ulong Guild { get; set; }
+        [JsonProperty("BanList")]
+        public List<string> BanList { get; set; }
+    }
     public partial class GuildAccounts
     {
         [JsonProperty("Guild")]
@@ -57,6 +63,11 @@ namespace Warframebot.Core.UserAccounts
         public List<string> KnownFissures { get; set; }
         [JsonProperty("KnownAlerts")]
         public List<string> KnownAlerts { get; set; }
+        [JsonProperty("NotifyAlerts")]
+        public bool NotifyAlerts { get; set; }
+        [JsonProperty("PmList")]
+        public List<string> PmList { get; set; }
+        
     }
 
     public partial class GuildAccounts

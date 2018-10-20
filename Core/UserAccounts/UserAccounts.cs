@@ -12,30 +12,30 @@ namespace Warframebot.Core.UserAccounts
         private static List<UserAccount> alarmAccounts;
         private static string alarmSettings = "SystemLang/Alarm.json";
         private static string accountsFile = "SystemLang/WFsettings.json";
-            static UserAccounts()
-             {
-                if(DataStorage.SaveExists(accountsFile))
+        static UserAccounts()
+        {
+            if (DataStorage.SaveExists(accountsFile))
             {
-               
+
                 accounts = DataStorage.LoadUserAccounts(accountsFile).ToList();
-               
+
             }
-                else
+            else
             {
                 accounts = new List<GuildAccounts>();
                 DataStorage.SaveUserAccounts(accounts, accountsFile);
             }
-                 if (DataStorage.SaveExists(alarmSettings))
-                 {
+            if (DataStorage.SaveExists(alarmSettings))
+            {
 
-                     alarmAccounts = DataStorage.LoadSavedAlarmSettings(alarmSettings).ToList();
+                alarmAccounts = DataStorage.LoadSavedAlarmSettings(alarmSettings).ToList();
 
-                 }
-                 else
-                 {
-                     alarmAccounts = new List<UserAccount>();
-                     DataStorage.SaveAlarmSettings(alarmAccounts, alarmSettings);
-                 }
+            }
+            else
+            {
+                alarmAccounts = new List<UserAccount>();
+                DataStorage.SaveAlarmSettings(alarmAccounts, alarmSettings);
+            }
 
         }
         public static void SaveAccounts()
@@ -63,19 +63,20 @@ namespace Warframebot.Core.UserAccounts
 
         private static GuildAccounts CreateUserAccount(ulong id)
         {
-           
+
             var newAccount = new GuildAccounts()
             {
                 Guild = id,
                 AlertsChannel = 0,
+                NotifyAlerts = false,
                 CheckAlerts = false,
                 CheckFissures = false,
-                WantedRewards = new List<string> {""},
+                WantedRewards = new List<string> { "" },
                 WantedFissures = new List<string> { "" },
                 TimeChecked = DateTime.Now,
                 AlertDelay = 15
             };
-            
+
             accounts.Add(newAccount);
             SaveAccounts();
             return newAccount;
@@ -88,8 +89,8 @@ namespace Warframebot.Core.UserAccounts
         private static UserAccount GetOrCreateAlarmUser(ulong id, int delay)
         {
             var result = from a in alarmAccounts
-                where a.DiscordId == id
-                select a;
+                         where a.DiscordId == id
+                         select a;
 
             var account = result.FirstOrDefault() ?? CreateAlarmUser(id, delay);
             return account;

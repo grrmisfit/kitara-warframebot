@@ -58,7 +58,7 @@ namespace Warframebot.Discord
                 goto thestart;
             }
             
-            _client.Ready += RepeatingTimer.StartTimer;
+           // _client.Ready += RepeatingTimer.StartTimer;
             
             Global.Client = _client;
             //_handler = new CommandHandler();

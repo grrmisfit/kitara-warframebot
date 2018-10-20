@@ -80,8 +80,9 @@ namespace Warframebot.Modules.Warframe
             {
                 if (ducat.Item == tmpitem)
                 {
-                  await  Context.Channel.SendMessageAsync(
-                        $"Ducat price is {ducat.Ducats} and ducats per plat is {ducat.DucatsPerPlatinum}");
+                    await Context.Channel.SendMessageAsync(
+                        // $"Ducat price is {ducat.Ducats} and ducats per plat is {ducat.DucatsPerPlatinum}");
+                        $"You would get {ducat.Ducats} ducats for {msg}");
                     break;
                 }
             }
@@ -496,7 +497,7 @@ namespace Warframebot.Modules.Warframe
 
             if (string.IsNullOrEmpty(apiresponse))
             {
-                await Context.Channel.SendMessageAsync("There was an error, please try again!");
+                await Context.Channel.SendMessageAsync("There was an error, please try again! You can also try a partial search using !market search or !ms");
                 return;
             }
             var orders = WFOrders.FromJson(apiresponse);

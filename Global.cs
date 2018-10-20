@@ -11,6 +11,7 @@ namespace Warframebot
     {
         internal static DiscordSocketClient Client { get; set; }
         internal static ulong MessageIdToTrack { get; set; }
+        internal static bool DownloadDone { get; set; }
     }
 
     public class SolNodeTmp
@@ -26,20 +27,7 @@ namespace Warframebot
         public string ModDesc { get; set; }
 
     }
-    public class ScramData
-    {
-        public static string ScramWord { get; set; }
-        public static string ScrambledWord { get; set; }
-        public static bool GameStarted { get; set; }
-        public static bool Random { get; set; }
-        public static bool WordGuessed { get; set; }
-        public static bool GamePause { get; set; }
-        public static string Category { get; set; }
-        public static ulong ScramChannel { get; set; }
-        public static bool GameWait { get; set; }
-    }
-
-    
+   
    public partial class Mp3List
   
     {

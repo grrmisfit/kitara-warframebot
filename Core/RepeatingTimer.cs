@@ -9,22 +9,24 @@ using Newtonsoft.Json.Linq;
 using Warframebot.Modules;
 using Warframebot.Modules.Warframe;
 using Warframebot.Core.UserAccounts;
+using Warframebot.Storage;
+using Warframebot.Storage.Implementation;
 
 
 namespace Warframebot.Core
 {
 
-    internal static class RepeatingTimer
+    internal  class RepeatingTimer
     {
-        
-       private static Timer loopingTimer;
-       private static SocketTextChannel channel;
+        private readonly IDataStorage _storage;
+        private static Timer loopingTimer;
+        private static SocketTextChannel channel;
         
        internal static Task StartTimer()
         {
             loopingTimer = new Timer()
             {
-                Interval = 10000,
+                Interval = 30000,
                 AutoReset = true,
                 Enabled = true
             };
@@ -38,14 +40,16 @@ namespace Warframebot.Core
             try
             {
                 await CheckGuildAlerts();
-                await Task.Delay(1000);
-                 CheckGuildFissures();
-                await Task.Delay(1000);
+                await Task.Delay(2000);
+                await CheckGuildFissures();
+                await Task.Delay(2000);
                 await CheckCetusTime();
-                await Task.Delay(1000);
+                await Task.Delay(2000);
                 await CheckAlarms();
-                await Task.Delay(1000);
+                await Task.Delay(2000);
                 await CheckInvasionRewards();
+                await Task.Delay(2000);
+                await AlertsNotify();
             }
             catch (Exception exception)
             {
@@ -55,6 +59,112 @@ namespace Warframebot.Core
             
         }
 
+        private static async Task CheckNews()
+        {
+            var json = Utilities.GetWarframeInfo();
+            if (string.IsNullOrEmpty(json)) return;
+            var warframe = Warframe.FromJson(json);
+            var news = warframe.Events;
+            
+            foreach (var n in news)
+            {
+                var time = Int64.Parse(Utilities.TimeSince(n.Date.Date.NumberLong));
+                if (time > 24)
+                {
+
+                }
+            }
+        }
+        private static async Task AlertsNotify()
+        {
+            var alertCount = 1;
+            var lastalert = "";
+            var curreward = "";
+            var embed = new EmbedBuilder();
+            bool newAlert = false;
+            var json = Utilities.GetWarframeInfo();
+            if (string.IsNullOrEmpty(json)) return;
+            var warframe = Warframe.FromJson(json);
+            var checkAlerts = warframe.Alerts;
+            var wfset = Utilities.GetWfSettings();
+            var wfSettings = GuildAccounts.FromJson(wfset);
+            long credits = 0;
+           
+            List<string> knownalert = new List<string>();
+
+            foreach (var account in wfSettings)
+            {
+               if(account.NotifyAlerts == false) continue;
+                newAlert = false;
+
+                foreach (var alert in checkAlerts)
+                {
+                    var accounts = UserAccounts.UserAccounts.GetAccount(account.Guild);
+                    if(lastalert == alert.Id.Oid) continue;
+                    if (!account.KnownAlerts.Contains(alert.Id.Oid))
+                    {
+                        lastalert = alert.Id.Oid;
+                        accounts.KnownAlerts.Add(alert.Id.Oid);
+                        if (alert.MissionInfo.MissionReward.Items == null)
+                    {
+                        curreward = "None";
+
+                    }
+                    credits = alert.MissionInfo.MissionReward.Credits;
+                    if (alert.MissionInfo.MissionReward.Items != null)
+                    {
+                         curreward = Utilities.ReplaceRewardInfo(alert.MissionInfo.MissionReward.Items[0]).ToLower();
+
+                    }
+
+                    if (alert.MissionInfo.MissionReward.CountedItems != null)
+                    {
+                        var craftitem =
+                            Utilities.ReplaceRewardInfo(alert.MissionInfo.MissionReward.CountedItems[0].ItemType);
+                        var itemcount = $"{alert.MissionInfo.MissionReward.CountedItems[0].ItemCount} of {craftitem} " ;
+                        curreward = itemcount;
+                    }
+                        var curtime = DateTime.Now;
+                        var announcedtime = account.AlertTimeChecked;
+                        var checktime = curtime.Subtract(announcedtime).TotalMinutes;
+
+                        //if (checktime < account.AlertDelay) continue;
+                       
+
+                        embed.WithTitle($"Tenno, a new alert has been posted!");
+                       
+                        embed.WithColor(new Color(188, 66, 244));
+                        
+                        embed.AddField($"**Alert** {alertCount}\n**Reward**: ",
+                                $"Items: **{curreward}**\nCredits: **{credits}**\nLocation info:\n{Utilities.ReplaceInfo(alert.MissionInfo.Location)}\nType:\n{Utilities.ReplaceInfo(alert.MissionInfo.MissionType)}\nFaction:\n{Utilities.ReplaceInfo(alert.MissionInfo.Faction.ToString())}\nExpires:\n{Utilities.ExpireFisTime(alert.Expiry.Date.NumberLong)}");
+                            //embed.AddField("");
+
+                        alertCount = alertCount + 1;
+                        //embed.AddField($");
+                        newAlert = true;
+                        var thetime = DateTime.Now;
+                        
+                        accounts.AlertTimeChecked = thetime;
+                       
+                        UserAccounts.UserAccounts.SaveAccounts();
+                           
+                        }
+                    
+
+                   
+                }
+                
+                if (newAlert)
+                    {
+                        embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
+                        embed.WithColor(new Color(188, 66, 244));
+                    if (Global.Client.GetChannel(account.AlertsChannel) is IMessageChannel chnl)
+                        await chnl.SendMessageAsync("", false, embed.Build());
+                        await Utilities.CleanUpAlerts();
+                    }
+
+            }
+        }
         private static async Task CheckAlertRewards(ulong id, ulong alertchan)
         {
 
@@ -69,7 +179,7 @@ namespace Warframebot.Core
             string reward = "";
             var embed = new EmbedBuilder();
 
-            foreach (Alert alert in checkAlerts)
+            foreach (var alert in checkAlerts)
             {
                 
                 foreach (var account in wfSettings)
@@ -94,12 +204,13 @@ namespace Warframebot.Core
                                 goto nextalert;
 
                             }
-                            
-                            
-                            alertList.Add(alert.Id.Oid);
+
+                            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
+                            embed.WithColor(new Color(188, 66, 244));
+                            //alertList.Add(alert.Id.Oid);
                             embed.WithTitle($"{curreward} has been found!");
                             embed.AddField($"Location info:\n",
-                                $"{Utilities.ReplaceInfo(alert.MissionInfo.Location)}\n {Utilities.ReplaceInfo(alert.MissionInfo.MissionType)}\n {Utilities.ReplaceInfo(alert.MissionInfo.Faction)}");
+                                $"{Utilities.ReplaceInfo(alert.MissionInfo.Location)}\n {Utilities.ReplaceInfo(alert.MissionInfo.MissionType)}\n {Utilities.ReplaceInfo(alert.MissionInfo.Faction.ToString())}");
                             embed.AddField("Expires: ", $"{Utilities.ExpireFisTime(alert.Expiry.Date.NumberLong)}");
                             if (Global.Client.GetChannel(account.AlertsChannel) is IMessageChannel chnl) await chnl.SendMessageAsync("", false, embed.Build());
                             // curreward + " Has been found, type !alerts to see which alert contains it");
@@ -116,6 +227,7 @@ namespace Warframebot.Core
                 }
             }
         }
+        /* broken, will fix when they retrun
         public static async Task CheckForAcolytes()
 
         {
@@ -134,7 +246,7 @@ namespace Warframebot.Core
 
                 }
             }
-        }
+        }*/
 
         private static async Task CheckFissures()
         {
@@ -198,7 +310,7 @@ namespace Warframebot.Core
                                 true);
                             foundcount = foundcount + 1;
                             fisList.Add(t.Id.Oid);
-                             lastmissioniD = t.Id.Oid;
+                            lastmissioniD = t.Id.Oid;
                             fissureFound = true;
                             thenext:;
                         }
@@ -210,7 +322,7 @@ namespace Warframebot.Core
                     
                     var chnl = Global.Client.GetChannel(guild.AlertsChannel) as IMessageChannel;
                     embed.WithTitle("**Fissure Alerts**");
-                    embed.WithFooter("", "https://n9e5v4d8.ssl.hwcdn.net/images/headerLogo.png");
+                    embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
                     embed.WithColor(new Color(188, 66, 244));
                     //embed.WithThumbnailUrl("http://3rdshifters.org/voidtear.png");
 
@@ -231,10 +343,12 @@ namespace Warframebot.Core
                     }
                 }
                 dacount = dacount + 1;
+                await Utilities.CleanUpFissures();
             }
 
         }
 
+     
         private static async Task CheckGuildAlerts()
         {
 
@@ -243,14 +357,13 @@ namespace Warframebot.Core
             if (string.IsNullOrEmpty(json)) {return;}
              var guildAccounts = GuildAccounts.FromJson(json);
 
-            for (int i = 0; i < guildAccounts.Count; i++)
+            foreach (var t in guildAccounts)
             {
-
-                if (guildAccounts[i].AlertsChannel == 0) return;
-                if (!guildAccounts[i].CheckAlerts == false)
+                if (t.AlertsChannel == 0) return;
+                if (!t.CheckAlerts == false)
                 {
-                    ulong tempguild = guildAccounts[i].Guild;
-                    ulong tempchan = guildAccounts[i].AlertsChannel;
+                    ulong tempguild = t.Guild;
+                    ulong tempchan = t.AlertsChannel;
                     await CheckAlertRewards(tempguild, tempchan);
                 }
             }
@@ -283,7 +396,7 @@ namespace Warframebot.Core
 
             timecheck = timecheck - 50;
             var json = string.Empty;
-            json = File.ReadAllText("SystemLang/Alarm.json");
+            json = Utilities.GetWfSettings();
             JArray a = JArray.Parse(json);
             var alarmUsers = a.ToObject<List<UserAccount>>();
             for (int i = 0; i < alarmUsers.Count; i++)
@@ -386,7 +499,7 @@ namespace Warframebot.Core
                         var account = UserAccounts.UserAccounts.GetAccount(accounts.Guild);
                         account.Cetus5TimeAlerted = true;
                         UserAccounts.UserAccounts.SaveAccounts();
-                       
+                        return;
                     }
                 }
             }

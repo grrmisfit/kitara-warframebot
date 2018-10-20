@@ -9,6 +9,7 @@ using Warframebot.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 using Warframebot.Handler;
+using Warframebot.Storage;
 
 
 namespace Warframebot
@@ -46,10 +47,10 @@ namespace Warframebot
             thestart:
             string thetoken;
             string gameInfo;
-          //  if (System.Diagnostics.Debugger.IsAttached)
-          //  {
-            //    thetoken = Config.bot.testtoken;
-          //      gameInfo = "Warframe Bot Test Mode";
+           // if (!System.Diagnostics.Debugger.IsAttached)
+           // {
+              //  thetoken = Config.bot.testtoken;
+               // gameInfo = "Warframe Bot Test Mode";
            // }
 
            // else
@@ -72,7 +73,7 @@ namespace Warframebot
             }
             catch (Exception e)
             {
-                Console.WriteLine("Connection Failed...Will retry in 5 secs.");
+                Console.WriteLine($"Connection Failed error {e}...Will retry in 5 secs.");
                 for (int i = 0; i < 5; i++)
                 {
                     Console.WriteLine($"Retrying in {5 - i}");
@@ -82,6 +83,7 @@ namespace Warframebot
                 goto thestart;
             }
 
+            var dataStore = Unity.Resolve<DataStore>();
             await services.GetRequiredService<CommandHandler>().InitializeAsync();
             
             client.Ready += RepeatingTimer.StartTimer;
