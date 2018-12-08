@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Newtonsoft.Json.Linq;
 using Warframebot.Core.UserAccounts;
+using Warframebot.Data;
 
 namespace Warframebot.Modules.Warframe
 {
     public class WarframeSettings : ModuleBase<SocketCommandContext>
     {
-        [Command("add reward")]
+        [Command("add reward"),Alias("ar")]
         [Remarks("Add a reward to saved list")]
         [Summary("Adds a reward wanted by the user (this is server specific) to saved list.\nExample: !add reward endo")]
         public async Task SetReward([Remainder] string wantedreward)
@@ -129,19 +131,16 @@ namespace Warframebot.Modules.Warframe
                 return;
             }
 
-            JArray a = JArray.Parse(json);
-            List<UserAccount> tmpdata = new List<UserAccount>();
-            var alarmUsers = a.ToObject<List<UserAccount>>();
-            var alarmUser = UserAccounts.GetAlarmUser(user, 15);
-            foreach (var users in alarmUsers)
-            {
-                if (users.DiscordId == user)
-                {
+            
+            var alarmUsers = DbStorage.GetAlarmDb();
+            var alarmUser = DbStorage.GetAlarmUser(user);
+           
+               
                     if (minutes.ToLower() == "off")
                     {
                         alarmUser.AlarmOn = false;
                         await Context.Channel.SendMessageAsync($"{Context.User.Username}, Your Cetus alarm is now **Off**");
-                        UserAccounts.SaveAlarmUser();
+                        DbStorage.UpdateAlarmuser(user,alarmUser);
                         return;
                     }
 
@@ -149,30 +148,30 @@ namespace Warframebot.Modules.Warframe
                         if (minutes.ToLower() == "on")
                         {
                             alarmUser.AlarmOn = true;
-                            UserAccounts.SaveAlarmUser();
-                            await Context.Channel.SendMessageAsync($"{Context.User.Username}, Your Cetus alarm is now **On**");
+                    DbStorage.UpdateAlarmuser(user, alarmUser);
+                    await Context.Channel.SendMessageAsync($"{Context.User.Username}, Your Cetus alarm is now **On**");
                             return;
                         }
                     }
-                }
-            }
+                
+            
 
             int delaytime = 10;
             if (Int32.TryParse(minutes, out delaytime))
             {
                 var wanteddelay = Int32.Parse(minutes);
-                var theuser = UserAccounts.GetAlarmUser(user, wanteddelay);
+                //var theuser = DbStorage.UserAccounts.GetAlarmUser(user, wanteddelay);
 
-                theuser.AlarmDelay = wanteddelay;
-                theuser.AlarmChannel = Context.Channel.Id;
-                UserAccounts.SaveAlarmUser();
+                alarmUser.AlarmDelay = wanteddelay;
+                alarmUser.AlarmChannel = Context.Channel.Id;
+                DbStorage.UpdateAlarmuser(user,alarmUser);
 
-                if (!theuser.AlarmOn)
+                if (!alarmUser.AlarmOn)
                 {
                     await Context.Channel.SendMessageAsync(
                         $"<@{Context.User.Id}> I have added an alarm for cetus nighttime with a delay of **{wanteddelay}** minutes!");
-                    theuser.AlarmOn = true;
-                    UserAccounts.SaveAlarmUser();
+                    alarmUser.AlarmOn = true;
+                    DbStorage.UpdateAlarmuser(user,alarmUser);
                 }
                 else
                 {
@@ -181,6 +180,7 @@ namespace Warframebot.Modules.Warframe
                 }
             }
         }
+        [RequireUserPermission(GuildPermission.ManageChannels)]
         [Command("set")]
         [Remarks("Turns a setting on or off for following alerts. Use !h set for more details")]
         [Summary("Valid options are, alert channel(sets channel command is given from, Admins only), check alerts(to get messages on saved alerts)," +
@@ -196,97 +196,94 @@ namespace Warframebot.Modules.Warframe
             switch (command)
             {
                 case "alert channel":
-
-                    if (Context.User.Id == Config.bot.ownerId)
-                    {
-                        WFSettings.AlertsChannel = Context.Channel.Id;
-                        var thealertAccount = UserAccounts.GetAccount(Context.Guild.Id);
+                    
+                        var thealertAccount = DbStorage.GetGuildInfo(Context.Guild.Id); //UserAccounts.GetAccount(Context.Guild.Id);
                         thealertAccount.AlertsChannel = Context.Channel.Id;
-                        UserAccounts.SaveAccounts();
+                        DbStorage.UpdateDb(Context.Guild.Id,thealertAccount);
                         await Context.Channel.SendMessageAsync(
                             $"Alert channel has been set to {Context.Channel.Name} on server {Context.Guild.Name}");
                         break;
-                    }
+                    
 
                     await Context.Channel.SendMessageAsync($"{Context.User.Username}, you do not have proper privileges to set that!");
                     break;
 
                 case "check alerts":
 
-                    var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
+                    var theAccount = DbStorage.GetGuildInfo(Context.Guild.Id);
                     if (theAccount.CheckAlerts)
                     {
                         theAccount.CheckAlerts = false;
-                        UserAccounts.SaveAccounts();
+                        DbStorage.UpdateDb(Context.Guild.Id, theAccount);
                         await Context.Channel.SendMessageAsync("Alert rewards messages are now turned off!");
                         break;
                     }
 
                     theAccount.CheckAlerts = true;
-                    UserAccounts.SaveAccounts();
+                    DbStorage.UpdateDb(Context.Guild.Id, theAccount);
                     await Context.Channel.SendMessageAsync($"You will now get alerts for saved rewards every {theAccount.AlertDelay} mins");
                     break;
                 case "check fissures":
 
-                    var fissureCheck = UserAccounts.GetAccount(Context.Guild.Id);
-                    if (fissureCheck.CheckFissures)
+                    var fissureCheck = DbStorage.GetGuildInfo(Context.Guild.Id);
+                    if (fissureCheck.Fissures.CheckFissures)
                     {
-                        fissureCheck.CheckFissures = false;
-                        UserAccounts.SaveAccounts();
+                        fissureCheck.Fissures.CheckFissures = false;
+                        DbStorage.UpdateDb(Context.Guild.Id, fissureCheck);
                         await Context.Channel.SendMessageAsync("Fissures alerts are now turned off!");
                         break;
                     }
 
-                    fissureCheck.CheckFissures = true;
-                    UserAccounts.SaveAccounts();
+                    fissureCheck.Fissures.CheckFissures = true;
+                    DbStorage.UpdateDb(Context.Guild.Id, fissureCheck);
                     await Context.Channel.SendMessageAsync(
                         $"You will now get alerts for saved fissures every {fissureCheck.AlertDelay} mins");
                     break;
                 case "alert cetus":
-                    var cetuscheck = UserAccounts.GetAccount(Context.Guild.Id);
+                    var cetuscheck = DbStorage.GetGuildInfo(Context.Guild.Id);
                     if (cetuscheck.CetusTime == false)
                     {
                         cetuscheck.CetusTime = true;
-                        UserAccounts.SaveAccounts();
+                        DbStorage.UpdateDb(Context.Guild.Id,cetuscheck);
                         await Context.Channel.SendMessageAsync("Cetus nightime alerts are now on!");
                         break;
                     }
                     else
                     {
                         cetuscheck.CetusTime = false;
-                        UserAccounts.SaveAccounts();
+                        DbStorage.UpdateDb(Context.Guild.Id, cetuscheck);
                         await Context.Channel.SendMessageAsync("Cetus nightime alerts are now off!");
                         break;
                     }
                 case "notify alerts":
-                    var notifycheck = UserAccounts.GetAccount(Context.Guild.Id);
+                    var notifycheck = DbStorage.GetGuildInfo(Context.Guild.Id);
                     if (notifycheck.NotifyAlerts == false)
                     {
                         notifycheck.NotifyAlerts = true;
-                        UserAccounts.SaveAccounts();
+                        DbStorage.UpdateDb(Context.Guild.Id, notifycheck);
                         await Context.Channel.SendMessageAsync("Notification of new alerts are now on!");
                         break;
                     }
                     else
                     {
                         notifycheck.NotifyAlerts = false;
-                        UserAccounts.SaveAccounts();
+                        DbStorage.UpdateDb(Context.Guild.Id, notifycheck);
                         await Context.Channel.SendMessageAsync("Notification of new alerts are now off!");
                         break;
                     }
                 case "check news":
-                    var newscheck = UserAccounts.GetAccount(Context.Guild.Id);
+                    var newscheck = DbStorage.GetGuildInfo(Context.Guild.Id);
                     if (newscheck.NotifyNews == false)
                     {
                         newscheck.NotifyNews = true;
-                        UserAccounts.SaveAccounts();
+                        DbStorage.UpdateDb(Context.Guild.Id,newscheck);
                         await Context.Channel.SendMessageAsync("Notification of news are now on!");
                         break;
                     }
                     else
                     {
                         newscheck.NotifyNews = false;
-                        UserAccounts.SaveAccounts();
+                        DbStorage.UpdateDb(Context.Guild.Id, newscheck);
                         await Context.Channel.SendMessageAsync("Notification of news are now off!");
                         break;
                     }
@@ -304,10 +301,10 @@ namespace Warframebot.Modules.Warframe
             int delaytime = 5;
             if (Int32.TryParse(msg, out delaytime))
             {
-                var delayaccount = UserAccounts.GetAccount(Context.Guild.Id);
+                var delayaccount = DbStorage.GetGuildInfo(Context.Guild.Id);
                 var checkedtime = Int32.Parse(msg);
                 delayaccount.AlertDelay = checkedtime;
-                UserAccounts.SaveAccounts();
+                DbStorage.UpdateDb(Context.Guild.Id,delayaccount);
                 await Context.Channel.SendMessageAsync($"Messages will be sent every **{msg}** minutes!");
             }
         }

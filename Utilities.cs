@@ -5,6 +5,7 @@ using System.Net;
 using Warframebot.Core.UserAccounts;
 using System;
 using System.Threading.Tasks;
+using LiteDB;
 using Warframebot.Data;
 using Warframebot.Modules.Warframe;
 
@@ -140,12 +141,12 @@ namespace Warframebot
 
             var json = File.ReadAllText("SystemLang/WFdata.json");
             var thedata = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-            if(guilddata.WantedFissures== null) goto next;
+            if(guilddata.Fissures == null) goto next;
             
            
-            for (int i = 0; i < guilddata.WantedFissures.Length; ++i)
+            for (int i = 0; i < guilddata.Fissures.WantedFissures.Count; ++i)
             {
-                if (guilddata.WantedFissures.Contains(msg))
+                if (guilddata.Fissures.WantedFissures[i] == msg)
                 {
                     return "not added";
                 }
@@ -155,27 +156,34 @@ namespace Warframebot
             {
                 if (msg.ToLower() == fissure.Value.ToLower())
                 {
-                    var theaccount = DbStorage.GetGuildInfo(guildId);//UserAccounts.GetAccount(guildId);
+                   // var theaccount = DbStorage.GetGuildInfo(guildId);//UserAccounts.GetAccount(guildId);
                                                                      //theaccount.WantedFissures.Add(msg);
 
-                    var fisupdate = new Fissures
-                    {
-                        WantedFissures = new List<string>
-                        {
+                    //var update = new UserAccount.GuildAccounts
+                    
+                        guilddata.Fissures.WantedFissures.Add(msg); 
+                         
+                   
+                    
 
-                            msg
-                        }
-                    };
-                    var update = new GuildAccounts
+
+                    using (var db = new LiteDatabase(@"Data\guilds.db"))
                     {
-                        
-                         Fissures   = fisupdate
-                       
-                        
-                    };
-                   /// theaccount.WantedFissures.Add(msg);
-                   // UserAccounts.SaveAccounts();
-                    DbStorage.UpdateDb(guildId,update);
+
+                        var guilds = db.GetCollection<UserAccount.GuildAccounts>("guilds");
+                        var results = guilds.FindOne(x => x.Guild == guildId);
+                        if (results == null)
+                        {
+                            guilds.Insert(guilddata);
+
+                        }
+
+                        guilds.Update(guilddata);
+                        //theaccount.WantedFissures.Add(msg);
+                        // UserAccounts.SaveAccounts();
+                       // DbStorage.UpdateDb(guildId, guilddata);
+                    }
+
                     break;
                 }
             }
@@ -186,29 +194,37 @@ namespace Warframebot
         public static string AddRewards(ulong guildid, string msg)
         {
 
-          /*  var theAccount = UserAccounts.GetAccount(guildid);
-            for (int i = 0; i < theAccount.WantedRewards.Length; i++)
+            var theAccount = DbStorage.GetGuildInfo(guildid);
+            if (theAccount.Rewards == null) goto next;
+            
+            for (int i = 0; i < theAccount.Rewards.WantedRewards.Count; i++)
             {
-                if (theAccount.WantedRewards[i].ToLower().Contains(msg.ToLower()))
+                if (theAccount.Rewards.WantedRewards[i].ToLower().Contains(msg.ToLower()))
                 {
 
 
                     return "not added";
                 }
             }
-
-
-            theAccount.WantedRewards.Add(msg);
-            for (int a = 0; a < theAccount.WantedRewards.Count; a++)
+            next:
+            if (theAccount.Rewards != null)
             {
-                if (theAccount.WantedRewards[a].ToLower().Contains("nothing"))// we add nothing on account creation and now we remove it once they add something
+                theAccount.Rewards.WantedRewards.Add(msg);
+                var update = new UserAccount.GuildAccounts
                 {
-                    theAccount.WantedRewards.Remove("nothing");
-                }
+                    Rewards = new UserAccount.Rewards
+                    {
+                        WantedRewards = new List<string>
+                        {
+                            msg
+                        }
+                    }
+                };
             }
-            UserAccounts.SaveAccounts();
-            return "added";*/
-            return "test";
+
+            DbStorage.UpdateDb(guildid, theAccount);
+            return "added";
+            
         }
 
         public static string GetCetusTime()
@@ -437,7 +453,7 @@ namespace Warframebot
 
         public async Task UpdateDucats()
         {
-            /*  var url = "https://api.warframe.market/v1/tools/ducats";
+              var url = "https://api.warframe.market/v1/tools/ducats";
 
               WebClient client = new WebClient();
               var json =  client.DownloadString(url);
@@ -446,55 +462,43 @@ namespace Warframebot
         }
         public static async Task CleanUpAlerts()
         {
-            var json = GetWfSettings();
+           
             var warjson = GetWarframeInfo();
             var wardata = Warframe.FromJson(warjson);
             var theAlerts = wardata.Alerts;
            
             List<string> knownAlerts = new List<string>();
-            if (string.IsNullOrEmpty(json) || json == "error")
-            {
-                return;
-            }
+            
             List<string> alertList = new List<string>();
             foreach (var t in theAlerts)
             {
                 knownAlerts.Add(t.Id.Oid);
             }
-            var accounts = GuildAccounts.FromJson(json);
+            var accounts = DbStorage.GetDb();
 
             foreach (var guild in accounts)
             {
 
-                foreach (var t in guild.KnownAlerts)
+                foreach (var t in guild.Alerts.KnownAlerts)
                 {
                     if (!knownAlerts.Contains(t))
                     {
                         alertList.Add(t);
                     }
                 }
-                var account = UserAccounts.GetAccount(guild.Guild);
+                var account = DbStorage.GetGuildInfo(guild.Guild);
 
                 foreach (var t in alertList)
                 {
-                    account.KnownAlerts.Remove(t);
+                    account.Alerts.KnownAlerts.Remove(t);
 
                 }
-                UserAccounts.SaveAccounts();
+                DbStorage.UpdateDb(account.Guild,account);
             }
 
-            await Task.Delay(1000);*/
+            await Task.Delay(1000);
         }
-        public static string GetWfSettings()
-        {
-            var json = File.ReadAllText("SystemLang/WFsettings.json");
-            if (string.IsNullOrEmpty(json))
-            {
-                return "error";
-            }
-
-            return json;
-        }
+       
 
         public static string CheckBans()
         {

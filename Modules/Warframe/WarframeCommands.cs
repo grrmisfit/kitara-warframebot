@@ -9,6 +9,7 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Newtonsoft.Json.Linq;
 using Warframebot.Core.UserAccounts;
+using Warframebot.Data;
 using Warframebot.Storage;
 using Warframebot.Storage.Implementation;
 
@@ -375,13 +376,13 @@ namespace Warframebot.Modules.Warframe
         {
             ulong guildid = Context.Guild.Id;
             var embed = new EmbedBuilder();
-            var theaccounts = UserAccounts.GetAccount(guildid);
+            var theaccounts = DbStorage.GetGuildInfo(guildid);
 
-            if (theaccounts.WantedFissures.Length == 0) return;
+            if (theaccounts.Fissures.WantedFissures.Count == 0) return;
 
-            for (int i = 0; i < theaccounts.WantedFissures.Length; i++)
+            for (int i = 0; i < theaccounts.Fissures.WantedFissures.Count; i++)
             {
-                embed.AddField($"Fissure {i + 1} : ", $"**{theaccounts.WantedFissures[i]}**");
+                embed.AddField($"Fissure {i + 1} : ", $"**{theaccounts.Fissures.WantedFissures[i]}**");
 
             }
             embed.WithColor(new Color(188, 66, 244));
@@ -449,15 +450,15 @@ namespace Warframebot.Modules.Warframe
 
             ulong guildid = Context.Guild.Id;
             var embed = new EmbedBuilder();
-            var theaccounts = UserAccounts.GetAccount(guildid);
+            var theaccounts = DbStorage.GetGuildInfo(guildid);
 
-            //if (theaccounts.WantedRewards.Length == 0) return;
+            if (theaccounts.Rewards.WantedRewards.Count == 0) return;
 
-           // for (int i = 0; i < theaccounts.WantedRewards.Count; i++)
-           // {
-          //      embed.AddField($"Item {i + 1} : ", $"**{theaccounts.WantedRewards[i]}**");
+            for (int i = 0; i < theaccounts.Rewards.WantedRewards.Count; i++)
+            {
+              embed.AddField($"Item {i + 1} : ", $"**{theaccounts.Rewards.WantedRewards[i]}**");
 
-          //  }
+            }
 
             embed.WithTitle($"Current list of wanted items for **{Context.Guild.Name}");
             await Context.Channel.SendMessageAsync("", false, embed.Build());

@@ -8,7 +8,7 @@ namespace Warframebot.Core.UserAccounts
 {
     public static class UserAccounts
     {
-        private static List<GuildAccounts> accounts;
+        private static List<UserAccount.GuildAccounts> accounts;
         private static List<UserAccount> alarmAccounts;
         private static string alarmSettings = "SystemLang/Alarm.json";
         private static string accountsFile = "SystemLang/WFsettings.json";
@@ -17,13 +17,13 @@ namespace Warframebot.Core.UserAccounts
             if (DataStorage.SaveExists(accountsFile))
             {
 
-                accounts = DataStorage.LoadUserAccounts(accountsFile).ToList();
+               // accounts = DataStorage.LoadUserAccounts(accountsFile).ToList();
 
             }
             else
             {
-                accounts = new List<GuildAccounts>();
-                DataStorage.SaveUserAccounts(accounts, accountsFile);
+                accounts = new List<UserAccount.GuildAccounts>();
+              //  DataStorage.SaveUserAccounts(accounts, accountsFile);
             }
             if (DataStorage.SaveExists(alarmSettings))
             {
@@ -40,18 +40,18 @@ namespace Warframebot.Core.UserAccounts
         }
         public static void SaveAccounts()
         {
-            DataStorage.SaveUserAccounts(accounts, accountsFile);
+           // DataStorage.SaveUserAccounts(accounts, accountsFile);
         }
         public static void SaveAlarmUser()
         {
             DataStorage.SaveAlarmSettings(alarmAccounts, alarmSettings);
         }
-        public static GuildAccounts GetAccount(ulong user)
+        public static UserAccount.GuildAccounts GetAccount(ulong user)
         {
             return GetOrCreateAccount(user);
         }
 
-        private static GuildAccounts GetOrCreateAccount(ulong id)
+        private static UserAccount.GuildAccounts GetOrCreateAccount(ulong id)
         {
             var result = from a in accounts
                          where a.Guild == id
@@ -61,21 +61,21 @@ namespace Warframebot.Core.UserAccounts
             return account;
         }
 
-        private static GuildAccounts CreateUserAccount(ulong id)
+        private static UserAccount.GuildAccounts CreateUserAccount(ulong id)
         {
 
-            var newAccount = new GuildAccounts()
+            var newAccount = new UserAccount.GuildAccounts()
             {
                 Guild = id,
                 AlertsChannel = 0,
                 NotifyAlerts = false,
                 CheckAlerts = false,
-                CheckFissures = false,
+               // CheckFissures = false,
               //  WantedRewards = new List<string> { "" },
                // WantedFissures = new List<string> { "" },
-                KnownNews = new List<string> { ""},
-                KnownFissures = new List<string> { ""},
-                KnownAlerts = new List<string> { ""},
+               // KnownNews = new List<string> { ""},
+                //KnownFissures = new List<string> { ""},
+                //KnownAlerts = new List<string> { ""},
                 TimeChecked = DateTime.Now,
                 AlertDelay = 15
             };
