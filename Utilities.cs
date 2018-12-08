@@ -5,6 +5,7 @@ using System.Net;
 using Warframebot.Core.UserAccounts;
 using System;
 using System.Threading.Tasks;
+using Warframebot.Data;
 using Warframebot.Modules.Warframe;
 
 namespace Warframebot
@@ -135,23 +136,46 @@ namespace Warframebot
 
         public static string AddFissures(ulong guildId, string msg)
         {
-            var guilddata = UserAccounts.GetAccount(guildId);
+            var guilddata = DbStorage.GetGuildInfo(guildId);//UserAccounts.GetAccount(guildId);
+
             var json = File.ReadAllText("SystemLang/WFdata.json");
             var thedata = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-            for (int i = 0; i < guilddata.WantedFissures.Count; ++i)
+            if(guilddata.WantedFissures== null) goto next;
+            
+           
+            for (int i = 0; i < guilddata.WantedFissures.Length; ++i)
             {
-                if (msg == guilddata.WantedFissures[i])
+                if (guilddata.WantedFissures.Contains(msg))
                 {
                     return "not added";
                 }
             }
+           next:
             foreach (var fissure in thedata)
             {
                 if (msg.ToLower() == fissure.Value.ToLower())
                 {
-                    var theaccount = UserAccounts.GetAccount(guildId);
-                    theaccount.WantedFissures.Add(msg);
-                    UserAccounts.SaveAccounts();
+                    var theaccount = DbStorage.GetGuildInfo(guildId);//UserAccounts.GetAccount(guildId);
+                                                                     //theaccount.WantedFissures.Add(msg);
+
+                    var fisupdate = new Fissures
+                    {
+                        WantedFissures = new List<string>
+                        {
+
+                            msg
+                        }
+                    };
+                    var update = new GuildAccounts
+                    {
+                        
+                         Fissures   = fisupdate
+                       
+                        
+                    };
+                   /// theaccount.WantedFissures.Add(msg);
+                   // UserAccounts.SaveAccounts();
+                    DbStorage.UpdateDb(guildId,update);
                     break;
                 }
             }
@@ -162,8 +186,8 @@ namespace Warframebot
         public static string AddRewards(ulong guildid, string msg)
         {
 
-            var theAccount = UserAccounts.GetAccount(guildid);
-            for (int i = 0; i < theAccount.WantedRewards.Count; i++)
+          /*  var theAccount = UserAccounts.GetAccount(guildid);
+            for (int i = 0; i < theAccount.WantedRewards.Length; i++)
             {
                 if (theAccount.WantedRewards[i].ToLower().Contains(msg.ToLower()))
                 {
@@ -183,7 +207,8 @@ namespace Warframebot
                 }
             }
             UserAccounts.SaveAccounts();
-            return "added";
+            return "added";*/
+            return "test";
         }
 
         public static string GetCetusTime()
@@ -288,7 +313,8 @@ namespace Warframebot
             if (string.IsNullOrEmpty(thetime)) return "error";
             DateTimeOffset oldtime = DateTimeOffset.FromUnixTimeMilliseconds(Int64.Parse(thetime));
             DateTimeOffset nowtime = DateTimeOffset.UtcNow;
-            var exptime = $"{oldtime.Subtract(nowtime).TotalHours}";
+            var exptime = $"{Math.Floor(nowtime.Subtract(oldtime).TotalHours)}";
+            
             return exptime;
         }
 
@@ -370,7 +396,7 @@ namespace Warframebot
 
         public static async Task CleanUpFissures()
         {
-            var json = GetWfSettings();
+           /* var json = GetWfSettings();
             var warjson = GetWarframeInfo();
             var wardata = Warframe.FromJson(warjson);
             var thefissures = wardata.ActiveMissions;
@@ -406,7 +432,17 @@ namespace Warframebot
                 }
                 UserAccounts.SaveAccounts();
             }
-            await Task.Delay(1000);
+            await Task.Delay(1000);*/
+        }
+
+        public async Task UpdateDucats()
+        {
+            /*  var url = "https://api.warframe.market/v1/tools/ducats";
+
+              WebClient client = new WebClient();
+              var json =  client.DownloadString(url);
+              File.WriteAllText("SystemLang/Ducats.json",json);
+              await Task.Delay(1);
         }
         public static async Task CleanUpAlerts()
         {
@@ -447,7 +483,7 @@ namespace Warframebot
                 UserAccounts.SaveAccounts();
             }
 
-            await Task.Delay(1000);
+            await Task.Delay(1000);*/
         }
         public static string GetWfSettings()
         {

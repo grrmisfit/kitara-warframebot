@@ -111,33 +111,7 @@ namespace Warframebot.Modules
 
         }
 
-        [Command("AddBan")]
-        [RequireUserPermission(GuildPermission.BanMembers)]
-        [RequireBotPermission(GuildPermission.BanMembers)]
-        public async Task AddBans([Remainder] string user)
-        {
-            var json = File.ReadAllText("SystemLang/BanList.json");
-            if (string.IsNullOrEmpty(json))
-            {
-                return;
-            }
-            JArray a = JArray.Parse(json);
-            List<GuildBans> bans = new List<GuildBans>();
-            var banlist = a.ToObject<List<GuildBans>>();
-
-            for (int i = 0; i < banlist.Count; i++)
-            {
-                if (user.ToLower() == banlist[i].BanList[i].ToLower())
-                {
-                    await Context.Channel.SendMessageAsync($"{user} is already in the ban list!");
-                }
-                else
-                {
-                    banlist[i].BanList.Add(user);
-                    
-                }
-            }
-        }
+       
         /* [Command("delete last")]
          [Alias("dl")]
          public async Task DeleteMessage()
@@ -169,14 +143,13 @@ namespace Warframebot.Modules
          }
  */
 
-        [RequireOwner]
+        [RequireUserPermission(GuildPermission.ManageGuild)]
         [Command("die")]
         [Remarks("Tells the bot to close and log off!")]
         public async Task KillBot()
         {
             var killUser = Context.User.Username;
-            if (Context.User.Id == Config.bot.ownerId)
-            {
+           
                 // var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
 
 
@@ -185,11 +158,8 @@ namespace Warframebot.Modules
                 await Global.Client.LogoutAsync();
                 await Global.Client.StopAsync();
                 Environment.Exit(0);
-            }
-            else
-            {
-                await SendMessage($"Sorry {killUser} you do not have permission to kill me!");
-            }
+            
+           
         }
 
 
@@ -386,6 +356,7 @@ namespace Warframebot.Modules
             var test = Context.User.Id;
             if (test == Config.bot.ownerId)
             {
+                await Context.Channel.SendMessageAsync("Checking for update");
               await Utilities.UpdateBot();
                 await Task.Delay(10000);
                 if (Global.DownloadDone)

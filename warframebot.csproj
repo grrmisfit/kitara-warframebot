@@ -214,9 +214,6 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="taglib-sharp">
-      <HintPath>.\taglib-sharp.dll</HintPath>
-    </Reference>
     <Reference Include="TwitchLib.Api, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\TwitchLib.Api.3.0.0\lib\netstandard2.0\TwitchLib.Api.dll</HintPath>
     </Reference>
@@ -269,6 +266,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Data\DbStorage.cs" />
     <Compile Include="Discord\DiscordLogger.cs" />
     <Compile Include="Core\UserAccounts\UserAccount.cs" />
     <Compile Include="Discord\Connection.cs" />
@@ -306,6 +304,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\vaulted.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Resources\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

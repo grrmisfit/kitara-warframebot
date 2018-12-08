@@ -40,9 +40,9 @@ namespace Warframebot.Modules.Warframe
         [Summary("This would remove a saved reward from saved list.\nExample: !remove reward endo")]
         public async Task DelReward([Remainder] string msg)
         {
-            bool addCheck = false;
+          /*  bool addCheck = false;
             var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
-            for (int i = 0; i < theAccount.WantedRewards.Count; i++)
+            for (int i = 0; i < theAccount.WantedRewards.; i++)
             {
                 if (theAccount.WantedRewards[i].ToLower().Contains(msg.ToLower()))
                 {
@@ -60,7 +60,7 @@ namespace Warframebot.Modules.Warframe
                 return;
             }
 
-            await Context.Channel.SendMessageAsync($"{msg} removed from list!");
+            await Context.Channel.SendMessageAsync($"{msg} removed from list!"); */
         }
 
         [Command("remove fissure"), Alias("rf")]
@@ -68,7 +68,7 @@ namespace Warframebot.Modules.Warframe
         [Summary("This would remove defense from a list of wanted fissures.\nExample: !remove fissure defense. ")]
         public async Task DelFissure([Remainder] string msg)
         {
-            bool addCheck = false;
+          /*  bool addCheck = false;
             var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
             for (int i = 0; i < theAccount.WantedFissures.Count; i++)
             {
@@ -88,7 +88,7 @@ namespace Warframebot.Modules.Warframe
                 return;
             }
 
-            await Context.Channel.SendMessageAsync($"{msg} removed from list!");
+            await Context.Channel.SendMessageAsync($"{msg} removed from list!"); */
         }
 
         [Command("add fissure"), Alias("af")]
@@ -166,14 +166,25 @@ namespace Warframebot.Modules.Warframe
                 theuser.AlarmDelay = wanteddelay;
                 theuser.AlarmChannel = Context.Channel.Id;
                 UserAccounts.SaveAlarmUser();
-                await Context.Channel.SendMessageAsync(
-                    $"<@{Context.User.Id}> I have added an alarm for cetus nighttime with a delay of **{wanteddelay}** minutes!");
+
+                if (!theuser.AlarmOn)
+                {
+                    await Context.Channel.SendMessageAsync(
+                        $"<@{Context.User.Id}> I have added an alarm for cetus nighttime with a delay of **{wanteddelay}** minutes!");
+                    theuser.AlarmOn = true;
+                    UserAccounts.SaveAlarmUser();
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync(
+                        $"<@{Context.User.Id}> I have added an alarm for cetus nighttime with a delay of **{wanteddelay}** minutes!");
+                }
             }
         }
         [Command("set")]
-        [Remarks("Turns a setting on or off for following alerts.")]
+        [Remarks("Turns a setting on or off for following alerts. Use !h set for more details")]
         [Summary("Valid options are, alert channel(sets channel command is given from, Admins only), check alerts(to get messages on saved alerts)," +
-                 "check fissures(alerts on wanted fissures), alert cetus(alerts you to nighttime on cetus 15 and 5 mins before).\nExample: !set alert channel")]
+                 "check fissures(alerts on wanted fissures), alert cetus(alerts you to nighttime on cetus 15 and 5 mins before), check news.\nExample: !set alert channel")]
         public async Task SetCommands([Remainder] string command = "")
         {
             if (command == "")
@@ -261,6 +272,22 @@ namespace Warframebot.Modules.Warframe
                         notifycheck.NotifyAlerts = false;
                         UserAccounts.SaveAccounts();
                         await Context.Channel.SendMessageAsync("Notification of new alerts are now off!");
+                        break;
+                    }
+                case "check news":
+                    var newscheck = UserAccounts.GetAccount(Context.Guild.Id);
+                    if (newscheck.NotifyNews == false)
+                    {
+                        newscheck.NotifyNews = true;
+                        UserAccounts.SaveAccounts();
+                        await Context.Channel.SendMessageAsync("Notification of news are now on!");
+                        break;
+                    }
+                    else
+                    {
+                        newscheck.NotifyNews = false;
+                        UserAccounts.SaveAccounts();
+                        await Context.Channel.SendMessageAsync("Notification of news are now off!");
                         break;
                     }
                 default:

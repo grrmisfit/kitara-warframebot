@@ -8,6 +8,7 @@ namespace Warframebot.Core.UserAccounts
 {
     public class UserAccount
     {
+       
        public ulong DiscordId { get; set; }
        public string DiscordName { get; set; }
        public int AlarmDelay { get; set; }
@@ -17,59 +18,65 @@ namespace Warframebot.Core.UserAccounts
     
     }
 
-    public class GuildBans
+    public class Fissures
     {
-        [JsonProperty("Guild")]
-        public ulong Guild { get; set; }
-        [JsonProperty("BanList")]
-        public List<string> BanList { get; set; }
-    }
-    public partial class GuildAccounts
-    {
-        [JsonProperty("Guild")]
-        public ulong Guild { get; set; }
-
-        [JsonProperty("AlertsChannel")]
-        public ulong AlertsChannel { get; set; }
-
-        [JsonProperty("CheckAlerts")]
-        [JsonConverter(typeof(ParseStringConverter))]
-        public bool CheckAlerts { get; set; }
-
-        [JsonProperty("WantedRewards")]
-        public List<string> WantedRewards { get; set; }
-
-        [JsonProperty("CheckFissures")]
-        [JsonConverter(typeof(ParseStringConverter))]
-        public bool CheckFissures { get; set; }
-
-        [JsonProperty("WantedFissures")]
-        public List<string> WantedFissures { get; set; }
-        [JsonProperty("AlertTimeChecked")]
-        public DateTime AlertTimeChecked { get; set; }
-        [JsonProperty("TimeChecked")]
-        public DateTime  TimeChecked { get; set; }
-        [JsonProperty("CetusTimeChecked")]
-        public DateTime CetusTimeChecked { get; set; }
-        [JsonProperty("AlertDelay")]
-        public int AlertDelay { get; set; }
-        [JsonProperty("CetusTime")]
-        public bool CetusTime { get; set; }
-        [JsonProperty("Cetus15TimeAlerted")]
-        public bool Cetus15TimeAlerted { get; set; }
-        [JsonProperty("Cetus5TimeAlerted")]
-        public bool Cetus5TimeAlerted { get; set; }
-        [JsonProperty("KnownFissures")]
-        public List<string> KnownFissures { get; set; }
-        [JsonProperty("KnownAlerts")]
-        public List<string> KnownAlerts { get; set; }
-        [JsonProperty("NotifyAlerts")]
-        public bool NotifyAlerts { get; set; }
-        [JsonProperty("PmList")]
-        public List<string> PmList { get; set; }
+        public IList<string> WantedFissures { get; set; }
         
     }
 
+    public class Rewards
+    {
+        public IList<string> WantedRewards { get; set; }
+    }
+    public  class GuildAccounts
+    {
+        public int Id { get; set; }
+
+        
+        public ulong Guild { get; set; }
+
+       
+        public ulong AlertsChannel { get; set; }
+
+       
+        public bool CheckAlerts { get; set; }
+
+        public Rewards WantedRewards { get; set; }
+
+        public Fissures Fissures { get; set; }
+        
+
+        public bool CheckFissures { get; set; }
+
+        public string WantedFissures { get; set; }
+
+        public DateTime AlertTimeChecked { get; set; }
+        
+        public DateTime  TimeChecked { get; set; }
+        
+        public DateTime CetusTimeChecked { get; set; }
+       
+        public int AlertDelay { get; set; }
+        
+        public bool CetusTime { get; set; }
+       
+        public bool Cetus15TimeAlerted { get; set; }
+       
+        public bool Cetus5TimeAlerted { get; set; }
+        
+        public List<string> KnownFissures { get; set; }
+        
+        public List<string> KnownAlerts { get; set; }
+       
+        public bool NotifyAlerts { get; set; }
+        
+        public List<string> PmList { get; set; }
+        
+        public List<string> KnownNews { get; set; }
+        
+        public bool NotifyNews { get; set; }
+    }
+    /*
     public partial class GuildAccounts
     {
         public static List<GuildAccounts> FromJson(string json) => JsonConvert.DeserializeObject<List<GuildAccounts>>(json, Converter.Settings);
@@ -122,6 +129,6 @@ namespace Warframebot.Core.UserAccounts
         }
 
         public static readonly ParseStringConverter Singleton = new ParseStringConverter();
-    }
+    }*/
 }
 

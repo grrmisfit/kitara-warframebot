@@ -71,8 +71,11 @@ namespace Warframebot.Core.UserAccounts
                 NotifyAlerts = false,
                 CheckAlerts = false,
                 CheckFissures = false,
-                WantedRewards = new List<string> { "" },
-                WantedFissures = new List<string> { "" },
+              //  WantedRewards = new List<string> { "" },
+               // WantedFissures = new List<string> { "" },
+                KnownNews = new List<string> { ""},
+                KnownFissures = new List<string> { ""},
+                KnownAlerts = new List<string> { ""},
                 TimeChecked = DateTime.Now,
                 AlertDelay = 15
             };

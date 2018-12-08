@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
+using Newtonsoft.Json.Linq;
 using Warframebot.Core.UserAccounts;
 using Warframebot.Storage;
 using Warframebot.Storage.Implementation;
@@ -90,6 +92,59 @@ namespace Warframebot.Modules.Warframe
 
         }
         */
+        [Command("news")]
+        [Summary("Gets last 6 news stories and posts them in order of newest to latest")]
+        public async Task CheckNews()
+        {
+            var json = Utilities.GetWarframeInfo();
+            
+            if (string.IsNullOrEmpty(json)) return;
+            var warframe = Warframe.FromJson(json);
+            var news = warframe.Events;
+            var embed = new EmbedBuilder();
+            string newsLink = "";
+            string newsMsg = "";
+            List<string> newsList1 = new List<string>();
+            List<string> newsList2 = new List<string>();
+
+            foreach (var n in news)
+            {
+
+                var curtime = Utilities.TimeSince(n.Date.Date.NumberLong);
+                var time = Int64.Parse(curtime);
+               
+                    foreach (var t in n.Messages)
+                    {
+                        if (t.LanguageCode == "en")
+                        {
+                            DateTimeOffset timePosted = DateTimeOffset.FromUnixTimeMilliseconds(Int64.Parse(n.Date.Date.NumberLong));
+                        newsMsg = t.MessageMessage;
+                            newsLink = n.Prop.AbsoluteUri;
+                            newsList1.Add($"{newsMsg}: ");
+                            newsList2.Add($"{newsLink}\n Posted on: {timePosted.LocalDateTime}");
+
+                            break;
+                        }
+                    }
+
+                
+                
+
+                    
+                if (embed.Fields.Count > 6) break;
+
+            }
+            for (int i = newsList1.Count - 1; i >= 0; i--)
+            {
+                embed.AddField(newsList1[i], newsList2[i]);
+            }
+            embed.WithTitle("News Alerts");
+            embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
+            embed.WithColor(new Color(188, 66, 244));
+
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+
+        }
         [Command("relic")]
         public async Task DropsFromRelics([Remainder] string item)
         {
@@ -121,7 +176,12 @@ namespace Warframebot.Modules.Warframe
         [Command("wrelic")]
         public async Task WhichRelic([Remainder] string item)
         {
+            bool isVaulted = false;
+            
             var embedcount = 0;
+            var vJson = File.ReadAllText("Data/vaulted.json");
+           // JArray a = JArray.Parse(vJson);
+            
             var json = File.ReadAllText("SystemLang/relics.json");
             var therelics = RelicsData.FromJson(json);
             var embed = new EmbedBuilder();
@@ -317,9 +377,9 @@ namespace Warframebot.Modules.Warframe
             var embed = new EmbedBuilder();
             var theaccounts = UserAccounts.GetAccount(guildid);
 
-            if (theaccounts.WantedFissures.Count == 0) return;
+            if (theaccounts.WantedFissures.Length == 0) return;
 
-            for (int i = 0; i < theaccounts.WantedFissures.Count; i++)
+            for (int i = 0; i < theaccounts.WantedFissures.Length; i++)
             {
                 embed.AddField($"Fissure {i + 1} : ", $"**{theaccounts.WantedFissures[i]}**");
 
@@ -391,13 +451,13 @@ namespace Warframebot.Modules.Warframe
             var embed = new EmbedBuilder();
             var theaccounts = UserAccounts.GetAccount(guildid);
 
-            if (theaccounts.WantedRewards.Count == 0) return;
+            //if (theaccounts.WantedRewards.Length == 0) return;
 
-            for (int i = 0; i < theaccounts.WantedRewards.Count; i++)
-            {
-                embed.AddField($"Item {i + 1} : ", $"**{theaccounts.WantedRewards[i]}**");
+           // for (int i = 0; i < theaccounts.WantedRewards.Count; i++)
+           // {
+          //      embed.AddField($"Item {i + 1} : ", $"**{theaccounts.WantedRewards[i]}**");
 
-            }
+          //  }
 
             embed.WithTitle($"Current list of wanted items for **{Context.Guild.Name}");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
@@ -434,8 +494,10 @@ namespace Warframebot.Modules.Warframe
                 $"On {Utilities.ReplaceInfo(reward.Node)} Faction: {reward.AttackerMissionInfo.Faction} vs {reward.DefenderMissionInfo.Faction}");
 
                 }
+
+                var faction1 = Utilities.ReplaceInfo(reward.DefenderMissionInfo.Faction.ToString());
                 embed.AddField($"Invasion {dacount}: Defender Reward: {defReward} ",
-                    $"On {Utilities.ReplaceInfo(reward.Node)} Faction: {reward.DefenderMissionInfo.Faction} vs {reward.AttackerMissionInfo.Faction}");
+                    $"On {Utilities.ReplaceInfo(reward.Node)} Faction: {Utilities.ReplaceInfo(reward.DefenderMissionInfo.Faction.ToString())} vs {Utilities.ReplaceInfo(reward.AttackerMissionInfo.Faction.ToString())}");
                 dacount = dacount + 1;
             }
 

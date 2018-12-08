@@ -55,7 +55,7 @@ namespace Warframebot
 
            // else
            // {
-                thetoken = Config.bot.token;
+                thetoken = Config.bot.testtoken;
                 gameInfo = "Warframe Info Bot";
            // }
                 if (string.IsNullOrEmpty(thetoken))

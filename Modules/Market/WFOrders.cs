@@ -270,8 +270,10 @@ namespace Warframebot.Modules.Market
                     return Status.Offline;
                 case "online":
                     return Status.Online;
+                    default:
+                        return Status.Offline;
             }
-            throw new Exception("Cannot unmarshal type Status");
+           
         }
 
         public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
@@ -293,8 +295,11 @@ namespace Warframebot.Modules.Market
                 case Status.Online:
                     serializer.Serialize(writer, "online");
                     return;
+                default:
+                        serializer.Serialize(writer, "offline");
+                    return;
             }
-            throw new Exception("Cannot marshal type Status");
+           
         }
 
         public static readonly StatusConverter Singleton = new StatusConverter();

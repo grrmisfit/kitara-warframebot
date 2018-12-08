@@ -26,8 +26,8 @@ namespace Warframebot.Modules.Warframe
             }
         
         }
-
-        [Command("save")]
+        
+        [Command("ducat list")]
         public async Task SaveDucat()
         {
             Dictionary<string, string> itemList = new Dictionary<string, string>();
@@ -286,7 +286,7 @@ namespace Warframebot.Modules.Warframe
             if (!theOrders.Any())
             {
                 await Context.Channel.SendMessageAsync(
-                    "No orders were found or you mispelled the item you were looking for. Check spelling or try a different search");
+                    "No orders were found or you mispelled the item you were looking for. Check spelling or try a different search. You can also do !buy search/!bs for partial searches.");
                 return;
             }
             //theOrders.ToArray();
@@ -497,7 +497,7 @@ namespace Warframebot.Modules.Warframe
 
             if (string.IsNullOrEmpty(apiresponse))
             {
-                await Context.Channel.SendMessageAsync("There was an error, please try again! You can also try a partial search using !market search or !ms");
+                await Context.Channel.SendMessageAsync("There was an error, or no matches found, please try again! You can also try a partial search using !market search or !ms. !so is for exact matches only.");
                 return;
             }
             var orders = WFOrders.FromJson(apiresponse);
