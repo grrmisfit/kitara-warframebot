@@ -17,19 +17,19 @@ namespace Warframebot.Core
 
     internal class RepeatingTimer
     {
-        private readonly IDataStorage _storage;
-        private static Timer loopingTimer;
-        private static SocketTextChannel channel;
+        
+        private static Timer _loopingTimer;
+       
 
         internal static Task StartTimer()
         {
-            loopingTimer = new Timer()
+            _loopingTimer = new Timer()
             {
                 Interval = 30000,
                 AutoReset = true,
                 Enabled = true
             };
-            loopingTimer.Elapsed += OnTimerTicked;
+            _loopingTimer.Elapsed += OnTimerTicked;
             return Task.CompletedTask;
         }
 

@@ -285,8 +285,6 @@
     <Compile Include="Modules\Warframe\WarframeSettings.cs" />
     <Compile Include="Storage\IDataStorage.cs" />
     <Compile Include="ILogger.cs" />
-    <Compile Include="Storage\Implementation\InMemoryStorage.cs" />
-    <Compile Include="Storage\Implementation\JsonStorage.cs" />
     <Compile Include="Storage\DataStore.cs" />
     <Compile Include="Unity.cs" />
     <Compile Include="Utilities.cs" />
