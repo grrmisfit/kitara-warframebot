@@ -40,7 +40,7 @@ namespace Warframebot.Handler
 
 
             
-            if ((msg.HasStringPrefix(Config.bot.cmdPrefix, ref argPos) &&
+            if ((msg.HasStringPrefix(Config.Bot.cmdPrefix, ref argPos) &&
                  (context.Guild == null || context.Guild.Id != 377879473158356992)) ||
                 msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {

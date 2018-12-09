@@ -1,4 +1,4 @@
-﻿using Discord.WebSocket;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,6 @@ using Warframebot.Modules.Warframe;
 using Warframebot.Core.UserAccounts;
 using Warframebot.Data;
 using Warframebot.Modules;
-using Warframebot.Storage;
 
 
 namespace Warframebot.Core
@@ -23,7 +22,7 @@ namespace Warframebot.Core
 
         internal static Task StartTimer()
         {
-            _loopingTimer = new Timer()
+            _loopingTimer = new Timer
             {
                 Interval = 30000,
                 AutoReset = true,
@@ -70,8 +69,6 @@ namespace Warframebot.Core
             var warframe = Warframe.FromJson(json);
             var news = warframe.Events;
             var embed = new EmbedBuilder();
-            string newsLink = "";
-            string newsMsg = "";
 
             foreach (var guild in wfSet)
             {
@@ -91,32 +88,18 @@ namespace Warframebot.Core
                             if (guild.News.KnownNews.Contains(n.Id.Oid)) continue;
                             if (n.Messages[i].LanguageCode == "en")
                             {
-                                newsMsg = n.Messages[i].MessageMessage;
-                                newsLink = n.Prop.AbsoluteUri;
+                                var newsMsg = n.Messages[i].MessageMessage;
+                                var newsLink = n.Prop.AbsoluteUri;
                                 embed.AddField($"{newsMsg}: ", $"{newsLink}");
 
                                 account.News.KnownNews.Add(n.Id.Oid);
-                                // UserAccounts.UserAccounts.SaveAccounts();
-
-                                var update = new UserAccount.GuildAccounts
-                                {
-                                    News = new UserAccount.News
-                                    {
-                                        KnownNews = new List<string>
-                                        {
-                                            n.Id.Oid
-                                        }
-
-                                    }
-                                };
+                               
                                 DbStorage.UpdateDb(guild.Guild, account);
                                 break;
                             }
 
-
                         }
-
-
+                        
                     }
 
                     if (embed.Fields.Count == 0) continue;
@@ -136,21 +119,19 @@ namespace Warframebot.Core
             var lastalert = "";
             var curreward = "";
             var embed = new EmbedBuilder();
-            bool newAlert = false;
             var json = Utilities.GetWarframeInfo();
             if (string.IsNullOrEmpty(json)) return;
             var warframe = Warframe.FromJson(json);
             var checkAlerts = warframe.Alerts;
 
             var wfSettings = DbStorage.GetDb();
-            long credits = 0;
 
             List<string> knownalert = new List<string>();
 
             foreach (var account in wfSettings)
             {
                 if (account.NotifyAlerts == false) continue;
-                newAlert = false;
+                var newAlert = false;
 
                 foreach (var alert in checkAlerts)
                 {
@@ -166,7 +147,7 @@ namespace Warframebot.Core
 
                         }
 
-                        credits = alert.MissionInfo.MissionReward.Credits;
+                        var credits = alert.MissionInfo.MissionReward.Credits;
                         if (alert.MissionInfo.MissionReward.Items != null)
                         {
                             curreward = Utilities.ReplaceRewardInfo(alert.MissionInfo.MissionReward.Items[0]).ToLower();
@@ -195,10 +176,10 @@ namespace Warframebot.Core
 
                         embed.AddField($"**Alert** {alertCount}\n**Reward**: ",
                             $"Items: **{curreward}**\nCredits: **{credits}**\nLocation info:\n{Utilities.ReplaceInfo(alert.MissionInfo.Location)}\nType:\n{Utilities.ReplaceInfo(alert.MissionInfo.MissionType)}\nFaction:\n{Utilities.ReplaceInfo(alert.MissionInfo.Faction.ToString())}\nExpires:\n{Utilities.ExpireFisTime(alert.Expiry.Date.NumberLong)}");
-                        //embed.AddField("");
+                        
 
                         alertCount = alertCount + 1;
-                        //embed.AddField($");
+                        
                         newAlert = true;
                         var thetime = DateTime.Now;
 
@@ -207,9 +188,6 @@ namespace Warframebot.Core
                         DbStorage.UpdateDb(accounts.Guild, accounts);
 
                     }
-
-
-
                 }
 
                 if (newAlert)
@@ -235,7 +213,6 @@ namespace Warframebot.Core
             var wfSettings = DbStorage.GetDb();
             List<string> alertList = new List<string>();
             int dacount = 0;
-            string reward = "";
             var embed = new EmbedBuilder();
 
             foreach (var alert in checkAlerts)
@@ -246,7 +223,7 @@ namespace Warframebot.Core
                     for (int i = 0; i < account.Rewards.WantedRewards.Count; i++)
 
                     {
-                        reward = account.Rewards.WantedRewards[i];
+                        var reward = account.Rewards.WantedRewards[i];
                         if (reward == "") continue;
                         if (alert.MissionInfo.MissionReward.Items == null) continue;
                         var curreward = Utilities.ReplaceRewardInfo(alert.MissionInfo.MissionReward.Items[0]).ToLower();
@@ -254,7 +231,7 @@ namespace Warframebot.Core
                         var announcedtime = account.AlertTimeChecked;
                         var checktime = curtime.Subtract(announcedtime).TotalMinutes;
 
-                        //if (checktime < account.AlertDelay) continue;
+                        if (checktime < account.AlertDelay) continue;
                         if (curreward.Contains(reward))
                         {
 
@@ -273,7 +250,7 @@ namespace Warframebot.Core
                             embed.AddField("Expires: ", $"{Utilities.ExpireFisTime(alert.Expiry.Date.NumberLong)}");
                             if (Global.Client.GetChannel(account.AlertsChannel) is IMessageChannel chnl)
                                 await chnl.SendMessageAsync("", false, embed.Build());
-                            // curreward + " Has been found, type !alerts to see which alert contains it");
+                            
                             var thetime = DateTime.Now;
                             var accounts = DbStorage.GetGuildInfo(account.Guild);
                             accounts.AlertTimeChecked = thetime;

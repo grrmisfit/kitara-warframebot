@@ -354,7 +354,7 @@ namespace Warframebot.Modules
         public async Task UpdateCommand()
         {
             var test = Context.User.Id;
-            if (test == Config.bot.ownerId)
+            if (test == Config.Bot.ownerId)
             {
                 await Context.Channel.SendMessageAsync("Checking for update");
               await Utilities.UpdateBot();

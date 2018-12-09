@@ -76,189 +76,187 @@ namespace Warframebot.Handler
 
             private async Task ChannelCreated(SocketChannel channel)
             {
-                
-            }
+            // not used yet
+        }
 
-            private async Task ChannelDestroyed(SocketChannel channel)
+        private async Task ChannelDestroyed(SocketChannel channel)
             {
-               
-            }
+            // not used yet
+        }
 
-            private async Task ChannelUpdated(SocketChannel channelBefore, SocketChannel channelAfter)
+        private async Task ChannelUpdated(SocketChannel channelBefore, SocketChannel channelAfter)
             {
+                // not used yet
+        }
 
-            }
-
-            private async Task Connected()
+        private async Task Connected()
             {
+                // not used yet
+        }
 
-            }
-
-            private async Task CurrentUserUpdated(SocketSelfUser userBefore, SocketSelfUser userAfter)
+        private async Task CurrentUserUpdated(SocketSelfUser userBefore, SocketSelfUser userAfter)
             {
+                // not used yet
+        }
 
-            }
-
-            private async Task Disconnected(Exception exception)
+        private async Task Disconnected(Exception exception)
             {
+                // not used yet
+        }
 
-            }
-
-            private async Task GuildAvailable(SocketGuild guild)
-            {
-
-            }
-
-            private async Task GuildMembersDownloaded(SocketGuild guild)
+        private async Task GuildAvailable(SocketGuild guild)
             {
 
+                // not used yet
+        }
+
+        private async Task GuildMembersDownloaded(SocketGuild guild)
+            {
+            //not uset yet
             }
 
             private async Task GuildMemberUpdated(SocketGuildUser userBefore, SocketGuildUser userAfter)
             {
-                
-            }
+            //not uset yet
+        }
 
-            private async Task GuildUnavailable(SocketGuild guild)
+        private async Task GuildUnavailable(SocketGuild guild)
             {
+                //not uset yet
+        }
 
-            }
-
-            private async Task GuildUpdated(SocketGuild guildBefore, SocketGuild guildAfter)
+        private async Task GuildUpdated(SocketGuild guildBefore, SocketGuild guildAfter)
             {
+                //not uset yet
+        }
 
-            }
-
-            private async Task JoinedGuild(SocketGuild guild)
+        private async Task JoinedGuild(SocketGuild guild)
             {
               //  ServerBots.JoinedGuild(guild);
             }
 
             private async Task LatencyUpdated(int latencyBefore, int latencyAfter)
             {
+                //not uset yet
+        }
 
-            }
-
-            private async Task LeftGuild(SocketGuild guild)
+        private async Task LeftGuild(SocketGuild guild)
             {
+                //not uset yet
+        }
 
-            }
-
-            private async Task Log(LogMessage logMessage)
+        private async Task Log(LogMessage logMessage)
             {
+                //not uset yet
+        }
 
-            }
-
-            private async Task LoggedIn()
+        private async Task LoggedIn()
             {
+                //not uset yet
+        }
 
-            }
-
-            private async Task LoggedOut()
+        private async Task LoggedOut()
             {
+                //not uset yet
+        }
 
-            }
-
-            private async Task MessageDeleted(Cacheable<IMessage, ulong> cacheMessage, ISocketMessageChannel channel)
+        private async Task MessageDeleted(Cacheable<IMessage, ulong> cacheMessage, ISocketMessageChannel channel)
             {
-               
-            }
+            //not uset yet
+        }
 
-            private async Task MessageReceived(SocketMessage message)
+        private async Task MessageReceived(SocketMessage message)
             {
                 _commandHandler.HandleCommandAsync(message);
-                
-
-                
-
+             
             }
 
             private async Task MessageUpdated(Cacheable<IMessage, ulong> cacheMessageBefore, SocketMessage messageAfter, ISocketMessageChannel channel)
             {
-                
-            }
-
-            private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
-            {
-                
-                
-            }
-
-            private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
-            {
-
-            }
-
-            private async Task ReactionsCleared(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel)
-            {
-
-            }
-
-            private async Task Ready()
-            {
-               
-
-            }
-
-            private async Task RecipientAdded(SocketGroupUser user)
-            {
-
-            }
-
-            private async Task RecipientRemoved(SocketGroupUser user)
-            {
-
-            }
-
-            private async Task RoleCreated(SocketRole role)
-            {
-
-            }
-
-            private async Task RoleDeleted(SocketRole role)
-            {
-                
-            }
-
-            private async Task RoleUpdated(SocketRole roleBefore, SocketRole roleAfter)
-            {
-               
-            }
-
-            private async Task UserBanned(SocketUser user, SocketGuild guild)
-            {
-
-            }
-
-            private async Task UserIsTyping(SocketUser user, ISocketMessageChannel channel)
-            {
-
-            }
-
-            private async Task UserJoined(SocketGuildUser user)
-            {
-               
-               
-            }
-
-            private async Task UserLeft(SocketGuildUser user)
-            {
-                
-            }
-
-            private async Task UserUnbanned(SocketUser user, SocketGuild guild)
-            {
-
-            }
-
-            private async Task UserUpdated(SocketUser user, SocketUser guild)
-            {
-
-            }
-
-            private async Task UserVoiceStateUpdated(SocketUser user, SocketVoiceState voiceStateBefore, SocketVoiceState voiceStateAfter)
-            {
-
-            }
+            //not uset yet  
         }
+
+        private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
+            {
+
+            //not uset yet
+        }
+
+        private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
+            {
+                //not uset yet
+        }
+
+        private async Task ReactionsCleared(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel)
+            {
+                //not uset yet
+        }
+
+        private async Task Ready()
+            {
+
+            //not uset yet
+        }
+
+        private async Task RecipientAdded(SocketGroupUser user)
+            {
+                //not uset yet
+        }
+
+        private async Task RecipientRemoved(SocketGroupUser user)
+            {
+                //not uset yet
+        }
+
+        private async Task RoleCreated(SocketRole role)
+            {
+                //not uset yet
+        }
+
+        private async Task RoleDeleted(SocketRole role)
+            {
+            //not uset yet
+        }
+
+        private async Task RoleUpdated(SocketRole roleBefore, SocketRole roleAfter)
+            {
+            //not uset yet
+        }
+
+        private async Task UserBanned(SocketUser user, SocketGuild guild)
+            {
+                //not uset yet
+        }
+
+        private async Task UserIsTyping(SocketUser user, ISocketMessageChannel channel)
+            {
+                //not uset yet
+        }
+
+        private async Task UserJoined(SocketGuildUser user)
+            {
+            //not uset yet
+
+        }
+
+        private async Task UserLeft(SocketGuildUser user)
+            {
+            //not uset yet
+        }
+
+        private async Task UserUnbanned(SocketUser user, SocketGuild guild)
+            {
+                //not uset yet
+        }
+
+        private async Task UserUpdated(SocketUser user, SocketUser guild)
+            {
+                //not uset yet
+        }
+
+        private async Task UserVoiceStateUpdated(SocketUser user, SocketVoiceState voiceStateBefore, SocketVoiceState voiceStateAfter)
+            {
+                //not uset yet
+        }
+    }
     }

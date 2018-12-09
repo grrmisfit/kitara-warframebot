@@ -9,7 +9,7 @@ namespace Warframebot
         private const string configFolder = "Resources";
         private const string configFile = "config.json";
 
-      public static BotConfig bot;
+      public static BotConfig Bot;
         static Config()
             {
             if (!Directory.Exists(configFolder))
@@ -19,14 +19,14 @@ namespace Warframebot
             
             {
 
-                bot = new BotConfig();
-                string json = JsonConvert.SerializeObject(bot, Formatting.Indented);
+                Bot = new BotConfig();
+                string json = JsonConvert.SerializeObject(Bot, Formatting.Indented);
                 File.WriteAllText(configFolder + "/" + configFile, json);
             }
             else
             {
                 string json = File.ReadAllText(configFolder + "/" + configFile);
-                bot = JsonConvert.DeserializeObject<BotConfig>(json);
+                Bot = JsonConvert.DeserializeObject<BotConfig>(json);
                
             }
             }

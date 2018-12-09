@@ -38,7 +38,7 @@ namespace Warframebot.Discord
             {
                 _client.Log += Log;
                 
-                await _client.LoginAsync(TokenType.Bot, Config.bot.token);
+                await _client.LoginAsync(TokenType.Bot, Config.Bot.token);
                // _services = new ServiceCollection()
                     //.AddSingleton(_client)
                    // .AddSingleton(new InteractiveService(_client))
