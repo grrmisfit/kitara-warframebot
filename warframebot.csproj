@@ -277,7 +277,6 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Market\Ducats.cs" />
     <Compile Include="Modules\Market\WFOrders.cs" />
-    <Compile Include="Modules\Twitch.cs" />
     <Compile Include="Modules\Warframe\MarketCommands.cs" />
     <Compile Include="Modules\Market\Items.cs" />
     <Compile Include="Modules\Warframe\MostlyHarmless.cs" />

@@ -42,15 +42,15 @@ namespace Warframebot.Modules.Warframe
         [Summary("This would remove a saved reward from saved list.\nExample: !remove reward endo")]
         public async Task DelReward([Remainder] string msg)
         {
-          /*  bool addCheck = false;
-            var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
-            for (int i = 0; i < theAccount.WantedRewards.; i++)
+            bool addCheck = false;
+            var theAccount = DbStorage.GetGuildInfo(Context.Guild.Id);
+            for (int i = 0; i < theAccount.Rewards.WantedRewards.Count; i++)
             {
-                if (theAccount.WantedRewards[i].ToLower().Contains(msg.ToLower()))
+                if (theAccount.Rewards.WantedRewards[i].ToLower().Contains(msg.ToLower()))
                 {
 
-                    theAccount.WantedRewards.Remove(msg);
-                    UserAccounts.SaveAccounts();
+                    theAccount.Rewards.WantedRewards.Remove(msg);
+                    DbStorage.UpdateDb(Context.Guild.Id,theAccount);
                     addCheck = true;
                     break;
                 }
@@ -62,7 +62,7 @@ namespace Warframebot.Modules.Warframe
                 return;
             }
 
-            await Context.Channel.SendMessageAsync($"{msg} removed from list!"); */
+            await Context.Channel.SendMessageAsync($"{msg} removed from list!"); 
         }
 
         [Command("remove fissure"), Alias("rf")]
@@ -70,15 +70,15 @@ namespace Warframebot.Modules.Warframe
         [Summary("This would remove defense from a list of wanted fissures.\nExample: !remove fissure defense. ")]
         public async Task DelFissure([Remainder] string msg)
         {
-          /*  bool addCheck = false;
-            var theAccount = UserAccounts.GetAccount(Context.Guild.Id);
-            for (int i = 0; i < theAccount.WantedFissures.Count; i++)
+            bool addCheck = false;
+            var theAccount = DbStorage.GetGuildInfo(Context.Guild.Id);
+            for (int i = 0; i < theAccount.Fissures.WantedFissures.Count; i++)
             {
-                if (theAccount.WantedFissures[i].ToLower().Contains(msg.ToLower()))
+                if (theAccount.Fissures.WantedFissures[i].ToLower().Contains(msg.ToLower()))
                 {
 
-                    theAccount.WantedFissures.Remove(msg);
-                    UserAccounts.SaveAccounts();
+                    theAccount.Fissures.WantedFissures.Remove(msg);
+                    DbStorage.UpdateDb(Context.Guild.Id,theAccount);
                     addCheck = true;
                     break;
                 }
@@ -90,7 +90,7 @@ namespace Warframebot.Modules.Warframe
                 return;
             }
 
-            await Context.Channel.SendMessageAsync($"{msg} removed from list!"); */
+            await Context.Channel.SendMessageAsync($"{msg} removed from list!"); 
         }
 
         [Command("add fissure"), Alias("af")]

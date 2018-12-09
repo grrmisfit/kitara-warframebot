@@ -137,10 +137,10 @@ namespace Warframebot.Data
 
         public static IEnumerable<UserAccount.AlarmUsers> GetAlarmDb()
         {
-            using (var db = new LiteDatabase(@"Data\alarms.db"))
+            using (var db = new LiteDatabase(@"Data\players.db"))
             {
 
-                var results = db.GetCollection<UserAccount.AlarmUsers>("alarmusers");
+                var results = db.GetCollection<UserAccount.AlarmUsers>("players");
                 
                 var servers = results.FindAll();
 

@@ -38,18 +38,18 @@ namespace Warframebot.Core
             mystart:
             try
             {
-                await CheckNews();
-                // await CheckGuildAlerts();
-                //await Task.Delay(4000);
-                // await CheckGuildFissures();
-                // await Task.Delay(4000);
-                // await CheckCetusTime();
-                // await Task.Delay(4000);
-                // await CheckAlarms();
-                //  await Task.Delay(4000);
-                // await CheckInvasionRewards();
-                //   await Task.Delay(4000);
-                // await AlertsNotify();
+                 await CheckNews();
+                 await CheckGuildAlerts();
+                 await Task.Delay(2000);
+                 await CheckGuildFissures();
+                 await Task.Delay(2000);
+                 await CheckCetusTime();
+                 await Task.Delay(4000);
+                 await CheckAlarms();
+                 await Task.Delay(4000);
+                 await CheckInvasionRewards();
+                 await Task.Delay(4000);
+                 await AlertsNotify();
             }
             catch (Exception exception)
             {

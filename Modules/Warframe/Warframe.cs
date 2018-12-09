@@ -690,7 +690,7 @@ namespace Warframebot.Modules.Warframe
         public string Node { get; set; }
     }
 
-    public enum Faction { FcCorpus, FcGrineer, FcInfestation };
+    public enum Faction { FcCorpus, FcGrineer, FcInfestation, FcOrokin };
 
     public enum Category { PvpChallengeTypeCategoryDaily, PvpChallengeTypeCategoryWeekly, PvpChallengeTypeCategoryWeeklyRoot };
 
@@ -748,6 +748,8 @@ namespace Warframebot.Modules.Warframe
                     return Faction.FcGrineer;
                 case "FC_INFESTATION":
                     return Faction.FcInfestation;
+                case "FC_OROKIN":
+                    return Faction.FcOrokin;
             }
             throw new Exception("Cannot unmarshal type Faction");
         }
@@ -762,6 +764,7 @@ namespace Warframebot.Modules.Warframe
             var value = (Faction)untypedValue;
             switch (value)
             {
+                
                 case Faction.FcCorpus:
                     serializer.Serialize(writer, "FC_CORPUS");
                     return;
@@ -770,6 +773,9 @@ namespace Warframebot.Modules.Warframe
                     return;
                 case Faction.FcInfestation:
                     serializer.Serialize(writer, "FC_INFESTATION");
+                    return;
+                case Faction.FcOrokin:
+                serializer.Serialize(writer, "FC_OROKIN");
                     return;
             }
             throw new Exception("Cannot marshal type Faction");
