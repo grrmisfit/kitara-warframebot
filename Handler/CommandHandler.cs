@@ -32,8 +32,7 @@ namespace Warframebot.Handler
 
         public async Task HandleCommandAsync(SocketMessage rawMessage)
         {
-            var msg = rawMessage as SocketUserMessage;
-            if (msg == null) return;
+            if (!(rawMessage is SocketUserMessage msg)) return;
             var context = new SocketCommandContext(_client, msg);
             int argPos = 0;
 
@@ -45,7 +44,7 @@ namespace Warframebot.Handler
                 msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 var result = await _command.ExecuteAsync(context, argPos, _services);
-                //if(!result.IsSuccess && result.Error != CommandError.UnknownCommand)
+                
                 if (result.Error != null && result.Error != CommandError.UnknownCommand)
                 {
                     Console.WriteLine(result.ErrorReason);

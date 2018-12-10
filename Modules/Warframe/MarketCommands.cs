@@ -62,7 +62,10 @@ namespace Warframebot.Modules.Warframe
             string tmpitem = "";
             var ducatsJson = File.ReadAllText("SystemLang/Ducats.json");
             var json = GetMarketItems();
-            if (string.IsNullOrEmpty(json)) return;
+            if (string.IsNullOrEmpty(json))
+            {
+                return;
+            }
             var ducats = Ducats.FromJson(ducatsJson);
             var itemDucats = ducats.Payload.PreviousHour;
             var market = Items.FromJson(json);
@@ -148,7 +151,10 @@ namespace Warframebot.Modules.Warframe
                 .Build();
             
             var response = await StartInteractiveMessage(interactiveMessage);
-            if (response == null) return;
+            if (response == null)
+            {
+                return;
+            }
             for (int i = 0; i < theitem.Count; i++)
             {
                 if (theitem[i].Contains(response.ToString()))
@@ -450,7 +456,10 @@ namespace Warframebot.Modules.Warframe
                         var replstr = mystring.Replace("[", "Game Name: **");
                         replstr = replstr.Replace(",", "**\nCost: **");
                         replstr = replstr.Replace("]", "** Platinum");
-                        if (i == 5) break;
+                        if (i == 5)
+                        {
+                            break;
+                        }
                         embed2.AddField($"Order {i + 1}", $"{replstr} ");
                     }
 
@@ -481,7 +490,10 @@ namespace Warframebot.Modules.Warframe
                     theurl = "https://api.warframe.market/v1/items/" + item.UrlName + "/orders";
                     try
                     {
-                        if (string.IsNullOrEmpty(theurl)) return;
+                        if (string.IsNullOrEmpty(theurl))
+                        {
+                            return;
+                        }
                         using (WebClient client = new WebClient())
                             apiresponse = client.DownloadString(theurl);
 

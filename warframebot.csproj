@@ -289,9 +289,7 @@
     <Compile Include="Unity.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Core\DataStorage.cs" />
     <Compile Include="Core\RepeatingTimer.cs" />
-    <Compile Include="DataStorage.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Modules\Misc.cs" />
     <Compile Include="Modules\Warframe\Sorties.cs" />

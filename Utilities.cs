@@ -23,7 +23,10 @@ namespace Warframebot
 
         public static string Left(this string value, int maxLength)
         {
-            if (string.IsNullOrEmpty(value)) return value;
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
             maxLength = Math.Abs(maxLength);
 
             return (value.Length <= maxLength
@@ -35,7 +38,7 @@ namespace Warframebot
     class Utilities
     {
 
-       // private static Dictionary<string, string> missions;
+       
         private static Dictionary<string, string> wfData;
 
 
@@ -50,34 +53,37 @@ namespace Warframebot
               
             }
             string wfDbInfo = File.ReadAllText("Systemlang/WfData.json");
-            //string sortieinfo = File.ReadAllText("Systemlang/WfData.json");
-
-
-
-            //var data2 = JsonConvert.DeserializeObject<dynamic>(wfDbInfo);
+            
             var sortiedata = JsonConvert.DeserializeObject<Dictionary<string, string>>(wfDbInfo);
-
-           // missions = data2.ToObject<Dictionary<string, string>>();
+            
             wfData = sortiedata;
 
         }
-
-
+        
         public static string GetMissions(string key)
         {
-            if (wfData.ContainsKey(key)) return wfData[key];
+            if (wfData.ContainsKey(key))
+            {
+                return wfData[key];
+            }
             return "";
         }
 
         public static string GetSortieBoss(string key)
         {
-            if (wfData.ContainsKey(key)) return wfData[key];
+            if (wfData.ContainsKey(key))
+            {
+                return wfData[key];
+            }
 
             return "";
         }
         public static string GetSortieType(string key)
         {
-            if (wfData.ContainsKey(key)) return wfData[key];
+            if (wfData.ContainsKey(key))
+            {
+                return wfData[key];
+            }
 
             return "";
         }
@@ -90,7 +96,10 @@ namespace Warframebot
         public static string ReplaceInfo(string key)
         {
 
-            if (wfData.ContainsKey(key)) return wfData[key];
+            if (wfData.ContainsKey(key))
+            {
+                return wfData[key];
+            }
             return "Data not found!";
         }
         public static string ReplaceRewardInfo(string key)
@@ -101,7 +110,10 @@ namespace Warframebot
             var reward = JsonConvert.DeserializeObject<Dictionary<string, string>>(therewards);
 
 
-            if (reward.ContainsKey(key)) rewards = reward[key];
+            if (reward.ContainsKey(key))
+            {
+                rewards = reward[key];
+            }
             return rewards;
 
         }
@@ -137,11 +149,14 @@ namespace Warframebot
 
         public static string AddFissures(ulong guildId, string msg)
         {
-            var guilddata = DbStorage.GetGuildInfo(guildId);//UserAccounts.GetAccount(guildId);
+            var guilddata = DbStorage.GetGuildInfo(guildId);
 
             var json = File.ReadAllText("SystemLang/WFdata.json");
             var thedata = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-            if(guilddata.Fissures == null) goto next;
+            if (guilddata.Fissures == null)
+            {
+                goto next;
+            }
             
            
             for (int i = 0; i < guilddata.Fissures.WantedFissures.Count; ++i)
@@ -156,17 +171,9 @@ namespace Warframebot
             {
                 if (msg.ToLower() == fissure.Value.ToLower())
                 {
-                   // var theaccount = DbStorage.GetGuildInfo(guildId);//UserAccounts.GetAccount(guildId);
-                                                                     //theaccount.WantedFissures.Add(msg);
-
-                    //var update = new UserAccount.GuildAccounts
-                    
-                        guilddata.Fissures.WantedFissures.Add(msg); 
-                         
                    
-                    
-
-
+                        guilddata.Fissures.WantedFissures.Add(msg); 
+                   
                     using (var db = new LiteDatabase(@"Data\guilds.db"))
                     {
 
@@ -179,9 +186,7 @@ namespace Warframebot
                         }
 
                         guilds.Update(guilddata);
-                        //theaccount.WantedFissures.Add(msg);
-                        // UserAccounts.SaveAccounts();
-                       // DbStorage.UpdateDb(guildId, guilddata);
+                       
                     }
 
                     break;
@@ -195,7 +200,10 @@ namespace Warframebot
         {
 
             var theAccount = DbStorage.GetGuildInfo(guildid);
-            if (theAccount.Rewards == null) goto next;
+            if (theAccount.Rewards == null)
+            {
+                goto next;
+            }
             
             for (int i = 0; i < theAccount.Rewards.WantedRewards.Count; i++)
             {
@@ -207,20 +215,7 @@ namespace Warframebot
                 }
             }
             next:
-            if (theAccount.Rewards != null)
-            {
-                theAccount.Rewards.WantedRewards.Add(msg);
-                var update = new UserAccount.GuildAccounts
-                {
-                    Rewards = new UserAccount.Rewards
-                    {
-                        WantedRewards = new List<string>
-                        {
-                            msg
-                        }
-                    }
-                };
-            }
+            theAccount.Rewards?.WantedRewards.Add(msg);
 
             DbStorage.UpdateDb(guildid, theAccount);
             return "added";
@@ -255,8 +250,7 @@ namespace Warframebot
             DateTimeOffset newexptime = DateTimeOffset.FromUnixTimeMilliseconds(newtime);
 
             var blah = newexptime.Subtract(oldtime);
-            // blah.ToString().Length;
-
+            
             var stringtime = blah.TotalMinutes.ToString();
             var strlen = stringtime.Length;
             var mystr = stringtime.Right(strlen - 1);
@@ -366,7 +360,10 @@ namespace Warframebot
         private static void WebClientDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
 
-            if (e.ProgressPercentage == 100) Global.DownloadDone = true;
+            if (e.ProgressPercentage == 100)
+            {
+                Global.DownloadDone = true;
+            }
             Console.WriteLine("Download status: {0}%.", e.ProgressPercentage);
         }
 
@@ -412,43 +409,40 @@ namespace Warframebot
 
         public static async Task CleanUpFissures()
         {
-           /* var json = GetWfSettings();
+            
             var warjson = GetWarframeInfo();
             var wardata = Warframe.FromJson(warjson);
             var thefissures = wardata.ActiveMissions;
            
             List<string> knownFis = new List<string>();
-            if (string.IsNullOrEmpty(json) || json == "error")
-            {
-                return;
-            }
+            
             List<string> fisList = new List<string>();
             foreach (var t in thefissures)
             {
                 knownFis.Add(t.Id.Oid);
             }
-            var accounts = GuildAccounts.FromJson(json);
+            var accounts = DbStorage.GetDb();
 
             foreach (var guild in accounts)
             {
 
-                foreach (var t in guild.KnownFissures)
+                foreach (var t in guild.Fissures.KnownFissures)
                 {
                     if (!knownFis.Contains(t))
                     {
                         fisList.Add(t);
                     }
                 }
-                var account = UserAccounts.GetAccount(guild.Guild);
+                var account = DbStorage.GetGuildInfo(guild.Guild);
 
                 foreach (var t in fisList)
                 {
-                    account.KnownFissures.Remove(t);
+                    account.Fissures.KnownFissures.Remove(t);
 
                 }
-                UserAccounts.SaveAccounts();
+                DbStorage.UpdateDb(guild.Guild,guild);
             }
-            await Task.Delay(1000);*/
+            await Task.Delay(1000);
         }
 
         public async Task UpdateDucats()

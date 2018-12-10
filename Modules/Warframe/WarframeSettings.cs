@@ -112,7 +112,7 @@ namespace Warframebot.Modules.Warframe
             else
             {
                 await Context.Channel.SendMessageAsync(
-                    $"**{wantedfissure}** is already in the list, or something went wrong! use **!list fissures** to check if its in the list");
+                    $"**{wantedfissure}** is already in the list, or something went wrong! use **!wanted fissures** to check if its in the list");
             }
 
         }
@@ -160,8 +160,7 @@ namespace Warframebot.Modules.Warframe
             if (Int32.TryParse(minutes, out delaytime))
             {
                 var wanteddelay = Int32.Parse(minutes);
-                //var theuser = DbStorage.UserAccounts.GetAlarmUser(user, wanteddelay);
-
+                
                 alarmUser.AlarmDelay = wanteddelay;
                 alarmUser.AlarmChannel = Context.Channel.Id;
                 DbStorage.UpdateAlarmuser(user,alarmUser);
@@ -197,7 +196,7 @@ namespace Warframebot.Modules.Warframe
             {
                 case "alert channel":
                     
-                        var thealertAccount = DbStorage.GetGuildInfo(Context.Guild.Id); //UserAccounts.GetAccount(Context.Guild.Id);
+                        var thealertAccount = DbStorage.GetGuildInfo(Context.Guild.Id);
                         thealertAccount.AlertsChannel = Context.Channel.Id;
                         DbStorage.UpdateDb(Context.Guild.Id,thealertAccount);
                         await Context.Channel.SendMessageAsync(

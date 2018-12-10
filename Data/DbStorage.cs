@@ -95,8 +95,7 @@ namespace Warframebot.Data
 
                 var user = db.GetCollection<UserAccount.AlarmUsers>("players");
 
-                var result = user.FindOne(x => x.DiscordId == playerId);
-                if (result == null) result = CreateUser(playerId);
+                var result = user.FindOne(x => x.DiscordId == playerId) ?? CreateUser(playerId);
                 return result;
             }
         }

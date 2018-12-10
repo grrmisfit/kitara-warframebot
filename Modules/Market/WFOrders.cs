@@ -124,7 +124,10 @@ namespace Warframebot.Modules.Market
 
         public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType == JsonToken.Null) return null;
+            if (reader.TokenType == JsonToken.Null)
+            {
+                return null;
+            }
             var value = serializer.Deserialize<string>(reader);
             switch (value)
             {
@@ -216,7 +219,6 @@ namespace Warframebot.Modules.Market
                     default:
                         return Region.En;
             }
-            throw new Exception("Cannot unmarshal type Region");
         }
 
         public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
@@ -248,7 +250,6 @@ namespace Warframebot.Modules.Market
                     serializer.Serialize(writer, "en");
                     return;
             }
-            throw new Exception("Cannot marshal type Region");
         }
 
         public static readonly RegionConverter Singleton = new RegionConverter();

@@ -45,19 +45,10 @@ namespace Warframebot
             
             client.Log += Log;
             thestart:
-            string thetoken;
-            string gameInfo;
-           // if (!System.Diagnostics.Debugger.IsAttached)
-           // {
-              //  thetoken = Config.bot.testtoken;
-               // gameInfo = "Warframe Bot Test Mode";
-           // }
-
-           // else
-           // {
-                thetoken = Config.Bot.testtoken;
-                gameInfo = "Warframe Info Bot";
-           // }
+            
+               var  thetoken = Config.Bot.testtoken;
+                var gameInfo = "Warframe Info Bot";
+           
                 if (string.IsNullOrEmpty(thetoken))
             {
                 Console.WriteLine($"No Token found, check config. Bot will close own its own or close the window!");
@@ -83,7 +74,7 @@ namespace Warframebot
                 goto thestart;
             }
 
-            var dataStore = Unity.Resolve<DataStore>();
+            //var dataStore = Unity.Resolve<DataStore>();
             await services.GetRequiredService<CommandHandler>().InitializeAsync();
             
             client.Ready += RepeatingTimer.StartTimer;
@@ -97,7 +88,7 @@ namespace Warframebot
         private IServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                //.AddSingleton<DiscordSocketClient>()
+                
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<InteractiveService>()

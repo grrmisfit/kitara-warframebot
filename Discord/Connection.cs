@@ -11,11 +11,11 @@ namespace Warframebot.Discord
 {
     public class Connection
     {
-       // private IServiceCollection _services;
+       
         private  IServiceProvider _services;
         private  DiscordSocketClient _client;
         private readonly DiscordLogger _logger;
-       // CommandHandler _handler;
+       
         
         public Connection(DiscordLogger logger, DiscordSocketClient client)
         {
@@ -26,7 +26,7 @@ namespace Warframebot.Discord
 
         internal async Task ConnectAsync(WarframeBotConfig config)
         {
-            //_provider = MyServices();
+            
             thestart:
             if (string.IsNullOrEmpty(config.Token))
             {
@@ -39,10 +39,7 @@ namespace Warframebot.Discord
                 _client.Log += Log;
                 
                 await _client.LoginAsync(TokenType.Bot, Config.Bot.token);
-               // _services = new ServiceCollection()
-                    //.AddSingleton(_client)
-                   // .AddSingleton(new InteractiveService(_client))
-                   // .BuildServiceProvider();
+               
 
                 await _client.StartAsync();
                 await Task.Delay(1000);
@@ -58,19 +55,15 @@ namespace Warframebot.Discord
                 goto thestart;
             }
             
-           // _client.Ready += RepeatingTimer.StartTimer;
+           
             
             Global.Client = _client;
-            //_handler = new CommandHandler();
+            
             await _client.SetGameAsync("Warframe Helper");
-           // await _handler.InitializeAsync(_client);
+           
             await Task.Delay(-1);
         }
-      //  private static IServiceProvider MyServices()
-      //  {
-       //     return new ServiceCollection()
-                
-       // }
+      
         private async Task Log(LogMessage msg)
         {
             Console.WriteLine(msg);

@@ -45,13 +45,16 @@ namespace Warframebot.Modules.Warframe
                 if (chan.Name.ToLower() == msg.ToLower())
                 {
                     IUserMessage m = await ReplyAsync("I will ping you in the proper channel Tenno.");
-                    await Task.Delay(1000);
-                    //if (Global.Client.GetChannel(chan.Id) is IMessageChannel chnl) await chnl.SendMessageAsync($"<@{Context.User.Id}>");
+                    await Task.Delay(1000).ConfigureAwait(false);
                     var channel = Global.Client.GetChannel(chan.Id) as SocketTextChannel;
-                    var d = await channel.SendMessageAsync($"<@{Context.User.Id}>");
-                    await Task.Delay(10000);
-                    await m.DeleteAsync();
-                    await d.DeleteAsync();
+                    if (channel != null)
+                    {
+                        var d = await channel.SendMessageAsync($"<@{Context.User.Id}>");
+                        await Task.Delay(10000).ConfigureAwait(false);
+                        await m.DeleteAsync();
+                        await d.DeleteAsync();
+                    }
+
                     return;
                 }
                
@@ -111,7 +114,10 @@ namespace Warframebot.Modules.Warframe
 
             if (msg == "off")
             {
-                if (user != null && user.Roles.Contains(role)) await user.RemoveRoleAsync(role);
+                if (user != null && user.Roles.Contains(role))
+                {
+                    await user.RemoveRoleAsync(role);
+                }
                 await Context.Channel.SendMessageAsync($"Your role of {role} has been removed");
             }
             else if (msg == "")

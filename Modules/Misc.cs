@@ -111,38 +111,6 @@ namespace Warframebot.Modules
 
         }
 
-       
-        /* [Command("delete last")]
-         [Alias("dl")]
-         public async Task DeleteMessage()
-         {
-             var amount = 100;
-             var userId = Global.Client.CurrentUser.Id;
-             IEnumerable<IMessage> messages =  await Context.Message.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
-             //var result = messages.Where(x => x.Author.Id == user.Id && x.CreatedAt >= DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14)));
-             List<string> msglist = new List<string>();
-             foreach (var themsg in messages)
-             {
-                 if (themsg.Author.Id == userId)
-                 {
-                    // msglist.Add(themsg);
-                 }
-             }
-         }
-
-         [Command("echo")]
-         public async Task Echo([Remainder] string message)
-         {
-             var embed = new EmbedBuilder();
-             embed.WithTitle("Message by " + Context.User.Username);
-             embed.WithDescription(message);
-             embed.WithColor(new Color(0, 255, 0));
-
-             await SendMessage(message);
-
-         }
- */
-
         [RequireUserPermission(GuildPermission.ManageGuild)]
         [Command("die")]
         [Remarks("Tells the bot to close and log off!")]
@@ -162,33 +130,7 @@ namespace Warframebot.Modules
            
         }
 
-
         /*
-               private bool IsUserOwner(SocketGuildUser user)
-               {
-                   string targetRoleName = "BotOwner";
-                   var result = from r in user.Guild.Roles
-                       where r.Name == targetRoleName
-                       select r.Id;
-                   ulong roleId = result.FirstOrDefault();
-
-                   if (roleId == 0) return false;
-                   var targetRole = user.Guild.GetRole(roleId);
-                   return user.Roles.Contains(targetRole);
-               }
-
-
-
-
-               [Command("react")]
-               public async Task HandleReactionMessage()
-               {
-                   RestUserMessage msg = await Context.Channel.SendMessageAsync("React to me!");
-                   Global.MessageIdToTrack = msg.Id;
-               }
-
-
-
                [RequireOwner]
                [Command("getfile")]
                [Remarks("builds a list of known mp3s in a set directory")]

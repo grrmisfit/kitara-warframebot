@@ -83,7 +83,10 @@
 
         public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType == JsonToken.Null) return null;
+            if (reader.TokenType == JsonToken.Null)
+            {
+                return null;
+            }
             var value = serializer.Deserialize<string>(reader);
             switch (value)
             {

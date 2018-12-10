@@ -98,8 +98,11 @@ namespace Warframebot.Modules.Warframe
         public async Task CheckNews()
         {
             var json = Utilities.GetWarframeInfo();
-            
-            if (string.IsNullOrEmpty(json)) return;
+
+            if (string.IsNullOrEmpty(json))
+            {
+                return;
+            }
             var warframe = Warframe.FromJson(json);
             var news = warframe.Events;
             var embed = new EmbedBuilder();
@@ -128,11 +131,14 @@ namespace Warframebot.Modules.Warframe
                         }
                     }
 
-                
-                
 
-                    
-                if (embed.Fields.Count > 6) break;
+
+
+
+                if (embed.Fields.Count > 6)
+                {
+                    break;
+                }
 
             }
             for (int i = newsList1.Count - 1; i >= 0; i--)
@@ -261,7 +267,10 @@ namespace Warframebot.Modules.Warframe
 
             for (int i = 0; i < alertstor.Length; i++)
             {
-                if (alertstor[i] == null) break;
+                if (alertstor[i] == null)
+                {
+                    break;
+                }
                 var alertcount = i + 1;
                 embed.AddField("**Alert " + alertcount + "**:", alertstor[i], true);
             }
@@ -302,13 +311,16 @@ namespace Warframebot.Modules.Warframe
                 string damsg = $"{Utilities.GetMissions(type)}\n{Utilities.ReplaceInfo(am.Node)}\n{Utilities.ReplaceInfo(am.Modifier)}";
 
                 fissurestor[dacount] = damsg;
-                if (fissurestor[dacount] == null) break;
+                if (fissurestor[dacount] == null)
+                {
+                    break;
+                }
                 var exptime = Utilities.ExpireFisTime(am.Expiry.Date.NumberLong);
                 embed.AddField($"**Fissure** **{fiscount}**", $"{damsg} \n Expires in: {exptime}" , true);
                 dacount = dacount + 1;
                 fiscount = fiscount + 1;
             }
-            //embed.WithThumbnailUrl("http://3rdshifters.org/voidtear.png");
+            
             embed.WithTitle("**Current Fissures**");
             embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
             embed.WithColor(new Color(188, 66, 244));
@@ -377,8 +389,11 @@ namespace Warframebot.Modules.Warframe
             ulong guildid = Context.Guild.Id;
             var embed = new EmbedBuilder();
             var theaccounts = DbStorage.GetGuildInfo(guildid);
-
-            if (theaccounts.Fissures.WantedFissures.Count == 0) return;
+            var curcnt = 1;
+            if (theaccounts.Fissures.WantedFissures.Count == 0)
+            {
+                return;
+            }
 
             for (int i = 0; i < theaccounts.Fissures.WantedFissures.Count; i++)
             {
@@ -452,7 +467,10 @@ namespace Warframebot.Modules.Warframe
             var embed = new EmbedBuilder();
             var theaccounts = DbStorage.GetGuildInfo(guildid);
 
-            if (theaccounts.Rewards.WantedRewards.Count == 0) return;
+            if (theaccounts.Rewards.WantedRewards.Count == 0)
+            {
+                return;
+            }
 
             for (int i = 0; i < theaccounts.Rewards.WantedRewards.Count; i++)
             {
@@ -468,7 +486,10 @@ namespace Warframebot.Modules.Warframe
         public async Task ListInvasions()
         {
             var apiresponse = Utilities.GetWarframeInfo();
-            if (string.IsNullOrEmpty(apiresponse)) return;
+            if (string.IsNullOrEmpty(apiresponse))
+            {
+                return;
+            }
             var invasions = Warframe.FromJson(apiresponse);
             var invasionRewards = invasions.Invasions;
             var dacount = 1;
@@ -514,8 +535,14 @@ namespace Warframebot.Modules.Warframe
         public async Task TimeTest()
         {
             string thetime = Utilities.GetCetusTime();
-            if (string.IsNullOrEmpty(thetime)) return;
-            if (!Int64.TryParse(thetime, out long ignoreme)) return;
+            if (string.IsNullOrEmpty(thetime))
+            {
+                return;
+            }
+            if (!Int64.TryParse(thetime, out long ignoreme))
+            {
+                return;
+            }
             if (Int64.Parse(thetime) > 50)
             {
                 long timeremain = Int64.Parse(thetime) - 50;
