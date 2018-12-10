@@ -389,15 +389,15 @@ namespace Warframebot.Modules.Warframe
             ulong guildid = Context.Guild.Id;
             var embed = new EmbedBuilder();
             var theaccounts = DbStorage.GetGuildInfo(guildid);
-            var curcnt = 1;
+           
             if (theaccounts.Fissures.WantedFissures.Count == 0)
             {
                 return;
             }
 
-            for (int i = 0; i < theaccounts.Fissures.WantedFissures.Count; i++)
+            for (int i = 1; i < theaccounts.Fissures.WantedFissures.Count; i++)
             {
-                embed.AddField($"Fissure {i + 1} : ", $"**{theaccounts.Fissures.WantedFissures[i]}**");
+                embed.AddField($"Fissure {i} : ", $"**{theaccounts.Fissures.WantedFissures[i]}**");
 
             }
             embed.WithColor(new Color(188, 66, 244));

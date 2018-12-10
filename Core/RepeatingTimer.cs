@@ -37,18 +37,18 @@ namespace Warframebot.Core
             mystart:
             try
             {
-                 await CheckNews();
-                 await CheckGuildAlerts();
-                 await Task.Delay(2000);
-                 await CheckGuildFissures();
-                 await Task.Delay(2000);
-                 await CheckCetusTime();
-                 await Task.Delay(4000);
-                 await CheckAlarms();
-                 await Task.Delay(4000);
-                 await CheckInvasionRewards();
-                 await Task.Delay(4000);
-                 await AlertsNotify();
+                 await CheckNews().ConfigureAwait(false);
+                 await CheckGuildAlerts().ConfigureAwait(false);
+                 await Task.Delay(2000).ConfigureAwait(false);
+                 await CheckGuildFissures().ConfigureAwait(false);
+                 await Task.Delay(2000).ConfigureAwait(false);
+                 await CheckCetusTime().ConfigureAwait(false);
+                 await Task.Delay(4000).ConfigureAwait(false);
+                 await CheckAlarms().ConfigureAwait(false);
+                 await Task.Delay(4000).ConfigureAwait(false);
+                 await CheckInvasionRewards().ConfigureAwait(false);
+                 await Task.Delay(4000).ConfigureAwait(false);
+                 await AlertsNotify().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -72,20 +72,29 @@ namespace Warframebot.Core
 
             foreach (var guild in wfSet)
             {
-                if (!guild.NotifyNews) continue;
+                if (!guild.NotifyNews)
+                {
+                    continue;
+                }
 
                 foreach (var n in news)
                 {
                     var account = DbStorage.GetGuildInfo(guild.Guild);
 
-                    if (guild.News.KnownNews.Contains(n.Id.Oid)) continue;
+                    if (guild.News.KnownNews.Contains(n.Id.Oid))
+                    {
+                        continue;
+                    }
                     var curtime = Utilities.TimeSince(n.Date.Date.NumberLong);
                     var time = Int64.Parse(curtime);
                     if (time <= 24)
                     {
                         for (int i = 0; i < n.Messages.Count; i++)
                         {
-                            if (guild.News.KnownNews.Contains(n.Id.Oid)) continue;
+                            if (guild.News.KnownNews.Contains(n.Id.Oid))
+                            {
+                                continue;
+                            }
                             if (n.Messages[i].LanguageCode == "en")
                             {
                                 var newsMsg = n.Messages[i].MessageMessage;
@@ -102,7 +111,10 @@ namespace Warframebot.Core
                         
                     }
 
-                    if (embed.Fields.Count == 0) continue;
+                    if (embed.Fields.Count == 0)
+                    {
+                        continue;
+                    }
                     embed.WithTitle("News Alerts");
                     embed.WithFooter("warframe alert ver 1.0", "http://3rdshifters.org/headerLogo.png");
                     embed.WithColor(new Color(188, 66, 244));
@@ -130,7 +142,10 @@ namespace Warframebot.Core
 
             foreach (var account in wfSettings)
             {
-                if (account.NotifyAlerts == false) continue;
+                if (account.NotifyAlerts == false)
+                {
+                    continue;
+                }
                 var newAlert = false;
 
                 foreach (var alert in checkAlerts)
@@ -167,7 +182,10 @@ namespace Warframebot.Core
                         var announcedtime = account.AlertTimeChecked;
                         var checktime = curtime.Subtract(announcedtime).TotalMinutes;
 
-                        if (checktime < account.AlertDelay) continue;
+                        if (checktime < account.AlertDelay)
+                        {
+                            continue;
+                        }
 
 
                         embed.WithTitle($"Tenno, a new alert has been posted!");
@@ -206,7 +224,10 @@ namespace Warframebot.Core
         {
 
             var json = Utilities.GetWarframeInfo();
-            if (string.IsNullOrEmpty(json)) return;
+            if (string.IsNullOrEmpty(json))
+            {
+                return;
+            }
             var warframe = Warframe.FromJson(json);
             var checkAlerts = warframe.Alerts;
 
@@ -224,14 +245,24 @@ namespace Warframebot.Core
 
                     {
                         var reward = account.Rewards.WantedRewards[i];
-                        if (reward == "") continue;
-                        if (alert.MissionInfo.MissionReward.Items == null) continue;
+                        if (reward == "")
+                        {
+                            continue;
+                        }
+
+                        if (alert.MissionInfo.MissionReward.Items == null)
+                        {
+                            continue;
+                        }
                         var curreward = Utilities.ReplaceRewardInfo(alert.MissionInfo.MissionReward.Items[0]).ToLower();
                         var curtime = DateTime.Now;
                         var announcedtime = account.AlertTimeChecked;
                         var checktime = curtime.Subtract(announcedtime).TotalMinutes;
 
-                        if (checktime < account.AlertDelay) continue;
+                        if (checktime < account.AlertDelay)
+                        {
+                            continue;
+                        }
                         if (curreward.Contains(reward))
                         {
 
@@ -292,7 +323,10 @@ namespace Warframebot.Core
             var guildAccounts = DbStorage.GetDb();
 
             var json = Utilities.GetWarframeInfo();
-            if (string.IsNullOrEmpty(json)) return;
+            if (string.IsNullOrEmpty(json))
+            {
+                return;
+            }
 
             var warframe = Warframe.FromJson(json);
 
@@ -305,7 +339,7 @@ namespace Warframebot.Core
             foreach (var guild in guildAccounts) // cycle thru each guild
             {
 
-                var knownFis = guild.Fissures.KnownFissures;
+                
                 var foundcount = 1; //variable to label each found fissure in numeric order
                 var embed = new EmbedBuilder();
                 var lastmissioniD = "";
@@ -344,7 +378,10 @@ namespace Warframebot.Core
                                 }
 
 
-                            if (t.Id.Oid == lastmissioniD) continue;
+                            if (t.Id.Oid == lastmissioniD)
+                            {
+                                continue;
+                            }
                             var exptime = Utilities.ExpireFisTime(t.Expiry.Date.NumberLong);
                             embed.WithDescription($"{Utilities.FissureLink(curFissure)}");
                             embed.AddField($"Found Fissure **{foundcount}**",
@@ -398,7 +435,10 @@ namespace Warframebot.Core
 
             foreach (var t in guildAccounts)
             {
-                if (t.AlertsChannel == 0) return;
+                if (t.AlertsChannel == 0)
+                {
+                    return;
+                }
                 if (!t.CheckAlerts == false)
                 {
                     ulong tempguild = t.Guild;
@@ -411,13 +451,19 @@ namespace Warframebot.Core
 
         private static async Task CheckGuildFissures()
         {
-            if (!File.Exists("SystemLang/WFsettings.json")) return;
+            if (!File.Exists("SystemLang/WFsettings.json"))
+            {
+                return;
+            }
 
             var guildAccounts = DbStorage.GetDb();
 
             foreach (var t in guildAccounts)
             {
-                if (t.AlertsChannel == 0) return;
+                if (t.AlertsChannel == 0)
+                {
+                    return;
+                }
                 if ((!t.Fissures.CheckFissures == false))
                 {
                     await CheckFissures();
@@ -428,9 +474,15 @@ namespace Warframebot.Core
         private static async Task CheckAlarms()
         {
             var thetime = Utilities.GetCetusTime();
-            if (string.IsNullOrEmpty(thetime)) return;
+            if (string.IsNullOrEmpty(thetime))
+            {
+                return;
+            }
             long ignoreMe;
-            if (!Int64.TryParse(thetime, out ignoreMe)) return;
+            if (!Int64.TryParse(thetime, out ignoreMe))
+            {
+                return;
+            }
             var timecheck = Int64.Parse(thetime);
 
             timecheck = timecheck - 50;
@@ -444,8 +496,13 @@ namespace Warframebot.Core
                     var curtime = DateTime.Now;
                     var announcedtime = t.TimeAlerted;
                     var checktime = curtime.Subtract(announcedtime).TotalMinutes;
-                    if (timecheck < 0) return;
-                    if (checktime < 55) continue; // check and see how long its been since last alerted ( in minutes )
+                    if (timecheck < 0)
+                    {
+                        return;
+                    }
+                    if (checktime < 55) {
+                        continue; // check and see how long its been since last alerted ( in minutes )
+}
                     if (timecheck <= t.AlarmDelay)
                     {
                         var user = t.DiscordId;
@@ -470,7 +527,10 @@ namespace Warframebot.Core
             bool fifteentil = false;
             bool fivetil = false;
             var thetime = Utilities.GetCetusTime();
-            if (string.IsNullOrEmpty(thetime)) return;
+            if (string.IsNullOrEmpty(thetime))
+            {
+                 return;
+            }
             long ignoreMe;
             if (!Int64.TryParse(thetime, out ignoreMe)) return;
             var timecheck = Int64.Parse(thetime);
@@ -508,7 +568,10 @@ namespace Warframebot.Core
             {
                 foreach (var accounts in guildAccounts)
                 {
-                    if (!accounts.CetusTime) continue;
+                    if (!accounts.CetusTime)
+                    {
+                        continue;
+                    }
                     if (!accounts.Cetus15TimeAlerted)
                     {
                         var timeleft = timecheck - 50;
@@ -525,7 +588,10 @@ namespace Warframebot.Core
             {
                 foreach (var accounts in guildAccounts)
                 {
-                    if (!accounts.CetusTime) continue;
+                    if (!accounts.CetusTime)
+                    {
+                        continue;
+                    }
                     if (!accounts.Cetus5TimeAlerted)
                     {
                         var timeleft = timecheck - 50;
@@ -568,7 +634,10 @@ namespace Warframebot.Core
         {
             bool foundrewards = false;
             var apiresponse = Utilities.GetWarframeInfo();
-            if (string.IsNullOrEmpty(apiresponse)) return;
+            if (string.IsNullOrEmpty(apiresponse))
+            {
+                return;
+            }
             var invasions = Warframe.FromJson(apiresponse);
             var invasionRewards = invasions.Invasions;
 

@@ -89,7 +89,10 @@ namespace Warframebot
         }
         public static string GetSortieSeed(string key)
         {
-            if (wfData.ContainsKey(key)) return wfData[key];
+            if (wfData.ContainsKey(key))
+            {
+                return wfData[key];
+            }
 
             return "";
         }

@@ -122,7 +122,10 @@ namespace Warframebot.Modules.Warframe
             }
             else if (msg == "")
             {
-                if (user != null) await user.AddRoleAsync(role);
+                if (user != null)
+                {
+                    await user.AddRoleAsync(role);
+                }
                 await Context.Channel.SendMessageAsync($"You have been given role of {role}");
             }
         }

@@ -12,8 +12,10 @@ namespace Warframebot
       public static BotConfig Bot;
         static Config()
             {
-            if (!Directory.Exists(configFolder))
-                Directory.CreateDirectory(configFolder);
+                if (!Directory.Exists(configFolder))
+                {
+                    Directory.CreateDirectory(configFolder);
+                }
 
             if (!File.Exists(configFolder + "/" + configFile))
             

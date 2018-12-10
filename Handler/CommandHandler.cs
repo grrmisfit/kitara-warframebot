@@ -32,7 +32,10 @@ namespace Warframebot.Handler
 
         public async Task HandleCommandAsync(SocketMessage rawMessage)
         {
-            if (!(rawMessage is SocketUserMessage msg)) return;
+            if (!(rawMessage is SocketUserMessage msg))
+            {
+                return;
+            }
             var context = new SocketCommandContext(_client, msg);
             int argPos = 0;
 

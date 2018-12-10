@@ -74,7 +74,7 @@ namespace Warframebot
                 goto thestart;
             }
 
-            //var dataStore = Unity.Resolve<DataStore>();
+            
             await services.GetRequiredService<CommandHandler>().InitializeAsync();
             
             client.Ready += RepeatingTimer.StartTimer;

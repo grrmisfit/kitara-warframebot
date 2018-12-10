@@ -77,7 +77,9 @@ namespace Warframebot.Discord
             var folder = Constants.LogFolder;
 
             if (!Directory.Exists(folder))
+            {
                 Directory.CreateDirectory(folder);
+            }
 
             StreamWriter sw = File.AppendText($"{folder}/{fileName}");
             sw.WriteLine($"{DateTime.Today.Day}-{DateTime.Today.Month}-{DateTime.Today.Hour}-{DateTime.Today.Minute}" + message);

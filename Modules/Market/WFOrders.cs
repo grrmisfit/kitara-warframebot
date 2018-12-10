@@ -155,8 +155,10 @@ namespace Warframebot.Modules.Market
                 case OrderType.Sell:
                     serializer.Serialize(writer, "sell");
                     return;
+                default:
+                    return;
             }
-            throw new Exception("Cannot marshal type OrderType");
+            
         }
 
         public static readonly OrderTypeConverter Singleton = new OrderTypeConverter();

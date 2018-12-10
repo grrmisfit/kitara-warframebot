@@ -35,7 +35,10 @@ namespace Warframebot.Modules.Warframe
             string tmpitem = "";
             var ducatsJson = File.ReadAllText("SystemLang/Ducats.json");
             var json = GetMarketItems();
-            if(string.IsNullOrEmpty(json)) return;
+            if (string.IsNullOrEmpty(json))
+            {
+                return;
+            }
             
             var ducats = Ducats.FromJson(ducatsJson);
             var itemDucats = ducats.Payload.PreviousHour;
@@ -540,7 +543,10 @@ namespace Warframebot.Modules.Warframe
                 var replstr = mystring.Replace("[", "Username: **");
                 replstr = replstr.Replace(",", "**\nCost: **");
                 replstr = replstr.Replace("]", "** Platinum");
-                if (i == 5) break;
+                if (i == 5)
+                {
+                    break;
+                }
                 embed.AddField($"Order {i + 1}", $"{replstr} ");
             }
             embed.WithColor(new Color(188, 66, 244));
