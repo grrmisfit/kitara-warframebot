@@ -33,7 +33,7 @@ namespace Warframebot.Modules.Market
         public List<Previous> PreviousDay { get; set; }
     }
 
-    public partial class Previous
+    public class Previous
     {
         [JsonProperty("datetime")]
         public DateTimeOffset Datetime { get; set; }

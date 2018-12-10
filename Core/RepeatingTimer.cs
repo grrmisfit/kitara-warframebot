@@ -8,6 +8,7 @@ using Discord;
 using Warframebot.Modules.Warframe;
 using Warframebot.Core.UserAccounts;
 using Warframebot.Data;
+using Warframebot.Discord;
 using Warframebot.Modules;
 
 
@@ -52,7 +53,7 @@ namespace Warframebot.Core
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+               Connection.LogFile(exception.ToString());
                 goto mystart;
             }
 

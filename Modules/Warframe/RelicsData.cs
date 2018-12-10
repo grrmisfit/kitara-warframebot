@@ -31,7 +31,7 @@
         public string Id { get; set; }
     }
 
-    public partial class Reward
+    public class Reward
     {
         [JsonProperty("_id")]
         public string Id { get; set; }

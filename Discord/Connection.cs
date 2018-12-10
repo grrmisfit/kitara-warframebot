@@ -71,7 +71,7 @@ namespace Warframebot.Discord
            await Task.Delay(1);
         }
 
-        private async void LogFile(string message)
+        public static async void LogFile(string message)
         {
             var fileName = $"{DateTime.Today.Day}-{DateTime.Today.Month}-{DateTime.Today.Year}.log";
             var folder = Constants.LogFolder;
